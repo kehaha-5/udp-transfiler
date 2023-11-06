@@ -1,5 +1,5 @@
-#ifndef MEN_POOL_H
-#define MEN_POOL_H
+#ifndef MEM_POOL_H
+#define MEM_POOL_H
 #include <atomic>
 #include <cstdlib>
 #include <cstring>
@@ -8,7 +8,7 @@
 #include <mutex>
 #include <vector>
 
-typedef std::vector<char> Men;
+typedef std::vector<char> Mem;
 struct Node;
 struct NodeList;
 typedef Node* NodePtr;
@@ -16,8 +16,8 @@ typedef Node* NodePtr;
 struct Node {
     NodePtr head;
     NodePtr next;
-    Men men;
-    char* get() { return men.data(); }
+    Mem mem;
+    char* get() { return mem.data(); }
 };
 
 struct NodeList {
@@ -50,20 +50,20 @@ struct NodeList {
     }
 };
 
-class MenPool {
+class MemPool {
    public:
-    MenPool(int _size, int _initNum, int _maxNum);
-    ~MenPool() {
+    MemPool(int _size, int _initNum, int _maxNum);
+    ~MemPool() {
         NodePtr curr = _nodeList.pop();
         while (curr != nullptr) {
-            curr->men.clear();
-            curr->men.shrink_to_fit();
+            curr->mem.clear();
+            curr->mem.shrink_to_fit();
             delete curr;
             curr = nullptr;
             curr = _nodeList.pop();
         }
     };
-    NodePtr getMen();
+    NodePtr getMem();
     int getTotalSize() { return _totalSize; };
     void clear(NodePtr ptr);
 
