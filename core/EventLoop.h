@@ -5,25 +5,21 @@
 #include <functional>
 #include <memory>
 
-#include "udp/UpdServer.h"
-
 #define MAXEVENTS 100
 
-typedef void ioCallBack(void* args);
+typedef std::function<void()> ioCallBack;
 
 struct ioEvent {
     EPOLL_EVENTS mask;
-    ioCallBack* rb;
-    ioCallBack* wb;
-    void* rbArgs;
-    void* wbArgs;
+    ioCallBack rb;
+    ioCallBack wb;
 };
 
 class EventLoop {
    public:
     EventLoop();
     ~EventLoop() = default;
-    void addIo(int fd, ioCallBack cd, EPOLL_EVENTS mask, void* args);
+    void addIo(int fd, ioCallBack cd, EPOLL_EVENTS mask);
     void delIo(int fd);
     void loop();
     void runAfer();
@@ -31,8 +27,8 @@ class EventLoop {
     void runAt();
 
    private:
-    int epollFd;
-    ioCallBack rb;
-    ioCallBack wb;
+    int _epollFd;
+    ioCallBack _rb;
+    ioCallBack _wb;
 };
 #endif

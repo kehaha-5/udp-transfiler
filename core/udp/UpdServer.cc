@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <strings.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -19,12 +20,8 @@
 #include "EventLoop.h"
 #include "Logging.h"
 #include "UpdServer.h"
-
-void test() { std::cout << "this is test" << std::endl; }
-void readCallBack(void* args) {
-    UdpServer* server = (UdpServer*)args;
-    server->handleRead();
-}
+#include "pool/MemPool.h"
+#include "pool/ThreadPool.h"
 
 UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port) : _loop(loop) {
     // create socket
@@ -43,14 +40,26 @@ UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port) : _loop(l
 
     info_log("this server is running in %s:%i", host, port);
 
-    loop->addIo(_socketFd, readCallBack, EPOLLIN, this);
+    _mempool = std::make_unique<pool::MemPool>(MAX_MSG_LENGTH, 10, 20);
+    info_log("mempool is created size:%d initNum:%d maxNum:%d", MAX_MSG_LENGTH, 10, 20);
+
+    _threadpool = std::make_unique<pool::ThreadPool>(5);
+    info_log("threadpool is created threadNum:%d", 5);
+
+    loop->addIo(_socketFd, std::bind(&UdpServer::handleRead, this), EPOLLIN);
 }
 
 void UdpServer::handleRead() {
-    char buff[10];
+    _threadpool->sendMsg(std::bind(&UdpServer::dispatcherMsg, this));
+    debug_log("send a msg to queue")
+}
+
+void UdpServer::dispatcherMsg() {
+    pool::MemPtr memPtr = _mempool->getMem();
     struct sockaddr_in clientAddr;
     int clientLen = sizeof(clientAddr);
-    int len =
-        recvfrom(_socketFd, &buff, sizeof(buff), 0, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
-    info_log("udp recvfrom data %s", buff);
+    int len = recvfrom(_socketFd, memPtr->get(), MAX_MSG_LENGTH, 0, (struct sockaddr*)&clientAddr,
+                       (socklen_t*)&clientLen);
+    info_log("udp recvfrom data %s", memPtr->get());
+    _mempool->clear(memPtr);
 }

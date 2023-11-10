@@ -8,24 +8,25 @@
 #include <mutex>
 #include <vector>
 
+namespace pool {
 typedef std::vector<char> Mem;
 struct Node;
 struct NodeList;
-typedef Node* NodePtr;
+typedef Node* MemPtr;
 
 struct Node {
-    NodePtr head;
-    NodePtr next;
+    MemPtr head;
+    MemPtr next;
     Mem mem;
     char* get() { return mem.data(); }
 };
 
 struct NodeList {
-    NodePtr tailPtr;
-    NodePtr headPtr;
+    MemPtr tailPtr;
+    MemPtr headPtr;
     int num;
-    NodePtr pop() {
-        NodePtr ptr = tailPtr;
+    MemPtr pop() {
+        MemPtr ptr = tailPtr;
         if (tailPtr == nullptr) {
             return nullptr;
         }
@@ -36,7 +37,7 @@ struct NodeList {
         }
         return ptr;
     }
-    void push(NodePtr ptr) {
+    void push(MemPtr ptr) {
         if (headPtr == nullptr) {
             headPtr = ptr;
             tailPtr = ptr;
@@ -54,7 +55,7 @@ class MemPool {
    public:
     MemPool(int _size, int _initNum, int _maxNum);
     ~MemPool() {
-        NodePtr curr = _nodeList.pop();
+        MemPtr curr = _nodeList.pop();
         while (curr != nullptr) {
             curr->mem.clear();
             curr->mem.shrink_to_fit();
@@ -63,9 +64,9 @@ class MemPool {
             curr = _nodeList.pop();
         }
     };
-    NodePtr getMem();
+    MemPtr getMem();
     int getTotalSize() { return _totalSize; };
-    void clear(NodePtr ptr);
+    void clear(MemPtr ptr);
 
    private:
     void initNodeList();
@@ -79,4 +80,5 @@ class MemPool {
     std::mutex _nodeListLock;
 };
 
+}  // namespace pool
 #endif

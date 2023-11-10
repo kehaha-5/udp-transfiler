@@ -6,6 +6,8 @@
 
 #include "MemPool.h"
 
+using namespace pool;
+
 MemPool::MemPool(int size, int initNum, int maxNum) : _size(size), _initNum(initNum), _maxNum(maxNum) {
     _nodeList = {nullptr, nullptr, 0};
     initNodeList();
@@ -21,14 +23,14 @@ void MemPool::initNode() {
     _totalSize += _size;
     Mem mem = Mem{0};
     mem.resize(_size);
-    NodePtr nodePtr = new Node();
+    MemPtr nodePtr = new Node();
     nodePtr->mem = mem;
     _nodeList.push(nodePtr);
 }
 
-NodePtr MemPool::getMem() {
+MemPtr MemPool::getMem() {
     std::lock_guard<std::mutex> lock(_nodeListLock);
-    NodePtr curr = _nodeList.pop();
+    MemPtr curr = _nodeList.pop();
     if (curr == nullptr) {
         initNode();
         return _nodeList.pop();
@@ -38,7 +40,8 @@ NodePtr MemPool::getMem() {
 
 void MemPool::adjustNode() {
     while (_nodeList.num > _maxNum) {
-        NodePtr curr = _nodeList.pop();
+        MemPtr curr = _nodeList.pop();
+        if (curr == nullptr) return;
         curr->mem.clear();
         curr->mem.shrink_to_fit();
         delete curr;
@@ -47,7 +50,7 @@ void MemPool::adjustNode() {
     }
 }
 
-void MemPool::clear(NodePtr ptr) {
+void MemPool::clear(MemPtr ptr) {
     std::lock_guard<std::mutex> lock(_nodeListLock);
     std::memset(ptr->get(), 0, _size);
     _nodeList.push(ptr);
