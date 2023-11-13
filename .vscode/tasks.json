@@ -43,7 +43,10 @@
         {
             "type": "shell",
             "label": "valgrindTest",
-            "command": "valgrind --leak-check=full --show-leak-kinds=all   --trace-children=yes ./build/TRANFILER",
+            "options": {
+                "cwd": "${workspaceFolder}/build/"
+            },
+            "command": "valgrind --leak-check=full --show-leak-kinds=all   --trace-children=yes --log-file=./val_log.log ./TESTUPDSERVER",
             "dependsOn": [
                 "CMake: build"
             ],

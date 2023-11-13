@@ -43,8 +43,8 @@ UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port) : _loop(l
     _mempool = std::make_unique<pool::MemPool>(MAX_MSG_LENGTH, 10, 20);
     info_log("mempool is created size:%d initNum:%d maxNum:%d", MAX_MSG_LENGTH, 10, 20);
 
-    _threadpool = std::make_unique<pool::ThreadPool>(5);
-    info_log("threadpool is created threadNum:%d", 5);
+    _threadpool = std::make_unique<pool::ThreadPool>(1);
+    info_log("threadpool is created threadNum:%d", 1);
 
     loop->addIo(_socketFd, std::bind(&UdpServer::handleRead, this), EPOLLIN);
 }

@@ -17,7 +17,7 @@
 namespace pool {
 struct QueueItem;
 typedef std::vector<std::thread> Threads;
-typedef std::map<int, QueueItem> Queues;
+typedef std::unordered_map<int, QueueItem> Queues;
 typedef std::unique_ptr<EventLoop> EventLoopPtr;
 typedef std::function<void()> queueMsgCb;
 typedef std::queue<queueMsgCb> Queue;
