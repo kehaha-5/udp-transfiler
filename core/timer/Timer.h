@@ -1,6 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include <bits/types/struct_timespec.h>
 #include <unistd.h>
 
 #include <atomic>
@@ -41,6 +42,7 @@ class Timer {
     int runAt(TimerCb cb);
     void cancelTimerEven(int index) { _allTimerEven[index].reset(); };
     TimerOutCb getOutTimer();
+    void setTimer(__time_t second, long int ms);
 
    private:
     void resetTimer();

@@ -22,7 +22,8 @@ inline void LOG(logType::type type, const char* fileName, const char* func, int 
         default:
             logType = "DEBUG";
     }
-    std::sprintf(msg, "%s %s %s %s:%d | ", logType.c_str(), Log::getCurrTime().c_str(), fileName, func, line);
+    auto time = Log::getCurrTime();
+    std::snprintf(msg, sizeof(msg), "%s %s %s %s:%d | ", logType.c_str(), time.c_str(), fileName, func, line);
     std::va_list args;
     va_start(args, format);
     std::vsprintf(msg + strlen(msg), format, args);
@@ -36,7 +37,8 @@ inline void IFEXIT(bool condition, const char* fileName, const char* func, int l
         char msg[4096] = {0};
         std::va_list args;
         va_start(args, format);
-        std::sprintf(msg, "ERROR %s %s %s:%d | ", Log::getCurrTime().c_str(), fileName, func, line);
+        auto time = Log::getCurrTime();
+        std::sprintf(msg, "ERROR %s %s %s:%d | ", time.c_str(), fileName, func, line);
         std::vsprintf(msg + strlen(msg), format, args);
         if (errno) {
             std::sprintf(msg + strlen(msg), "| errno %s", strerror(errno));

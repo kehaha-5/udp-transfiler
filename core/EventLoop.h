@@ -22,7 +22,7 @@ class EventLoop {
    public:
     EventLoop();
     ~EventLoop() { close(_epollFd); };
-    void addIo(int fd, ioCallBack cd, EPOLL_EVENTS mask);
+    void addIo(int fd, ioCallBack cd, unsigned int mask);
     void delIo(int fd);
     void loop();
     int runAfter(int timerout, timer::TimerCb cb) { return _timer.runAfter(timerout, cb); };
@@ -30,11 +30,14 @@ class EventLoop {
     int runAt(timer::TimerCb cb) { return _timer.runAt(cb); };
     void cancelTimerEven(int Timerindex) { _timer.cancelTimerEven(Timerindex); };
     void handleTimer();
+    void setTimer(__time_t second, long int ms) { _timer.setTimer(second, ms); }
+    void setRunning(bool running) { _isRunning = running; };
 
    private:
     int _epollFd;
     timer::Timer _timer;
     IoEvents _ioEvents;
     ioCallBack _timerCb;
+    bool _isRunning;
 };
 #endif

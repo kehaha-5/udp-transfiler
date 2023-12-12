@@ -21,11 +21,19 @@ Timer::Timer() {
     }
     _currTimerWheelIt = _timerWheel.begin();
     struct itimerspec newTime;
-    newTime.it_value = {1, 0};     // 超时时间
+    newTime.it_value = {1, 0};     // 超时时间 第一次超时时间
     newTime.it_interval = {1, 0};  // 定时器的间隔时间
     int res = timerfd_settime(_timerfd, 0, &newTime, nullptr);
     exit_if(res == -1, "init runAt settime error");
     _allTimerEven.resize(TimerOnceLoop);
+}
+
+void Timer::setTimer(__time_t sec, long int ms) {
+    struct itimerspec newTime;
+    auto nsec = ms * 1000 * 1000;
+    newTime.it_value = {sec, nsec};     // 超时时间 第一次超时时间
+    newTime.it_interval = {sec, nsec};  // 定时器的间隔时间
+    int res = timerfd_settime(_timerfd, 0, &newTime, nullptr);
 }
 
 int Timer::runEvery(int timerout, TimerCb cb) {

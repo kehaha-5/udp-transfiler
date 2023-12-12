@@ -27,13 +27,13 @@
             ]
         },
         {
-            "name": "(gdb) Launch TESTUPDSERVER",
+            "name": "(gdb) Launch TRANFILER_SERVER",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/TESTUPDSERVER",
+            "program": "${workspaceFolder}/build/TRANFILER_SERVER",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/build/",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -52,13 +52,13 @@
             ]
         },
         {
-            "name": "(gdb) Launch TESTMENPOOL",
+            "name": "(gdb) Launch TRANFILER_CLIENT",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/TESTMENPOOL",
+            "program": "${workspaceFolder}/build/TRANFILER_CLIENT",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/build",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
