@@ -9,7 +9,8 @@
 EventLoop::EventLoop() {
     _epollFd = epoll_create(MAXEVENTS);
     exit_if(_epollFd == -1, "epoll_create error");
-    // addIo(_timer.getTimerfd(), std::bind(&EventLoop::handleTimer, this), EPOLLIN);
+    _timer = new timer::Timer();
+    addIo(_timer->getTimerfd(), std::bind(&EventLoop::handleTimer, this), EPOLLIN);
 }
 
 void EventLoop::addIo(int fd, ioCallBack cd, unsigned int mask) {
@@ -37,7 +38,7 @@ void EventLoop::addIo(int fd, ioCallBack cd, unsigned int mask) {
 void EventLoop::loop() {
     while (_isRunning) {
         epoll_event events[MAXEVENTS];
-        int num = epoll_wait(_epollFd, events, MAXEVENTS, 10);
+        int num = epoll_wait(_epollFd, events, MAXEVENTS, 0);
         for (int i = 0; i < num; i++) {
             if (events[i].events & EPOLL_EVENTS::EPOLLIN) {
                 auto it = _ioEvents.find(events[i].data.fd);
@@ -53,7 +54,7 @@ void EventLoop::loop() {
 
 void EventLoop::handleTimer() {
     debug_log("handleTimer");
-    timer::TimerOutCb cbs = _timer.getOutTimer();
+    timer::TimerOutCb cbs = _timer->getOutTimer();
     for (timer::TimerCb cb : cbs) {
         cb();
     }

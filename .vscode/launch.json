@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
+            "name": "TESTTIMER",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/TRANFILER",
+            "program": "${workspaceFolder}/build/test/TESTTIMER",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

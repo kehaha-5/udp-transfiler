@@ -1,35 +1,79 @@
-#include <iostream>
+#include <gtest/gtest.h>
+
+#include <chrono>
+#include <functional>
+#include <thread>
 
 #include "EventLoop.h"
-#include "Logging.h"
-#include "log/Log.h"
-#include "udp/UdpServer.h"
 
-int runAtWithCancelIndex;
-EventLoop event;
+class TimerTest : public testing::Test {
+   protected:
+    void SetUp() {
+        _loop = new EventLoop();
+        _thread = std::thread(std::bind(&TimerTest::runLoop, this));
+        _thread.detach();
+    }
+    void TearDown() { delete _loop; }
 
-void runAt() { info_log("i am the run at function"); }
+   public:
+    EventLoop* _loop;
 
-void runAtWithCancel() { info_log("i am the run at function but i will be canceled after 10s") }
+   private:
+    void runLoop() { _loop->loop(); }
+    std::thread _thread;
+};
 
-void runEvery() { info_log("i am the run every function"); }
-
-void runAfter() {
-    info_log("i am the run after function will run after 10s");
-    event.cancelTimerEven(runAtWithCancelIndex);
-    info_log("i cancel the runAtWithCancel !!!");
-    event.setTimer(2, 500);
-    info_log("update timer in one kun time");
+TEST_F(TimerTest, setTimerOutTest) {
+    EXPECT_EQ(_loop->getIntervalTimer(), 10);
+    _loop->setIntervalTimer(0, 100);
+    EXPECT_EQ(_loop->getIntervalTimer(), 100);
 }
 
-int main(int, char **) {
-    logConfig logconf = {logLever::debug, logAppender::console};
-    Log::setConfig(logconf);
-    int runAtIndex = event.runAt(std::bind(runAt));
-    runAtWithCancelIndex = event.runAt(std::bind(runAtWithCancel));
-    int runAfterIndex = event.runAfter(10, std::bind(runAfter));
-    info_log("something will run after 10s");
-    int runEveryIndex = event.runEvery(5, std::bind(runEvery));
-    info_log("something will run loop after 5s");
-    event.loop();
+TEST_F(TimerTest, functionalTest) {
+    _loop->setIntervalTimer(0, 10);
+    int counterRunAt = 0;
+    int counterRunAfter = 0;
+    int counterRunEvey = 0;
+    _loop->runAt(std::bind([&counterRunAt]() { counterRunAt++; }));
+
+    _loop->runAfter(10, std::bind([&counterRunAfter]() { counterRunAfter++; }));
+    _loop->runAfter(20, std::bind([&counterRunAfter]() { counterRunAfter++; }));
+    _loop->runAfter(30, std::bind([&counterRunAfter]() { counterRunAfter++; }));
+
+    _loop->runEvery(20, std::bind([&counterRunEvey]() { counterRunEvey++; }));
+    std::this_thread::sleep_for(std::chrono::milliseconds(60));
+    EXPECT_EQ(counterRunAt, 5);
+    EXPECT_EQ(counterRunAfter, 3);
+    EXPECT_EQ(counterRunEvey, 2);
+}
+
+TEST_F(TimerTest, cancelTimerTest) {
+    _loop->setIntervalTimer(0, 10);
+    int counterRunAt = 0;
+    int counterRunAfter = 0;
+    int counterRunEvey = 0;
+    u_long resRunAt = _loop->runAt(std::bind([&counterRunAt]() { counterRunAt++; }));
+
+    u_long resRunAfter1 = _loop->runAfter(10, std::bind([&counterRunAfter]() { counterRunAfter++; }));
+    u_long resRunAfter2 = _loop->runAfter(20, std::bind([&counterRunAfter]() { counterRunAfter++; }));
+    u_long resRunAfter3 = _loop->runAfter(30, std::bind([&counterRunAfter]() { counterRunAfter++; }));
+    _loop->cancelTimerEven(resRunAfter3);
+
+    u_long resRunEvery = _loop->runEvery(20, std::bind([&counterRunEvey]() { counterRunEvey++; }));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(60));
+
+    _loop->cancelTimerEven(resRunAt);
+    _loop->cancelTimerEven(resRunEvery);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+
+    EXPECT_EQ(counterRunAt, 5);     //运行5次后取消
+    EXPECT_EQ(counterRunAfter, 2);  //运行3个 取消1个
+    EXPECT_EQ(counterRunEvey, 2);   //运行2次后取消
+}
+
+int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
