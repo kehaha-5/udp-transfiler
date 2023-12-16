@@ -4,7 +4,6 @@
 
 #include "Logging.h"
 #include "file/Directory.h"
-#include "log/Log.h"
 
 using namespace file;
 

@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <memory>
-#include <queue>
 #include <thread>
 
 #include "Logging.h"

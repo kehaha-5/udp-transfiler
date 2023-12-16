@@ -1,5 +1,3 @@
-#include <cstdlib>
-#include <iomanip>
 #include <memory>
 #include <string>
 
@@ -7,7 +5,6 @@
 #include "Logging.h"
 #include "log/Log.h"
 #include "transfiler/Client.h"
-#include "udp/UdpClient.h"
 
 using namespace std;
 using namespace transfiler;
