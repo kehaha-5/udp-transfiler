@@ -3,7 +3,6 @@
 
 #include <netinet/in.h>
 
-#include <memory>
 #include <string>
 
 #include "rapidjson/document.h"

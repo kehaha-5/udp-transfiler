@@ -10,9 +10,11 @@ FetchContent_MakeAvailable(googletest)
 include_directories(${PROJECT_SOURCE_DIR}/core ${PROJECT_SOURCE_DIR}/src)
 
 add_executable(TESTTIMER ${PROJECT_SOURCE_DIR}/test/TestTimer.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
-target_link_libraries(TESTTIMER GTest::gtest_main GTest::gtest )
+target_link_libraries(TESTTIMER GTest::gtest_main GTest::gtest rapidjson )
+
 add_executable(TESTACK ${PROJECT_SOURCE_DIR}/test/TestAck.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
-target_link_libraries(TESTACK GTest::gtest_main GTest::gtest )
+target_link_libraries(TESTACK GTest::gtest_main GTest::gtest rapidjson )
+
 
 include(GoogleTest)
 gtest_discover_tests(TESTTIMER)

@@ -60,4 +60,7 @@
         "list": "cc"
     },
     "clang-format.assumeFilename": "${workspaceFolder}/.clang-format",
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "/home/kehaha/surface/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    }
 }

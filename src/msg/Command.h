@@ -2,7 +2,6 @@
 #define MSG_COMMAND_H
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "file/Directory.h"
 #include "rapidjson/stringbuffer.h"

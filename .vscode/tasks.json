@@ -14,6 +14,14 @@
         },
         {
             "type": "shell",
+            "label": "buildWithClear",
+            "command": "cmake -S . -B ./build",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template build task"
+        },
+        {
+            "type": "shell",
             "label": "CtestLog",
             "command": "ctest -j10 -C Debug -T test --output-on-failure -R ^test_log$  ",
             "group": "test",

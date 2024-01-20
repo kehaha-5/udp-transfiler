@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
+cmake_policy(SET CMP0135 NEW)
 project(TRANFILER VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE "Debug")
@@ -20,15 +21,18 @@ message(STATUS "CORE_CPP=${CORE_CPP}")
 message(STATUS "SRC_H=${SRC_H}")
 message(STATUS "SRC_CPP=${SRC_CPP}")
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/test)
-
 include_directories(${PROJECT_SOURCE_DIR}/core ${PROJECT_SOURCE_DIR}/src)
 add_executable(TRANFILER_CLIENT client.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP})
 add_executable(TRANFILER_SERVER server.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP})
 
-
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-find_package(RapidJSON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)   
+
+find_package(RapidJSON CONFIG REQUIRED)
+
+target_link_libraries(TRANFILER_CLIENT PRIVATE rapidjson)
+target_link_libraries(TRANFILER_SERVER PRIVATE rapidjson)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/test)
