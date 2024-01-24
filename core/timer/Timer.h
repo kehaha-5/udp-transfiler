@@ -54,7 +54,7 @@ class Timer {
     TimerWheel::iterator _currTimerWheelIt;
     AllTimerEven _allTimerEven;
     std::atomic_uint _currTimerIndex = 0;
-    u_short _intervalMs = 10;                  //每次触发时间 ms
+    u_short _intervalMs = 100;                  //默认每次触发时间 ms
     u_long _timerOnceLoop = _intervalMs * 10;  //一次循环的总时间单位ms
 };
 }  // namespace timer

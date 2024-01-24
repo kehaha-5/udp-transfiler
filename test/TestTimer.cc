@@ -10,6 +10,7 @@ class TimerTest : public testing::Test {
    protected:
     void SetUp() {
         _loop = new EventLoop();
+        _loop->startTimer();
         _thread = std::thread(std::bind(&TimerTest::runLoop, this));
         _thread.detach();
     }
@@ -24,9 +25,9 @@ class TimerTest : public testing::Test {
 };
 
 TEST_F(TimerTest, setTimerOutTest) {
-    EXPECT_EQ(_loop->getIntervalTimer(), 10);
-    _loop->setIntervalTimer(0, 100);
-    EXPECT_EQ(_loop->getIntervalTimer(), 100);
+    ASSERT_EQ(_loop->getIntervalTimer(), 100);
+    _loop->setIntervalTimer(0, 1000);
+    ASSERT_EQ(_loop->getIntervalTimer(), 1000);
 }
 
 TEST_F(TimerTest, functionalTest) {
@@ -68,9 +69,9 @@ TEST_F(TimerTest, cancelTimerTest) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
-    EXPECT_EQ(counterRunAt, 5);     //运行5次后取消
-    EXPECT_EQ(counterRunAfter, 2);  //运行3个 取消1个
-    EXPECT_EQ(counterRunEvey, 2);   //运行2次后取消
+    EXPECT_EQ(counterRunAt, 5);     // 运行5次后取消
+    EXPECT_EQ(counterRunAfter, 2);  // 运行3个 取消1个
+    EXPECT_EQ(counterRunEvey, 2);   // 运行2次后取消
 }
 
 int main(int argc, char** argv) {

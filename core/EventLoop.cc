@@ -1,5 +1,6 @@
 #include <sys/epoll.h>
 
+#include <cstddef>
 #include <functional>
 
 #include "EventLoop.h"
@@ -9,8 +10,6 @@
 EventLoop::EventLoop() {
     _epollFd = epoll_create(MAXEVENTS);
     exit_if(_epollFd == -1, "epoll_create error");
-    _timer = new timer::Timer();
-    addIo(_timer->getTimerfd(), std::bind(&EventLoop::handleTimer, this), EPOLLIN);
 }
 
 void EventLoop::addIo(int fd, ioCallBack cd, unsigned int mask) {
@@ -35,10 +34,13 @@ void EventLoop::addIo(int fd, ioCallBack cd, unsigned int mask) {
     exit_if(res == -1, "epoll_ctl");
 }
 
+void EventLoop::delIo(int fd) { epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, NULL); }
+
 void EventLoop::loop() {
     while (_isRunning) {
         epoll_event events[MAXEVENTS];
-        int num = epoll_wait(_epollFd, events, MAXEVENTS, 0);
+        int num = epoll_wait(_epollFd, events, MAXEVENTS,
+                             10);  // timeout 参数关系到定时器的超时时间，至少要与定时器时间一致，尽量不要设置为0，否则导致cpu一直轮询
         for (int i = 0; i < num; i++) {
             if (events[i].events & EPOLL_EVENTS::EPOLLIN) {
                 auto it = _ioEvents.find(events[i].data.fd);
@@ -59,3 +61,12 @@ void EventLoop::handleTimer() {
         cb();
     }
 }
+
+void EventLoop::startTimer() {
+    if (_timer == nullptr) {
+        _timer = new timer::Timer();
+    }
+    addIo(_timer->getTimerfd(), std::bind(&EventLoop::handleTimer, this), EPOLLIN);
+}
+
+void EventLoop::stopTimer() { delIo(_timer->getTimerfd()); }

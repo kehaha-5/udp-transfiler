@@ -37,10 +37,12 @@ class EventLoop {
     void setIntervalTimer(__time_t second, long int ms) { _timer->setIntervalTimer(second, ms); }
     u_long getIntervalTimer() { return _timer->getIntervalTimer(); }
     void handleTimer();
+    void startTimer();
+    void stopTimer();
 
    private:
     int _epollFd;
-    timer::Timer* _timer;
+    timer::Timer* _timer = nullptr;
     IoEvents _ioEvents;
     ioCallBack _timerCb;
     bool _isRunning = true;
