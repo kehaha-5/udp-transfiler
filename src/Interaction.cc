@@ -1,15 +1,24 @@
+#include <iomanip>
+#include <ios>
 #include <iostream>
+#include <ostream>
+#include <string>
 
 #include "Interaction.h"
 
 using namespace interaction;
+
+const int LSSIZEW = 18;
+const int LSLASTWRITETIMEW = 30;
 
 void Interaction::help() {
     std::cout << "command:" << std::endl;
     std::cout << "\t"
               << "ls" << std::endl;
     std::cout << "\t"
-              << "downfile --file,--all" << std::endl;
+              << "downfile"
+              << "\n\t\t"
+              << "--file,--all" << std::endl;
     std::cout << "\t"
               << "exit" << std::endl;
 }
@@ -25,7 +34,7 @@ inputCommand Interaction::input(std::string cliName) {
             }
             command += ch;
         }
-
+        command = trim(command);
         if (command.empty()) {
             continue;
         } else if (command == "help") {
@@ -52,6 +61,21 @@ inputCommand Interaction::input(std::string cliName) {
         }
     }
 }
+
+void Interaction::ls(msg::lsMsg& lsMsg) {
+    std::cout << std::setw(LSLASTWRITETIMEW) << std::left << "last_write_time";
+    std::cout << std::setw(LSSIZEW) << std::left << "size";
+    std::cout << std::left << "name";
+    std::cout << std::endl;
+    for (auto it : lsMsg.files) {
+        std::cout << std::setw(LSLASTWRITETIMEW) << std::left << it.last_write_time;
+        std::cout << std::setw(LSSIZEW) << std::left << it.size;
+        std::cout << std::left << it.name;
+        std::cout << std::endl;
+    }
+}
+
+void Interaction::showError(std::string msg) { std::cout << "\033[1;31m" << msg << "\033[0m" << std::endl; }
 
 std::string Interaction::trim(const std::string& str) {
     size_t start = str.find_first_not_of(" \t\n\r");

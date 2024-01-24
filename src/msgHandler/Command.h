@@ -5,21 +5,25 @@
 
 #include <string>
 
+#include "msg/Validator.h"
 #include "rapidjson/document.h"
 
 namespace msgHandler {
 class Command {
    public:
-    Command(const char* msg) { _jsonMsg.Parse(msg); };
-    ~Command() {
-        _jsonMsg.SetNull();
-        _jsonMsg.GetAllocator().Clear();
-    }
+    Command(const char* msg) {
+        _jsonMsg.Parse(msg);
+        _valid = msg::Validator();
+    };
     std::string handler();
 
    private:
-    rapidjson::Document _jsonMsg;
+    bool vaildData();
+    std::string getErrorMsg();
     std::string getCommand();
+    rapidjson::Document _jsonMsg;
+    std::string _errMsg;
+    msg::Validator _valid;
 };
 }  // namespace msgHandler
 

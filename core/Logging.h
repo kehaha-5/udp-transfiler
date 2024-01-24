@@ -2,8 +2,6 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <iostream>
-#include <ostream>
 
 #include "log/Log.h"
 

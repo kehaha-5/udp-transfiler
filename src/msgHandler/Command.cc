@@ -1,19 +1,33 @@
+
 #include "Command.h"
 #include "file/Directory.h"
 #include "msg/Command.h"
 using namespace msgHandler;
 
 std::string Command::handler() {
-    if (!_jsonMsg["command"].IsString()) {
-        return msg::errMsg("参数错误").jsonStr();
+    if (!_valid.vaildMsg(_jsonMsg)) {
+        _errMsg = _valid.getErrMsg();
+        return getErrorMsg();
     }
     auto workfile = file::Directory::getInstance();
     std::string command = _jsonMsg["command"].GetString();
-    if (command == "ls") {
+    if (std::strcmp(command.c_str(), "ls") == 0) {
         msg::lsMsg msg;
         msg.files = workfile->ls();
+        msg.ack = _jsonMsg["ack"].GetUint64();
         return msg.jsonStr();
     };
+    _errMsg = "未知错误";
+    return getErrorMsg();
+}
 
-    return msg::errMsg("未知错误").jsonStr();
+std::string Command::getErrorMsg() {
+    auto err = msg::errMsg(_errMsg);
+    if (_jsonMsg.HasParseError()) {
+        return err.jsonStr();
+    }
+    if (_jsonMsg.HasMember("ack") && _jsonMsg["ack"].IsUint64()) {
+        err.ack = _jsonMsg["ack"].GetUint64();
+    }
+    return err.jsonStr();
 }

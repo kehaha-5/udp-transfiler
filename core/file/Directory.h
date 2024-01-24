@@ -2,14 +2,18 @@
 #define FILE_DIRECTORY_H
 
 #include <filesystem>
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace fs = std::filesystem;
 
 namespace file {
-typedef std::pair<std::string, std::uintmax_t> fileInfo;
+
+struct fileInfo {
+    std::string last_write_time;
+    std::string size;
+    std::string name;
+};
 typedef std::vector<fileInfo> filesInfo;
 
 class Directory {
@@ -20,6 +24,8 @@ class Directory {
     filesInfo ls();
 
    private:
+    std::string humanReadable(std::uintmax_t size);
+    std::string fileTimeToStr(std::filesystem::file_time_type time);
     Directory(std::string path);
     fs::path _filepathObj;
     static Directory* _self;
