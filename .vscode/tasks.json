@@ -50,11 +50,24 @@
         },
         {
             "type": "shell",
-            "label": "valgrindTest",
+            "label": "valgrind test Client",
             "options": {
                 "cwd": "${workspaceFolder}/build/"
             },
-            "command": "valgrind --leak-check=full --show-leak-kinds=all   --trace-children=yes --log-file=./val_log.log ./TESTUPDSERVER",
+            "command": " valgrind --leak-check=full --show-leak-kinds=all   --trace-children=yes --log-file=./build/val_log_client.log ./build/TRANFILER_CLIENT",
+            "dependsOn": [
+                "CMake: build"
+            ],
+            "group": "test",
+            "detail": "valgrindTest"
+        },
+        {
+            "type": "shell",
+            "label": "valgrind test Server",
+            "options": {
+                "cwd": "${workspaceFolder}/build/"
+            },
+            "command": "  valgrind --leak-check=full --show-leak-kinds=all   --trace-children=yes --log-file=./build/val_log_ser.log ./build/TRANFILER_SERVER",
             "dependsOn": [
                 "CMake: build"
             ],
