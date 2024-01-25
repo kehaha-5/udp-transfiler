@@ -19,7 +19,6 @@ Client::Client(std::string host, __uint16_t port) {
     _even = std::make_unique<EventLoop>();
     _client = std::make_unique<udp::UdpClient>(_even, host, port);
     _even->startTimer();
-    _even->setIntervalTimer(0, 100);
     _os = interaction::Interaction();
 }
 

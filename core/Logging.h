@@ -5,8 +5,7 @@
 
 #include "log/Log.h"
 
-inline void LOG(logType::type type, const char* fileName, const char* func, int line, const char* format,
-                ...) {
+inline void LOG(logType::type type, const char* fileName, const char* func, int line, const char* format, ...) {
     if (!Log::canAppend(type)) return;
     char msg[4096] = {0};
     std::string logType;
@@ -27,10 +26,11 @@ inline void LOG(logType::type type, const char* fileName, const char* func, int 
     std::vsprintf(msg + strlen(msg), format, args);
     va_end(args);
     std::fprintf(stdout, "%s\n", msg);
+    time.clear();
+    time.shrink_to_fit();
 }
 
-inline void IFEXIT(bool condition, const char* fileName, const char* func, int line, const char* format,
-                   ...) {
+inline void IFEXIT(bool condition, const char* fileName, const char* func, int line, const char* format, ...) {
     if (condition) {
         char msg[4096] = {0};
         std::va_list args;
@@ -44,6 +44,8 @@ inline void IFEXIT(bool condition, const char* fileName, const char* func, int l
         va_end(args);
         std::fprintf(stderr, "%s\n", msg);
         exit(EXIT_FAILURE);
+        time.clear();
+        time.shrink_to_fit();
     }
 }
 #define info_log(args...) LOG(logType::info, __FILE__, __func__, __LINE__, ##args);

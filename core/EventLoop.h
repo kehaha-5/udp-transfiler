@@ -34,7 +34,6 @@ class EventLoop {
     u_long runEvery(u_long timerout, timer::TimerCb cb) { return _timer->runEvery(timerout, cb); };
     u_long runAt(timer::TimerCb cb) { return _timer->runAt(cb); };
     void cancelTimerEven(int Timerindex) { _timer->cancelTimerEven(Timerindex); };
-    void setIntervalTimer(__time_t second, long int ms) { _timer->setIntervalTimer(second, ms); }
     u_long getIntervalTimer() { return _timer->getIntervalTimer(); }
     void handleTimer();
     void startTimer();

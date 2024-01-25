@@ -1,5 +1,6 @@
 #include <netinet/in.h>
 
+#include <cstring>
 #include <functional>
 #include <memory>
 
@@ -16,11 +17,11 @@ Server::Server(EventLoop* loop, const char* host, uint16_t port) {
 }
 
 void Server::readBack() {
-    char *buff = new char[MAX_MSG_LENGTH];
+    char* buff = new char[MAX_MSG_LENGTH];
+    std::memset(buff, 0, MAX_MSG_LENGTH);
     struct sockaddr_in clientAddr;
     int clientLen = sizeof(clientAddr);
-    int len = recvfrom(_udpPtr->getSocketfd(), buff, MAX_MSG_LENGTH, 0, (struct sockaddr*)&clientAddr,
-                       (socklen_t*)&clientLen);
+    int len = recvfrom(_udpPtr->getSocketfd(), buff, MAX_MSG_LENGTH, 0, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
     std::string host;
     inet_ntop(AF_INET, &clientAddr.sin_addr, host.data(), sizeof(host));
     auto prot = ntohs(clientAddr.sin_port);

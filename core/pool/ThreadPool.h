@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include <atomic>
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <queue>
@@ -33,7 +34,9 @@ class ThreadPool {
         for (auto it = _msgQueues.begin(); it != _msgQueues.end(); it++) {
             QueueItem queueItem = it->second;
             close(queueItem.evenfd);
+            assert(queueItem.queue.size() == 0);
         }
+        _msgQueues.clear();
         _threadPool.clear();
         _threadPool.shrink_to_fit();
     };

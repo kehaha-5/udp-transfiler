@@ -37,7 +37,7 @@
         {
             "type": "shell",
             "label": "CtestConf",
-            "command": "ctest -j10 -C Debug -T test --output-on-failure -R ^test_conf$  ",
+            "command": "ctest -j10 -C Debug -T test --output-on-failure -R ^test_conf$ --rerun-failed --output-on-failure ",
             "group": "test",
             "options": {
                 "cwd": "${workspaceFolder}/build/"

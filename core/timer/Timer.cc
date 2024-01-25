@@ -2,9 +2,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <cmath>
 #include <iterator>
 #include <list>
 #include <memory>
+#include <mutex>
 
 #include "Logging.h"
 #include "Timer.h"
@@ -27,20 +29,6 @@ Timer::Timer() {
     exit_if(res == -1, "init runAt settime error");
     _allTimerEven.resize(10);
 }
-void Timer::setIntervalTimer(__time_t sec, long int ms) {
-    if (ms > 999) {
-        ms = 0;
-        sec += 1;  // v_nsec is negative or greater than 999,999,999 (999,999,999 ~ 1 sec)
-    }
-    struct itimerspec newTime;
-    auto nsec = ms * 1000 * 1000;
-    newTime.it_value = {sec, nsec};     // 超时时间 第一次超时时间
-    newTime.it_interval = {sec, nsec};  // 定时器的间隔时间
-    int res = timerfd_settime(_timerfd, 0, &newTime, nullptr);
-    exit_if(res == -1, "init runAt settime error");
-    _intervalMs = ms + (sec * 1000);
-    _timerOnceLoop = _intervalMs * 10;
-}
 
 u_long Timer::runEvery(u_long timerout, TimerCb cb) {
     TimerEvenSharedPtr even = std::make_shared<timerEven>();
@@ -55,7 +43,7 @@ u_long Timer::runEvery(u_long timerout, TimerCb cb) {
 
 u_long Timer::runAt(TimerCb cb) {
     TimerEvenSharedPtr even = std::make_shared<timerEven>();
-    even->timeout = 10;
+    even->timeout = _intervalMs;
     even->interval = true;
     even->cd = cb;
     runAfter(even);
@@ -77,7 +65,8 @@ u_long Timer::runAfter(u_long timerout, TimerCb cb) {
 
 void Timer::runAfter(TimerEvenSharedPtr even) {
     even->loop = even->timeout / _timerOnceLoop;
-    auto pos = even->timeout % _timerOnceLoop / _intervalMs;  // 要被添加到时间轮里面的位置
+    auto pos = std::ceil((even->timeout % _timerOnceLoop) / _intervalMs);  // 要被添加到时间轮里面的位置
+    std::lock_guard<std::recursive_mutex> lock(_timerWheelItLock);
     int itDistance = std::distance(_currTimerWheelIt, _timerWheel.end());
     TimerWheel::iterator insertIt;
     if (pos > itDistance) {
@@ -102,6 +91,7 @@ TimerOutCb Timer::getOutTimer() {
     std::list<TimerWheelItem::iterator> wheelDelItem;
     uint64_t val;
     read(_timerfd, &val, sizeof(val));
+    std::lock_guard<std::recursive_mutex> lock(_timerWheelItLock);
     for (auto it = _currTimerWheelIt->begin(); it != _currTimerWheelIt->end(); it++) {
         auto itt = it->lock();
         if (itt == nullptr) {
@@ -122,8 +112,11 @@ TimerOutCb Timer::getOutTimer() {
         _currTimerWheelIt->erase(*it);
     }
     _currTimerWheelIt++;
+    _currTimerWheelIndex++;
     if (_currTimerWheelIt == _timerWheel.end()) {
         _currTimerWheelIt = _timerWheel.begin();
+        _currTimerWheelIndex = 0;
     }
+    debug_log("timer index add once now is %i", _currTimerWheelIndex);
     return item;
 }
