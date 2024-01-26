@@ -10,6 +10,7 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 
 namespace timer {
@@ -21,7 +22,7 @@ typedef std::list<TimerEvenWeakPtr> TimerWheelItem;
 typedef std::list<TimerWheelItem> TimerWheel;
 typedef std::function<void()> TimerCb;
 typedef std::vector<TimerCb> TimerOutCb;
-typedef std::vector<TimerEvenSharedPtr> AllTimerEven;
+typedef std::unordered_map<uint, TimerEvenSharedPtr> AllTimerEven;
 
 struct timerEven {
     TimerCb cd;
@@ -36,7 +37,6 @@ class Timer {
     ~Timer() {
         close(_timerfd);
         _allTimerEven.clear();
-        _allTimerEven.shrink_to_fit();
     };
     int getTimerfd() { return _timerfd; };
     u_long runEvery(u_long timeroutMs, TimerCb cb);
@@ -53,7 +53,7 @@ class Timer {
     TimerWheel _timerWheel;
     TimerWheel::iterator _currTimerWheelIt;
     u_int _currTimerWheelIndex = 0;
-    AllTimerEven _allTimerEven;
+    AllTimerEven _allTimerEven = {};
     std::atomic_uint _currTimerIndex = 0;
     u_short _intervalMs = 10;                  // 默认每次触发时间 ms
     u_long _timerOnceLoop = _intervalMs * 10;  // 一次循环的总时间单位ms

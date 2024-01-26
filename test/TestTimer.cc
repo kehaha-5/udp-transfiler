@@ -3,6 +3,7 @@
 #include <chrono>
 #include <functional>
 #include <thread>
+#include <vector>
 
 #include "EventLoop.h"
 #include "log/Log.h"
@@ -17,7 +18,10 @@ class TimerTest : public testing::Test {
         logConfig logconf = {logLever::debug, logAppender::console};
         Log::setConfig(logconf);
     }
-    void TearDown() { _loop->setRunning(false); }
+    void TearDown() {
+        _loop->setRunning(false);
+        delete _loop;
+    }
 
    public:
     EventLoop* _loop;
@@ -27,9 +31,7 @@ class TimerTest : public testing::Test {
     std::thread _thread;
 };
 
-TEST_F(TimerTest, getTimerOutTest) {
-    ASSERT_EQ(_loop->getIntervalTimer(), 10);
-}
+TEST_F(TimerTest, getTimerOutTest) { ASSERT_EQ(_loop->getIntervalTimer(), 10); }
 
 TEST_F(TimerTest, baseTest) {
     ASSERT_EQ(_loop->getIntervalTimer(), 10);
@@ -82,6 +84,22 @@ TEST_F(TimerTest, cancelTimerTest) {
     ASSERT_EQ(counterRunAt, 22);    // 运行22次后取消
     ASSERT_EQ(counterRunAfter, 2);  // 运行3个 取消1个
     ASSERT_EQ(counterRunEvey, 2);   // 运行2次后取消
+}
+
+TEST_F(TimerTest, multiplyThreadTest) {
+    std::vector<std::thread> threads;
+    int threadNum = 30;
+    threads.resize(threadNum);
+    int couter = 0;
+    auto loop = _loop;
+    for (int i = 0; i < threadNum; i++) {
+        threads[i] = std::thread(std::bind([loop, &couter]() { loop->runAfter(10, std::bind([&couter]() { couter++; })); }));
+    }
+    for (int i = 0; i < threadNum; i++) {
+        threads[i].join();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    ASSERT_EQ(couter, threadNum);
 }
 
 int main(int argc, char** argv) {

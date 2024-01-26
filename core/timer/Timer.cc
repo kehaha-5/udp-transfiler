@@ -27,7 +27,6 @@ Timer::Timer() {
     newTime.it_interval = {0, tenMs};        // 定时器的间隔时间
     int res = timerfd_settime(_timerfd, 0, &newTime, nullptr);
     exit_if(res == -1, "init runAt settime error");
-    _allTimerEven.resize(10);
 }
 
 u_long Timer::runEvery(u_long timerout, TimerCb cb) {
