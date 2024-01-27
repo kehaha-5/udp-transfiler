@@ -15,8 +15,13 @@ target_link_libraries(TESTTIMER GTest::gtest_main GTest::gtest rapidjson )
 add_executable(TESTACK ${PROJECT_SOURCE_DIR}/test/TestAck.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
 target_link_libraries(TESTACK GTest::gtest_main GTest::gtest rapidjson )
 
+add_executable(TESTFILE ${PROJECT_SOURCE_DIR}/test/TestFile.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
+target_link_libraries(TESTFILE GTest::gtest_main GTest::gtest rapidjson )
+
+
 
 include(GoogleTest)
 gtest_discover_tests(TESTTIMER)
 gtest_discover_tests(TESTACK)
+gtest_discover_tests(TESTFILE)
 
