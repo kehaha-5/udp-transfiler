@@ -15,9 +15,7 @@ typedef std::function<void()> CallBack;
 class UdpServer {
    public:
     UdpServer(EventLoop* loop, const char* host, __uint16_t port);
-    ~UdpServer() {
-        close(_socketFd);
-    };
+    ~UdpServer() { close(_socketFd); };
     void setReadBack(CallBack cb) { _rb = cb; };
     void setWriteBack(CallBack cb) { _wb = cb; };
     int getSocketfd() { return _socketFd; }

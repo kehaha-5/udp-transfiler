@@ -73,6 +73,19 @@
             ],
             "group": "test",
             "detail": "valgrindTest"
+        },
+        {
+            "type": "shell",
+            "label": "ctestMemcheck",
+            "options": {
+                "cwd": "${workspaceFolder}/build/"
+            },
+            "command": "   ctest -R ^testName -T MemCheck  --repeat-until-fail 100",
+            "dependsOn": [
+                "CMake: build"
+            ],
+            "group": "test",
+            "detail": "valgrindTest"
         }
     ]
 }

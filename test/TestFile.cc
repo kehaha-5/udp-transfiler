@@ -1,7 +1,9 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <thread>
 #include <vector>
 
@@ -15,22 +17,54 @@ class TestFile : public testing::Test {
     void SetUp() {
         logConfig logconf = {logLever::debug, logAppender::console};
         Log::setConfig(logconf);
-        _currentPath = std::filesystem::current_path();
+        auto currentPath = std::filesystem::current_path();
         std::cout << _currentPath << std::endl;
-        _currentPath += _filePath;
+        currentPath.append(_filePath);
+        _currentPath = currentPath;
         std::filesystem::create_directory(_currentPath);
         file::Directory::getInstance().setFilePath(_currentPath);
-        
+        createFiles();
     }
 
-    void TearDown() { fs::remove(_currentPath); }
+    void TearDown() { fs::remove_all(_currentPath); }
 
    public:
-    int _threadNum = 30;
+    int _threadNum = 100;
     std::string _currentPath;
+    std::vector<std::string> _files = {};
+    void createFiles() {
+        std::vector<std::string> files = {"1.txt", "2.txt", "3.txt", "4.txt", "5.txt"};
+        for (auto it : files) {
+            auto currentPath = std::filesystem::current_path();
+            auto currFile = currentPath.append(_filePath).append(it);
+            std::ofstream file(currFile);
+            if (file.is_open()) {
+                file << "hello word file name is " << it.data() << std::endl;
+                file.close();
+                _files.push_back(it.data());
+            }
+        }
+    }
+    void multiplyThreadTest(std::function<void()> testFun) {
+        try {
+            std::vector<std::thread> threads;
+            threads.resize(_threadNum);
+            for (int i = 0; i < _threadNum; i++) {
+                threads[i] = (std::thread(testFun));
+            }
+            for (int i = 0; i < _threadNum; i++) {
+                if (threads[i].joinable()) {
+                    threads[i].join();
+                }
+            }
+        } catch (std::exception& e) {
+            std::cout << e.what() << std::endl;
+            throw e;
+        }
+    }
 
    private:
-    std::string _filePath = "/testFile";
+    std::string _filePath = "testFile";
 };
 
 TEST_F(TestFile, functionalTest) {
@@ -40,32 +74,48 @@ TEST_F(TestFile, functionalTest) {
 }
 
 TEST_F(TestFile, multiplyThreadTest) {
-    try {
-        std::vector<std::thread> threads;
-        threads.resize(_threadNum);
-        auto currPath = _currentPath;
-        for (int i = 0; i < _threadNum; i++) {
-            threads[i] = (std::thread(std::bind([currPath]() {
-                try {
-                    debug_log("curr path is %s", currPath.c_str());
-                    debug_log("dir path is %s", Directory::getInstance().getFullPath().c_str());
-                    ASSERT_STREQ(Directory::getInstance().getFullPath().c_str(), currPath.c_str());
-                    debug_log("thread exit~ !!!");
-                } catch (std::exception& e) {
-                    std::cout << e.what() << std::endl;
-                    throw e;
-                }
-            })));
+    auto currPath = _currentPath;
+    auto fun = std::bind([currPath]() {
+        try {
+            debug_log("curr path is %s", currPath.c_str());
+            debug_log("dir path is %s", Directory::getInstance().getFullPath().c_str());
+            ASSERT_STREQ(Directory::getInstance().getFullPath().c_str(), currPath.c_str());
+            debug_log("thread exit~ !!!");
+        } catch (std::exception& e) {
+            std::cout << e.what() << std::endl;
+            throw e;
         }
-        for (int i = 0; i < _threadNum; i++) {
-            if (threads[i].joinable()) {
-                threads[i].join();
-            }
-        }
-    } catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
-        throw e;
+    });
+    multiplyThreadTest(fun);
+}
+
+TEST_F(TestFile, testLs) {
+    ASSERT_GT(_files.size(), 0);
+    auto lsInfo = Directory::getInstance().ls();
+    ASSERT_EQ(lsInfo.size(), _files.size());
+    for (auto it : lsInfo) {
+        auto res = std::find(_files.begin(), _files.end(), it.name);
+        ASSERT_TRUE(res != _files.end());
     }
+}
+
+TEST_F(TestFile, multiplyThreadTestLs) {
+    auto files = _files;
+    auto fun = std::bind([&files]() {
+        try {
+            ASSERT_GT(files.size(), 0);
+            auto lsInfo = Directory::getInstance().ls();
+            ASSERT_EQ(lsInfo.size(), files.size());
+            for (auto it : lsInfo) {
+                auto res = std::find(files.begin(), files.end(), it.name);
+                ASSERT_TRUE(res != files.end());
+            }
+        } catch (std::exception& e) {
+            std::cout << e.what() << std::endl;
+            throw e;
+        }
+    });
+    multiplyThreadTest(fun);
 }
 
 int main(int argc, char** argv) {
