@@ -31,7 +31,7 @@ class Client {
     void handleRead();
     void timerExec(u_long ack, std::string msg);
     void sendto(std::string& msg);
-    const char* rev();
+    std::string rev();
     udpClientPtr _client;
     interaction::Interaction _os;
     evevPtr _even;

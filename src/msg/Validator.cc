@@ -1,32 +1,31 @@
 
-#include <cstring>
 
 #include "Validator.h"
 #include "rapidjson/error/en.h"
 
 using namespace msg;
 
-bool Validator::vaildMsg(rapidjson::Document &json) {
-    if (json.HasParseError()) {
-        _errMsg += "json解析错误.Error:";
-        _errMsg += rapidjson::GetParseError_En(json.GetParseError());
+bool Validator::vaildMsg(rapidjson::Document& _jsonMsg) {
+    if (_jsonMsg.HasParseError()) {
+        _errMsg += "_jsonMsg解析错误.Error:";
+        _errMsg += rapidjson::GetParseError_En(_jsonMsg.GetParseError());
         _errMsg += " at offset ";
-        _errMsg += json.GetErrorOffset();
-        _errMsg += " near '" + std::string(json.GetString()).substr(json.GetErrorOffset(), 10) + "...'";
+        _errMsg += _jsonMsg.GetErrorOffset();
+        _errMsg += " near '" + _sourceMsg.substr(_jsonMsg.GetErrorOffset(), 10) + "...'";
         return false;
     }
-    if (json.HasMember("command") && !json["command"].IsString()) {
+    if (_jsonMsg.HasMember("command") && !_jsonMsg["command"].IsString()) {
         _errMsg = "参数错误";
         return false;
     }
     return true;
 }
 
-bool Validator::vaildLsMsg(rapidjson::Document &json) {
-    if (!vaildMsg(json)) {
+bool Validator::vaildLsMsg(rapidjson::Document& _jsonMsg) {
+    if (!vaildMsg(_jsonMsg)) {
         return false;
     }
-    if (std::strcmp(json["command"].GetString(), "ls") != 0) {
+    if (std::strcmp(_jsonMsg["command"].GetString(), "ls") != 0) {
         _errMsg = "命令参数错误";
         return false;
     }

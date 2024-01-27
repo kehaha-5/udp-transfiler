@@ -42,11 +42,10 @@ struct lsMsg {
         return str.GetString();
     };
 
-    lsMsg static getStruct(rapidjson::Document& _jsonMsg) {
-        lsMsg msg;
-        msg.ack = _jsonMsg["ack"].GetUint64();
-        msg.command = _jsonMsg["command"].GetString();
-        msg.files = {};
+    void buildStruct(rapidjson::Document& _jsonMsg) {
+        ack = _jsonMsg["ack"].GetUint64();
+        command = _jsonMsg["command"].GetString();
+        files = {};
         for (auto& m : _jsonMsg["files"].GetArray()) {
             file::fileInfo file = {};
             if (m.HasMember("last_write_time")) {
@@ -58,9 +57,8 @@ struct lsMsg {
             if (m.HasMember("name")) {
                 file.name = m["name"].GetString();
             }
-            msg.files.push_back(file);
+            files.push_back(file);
         }
-        return msg;
     };
 };
 

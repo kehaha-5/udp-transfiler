@@ -3,17 +3,20 @@
 
 #include <netinet/in.h>
 
+#include <memory>
 #include <string>
 
 #include "msg/Validator.h"
 #include "rapidjson/document.h"
 
+typedef std::unique_ptr<msg::Validator> validPtr;
+
 namespace msgHandler {
 class Command {
    public:
-    Command(const char* msg) {
-        _jsonMsg.Parse(msg);
-        _valid = msg::Validator();
+    Command(std::string& msg) : _valid() {
+        _jsonMsg.Parse(msg.c_str());
+        _valid = std::make_unique<msg::Validator>(msg);
     };
     std::string handler();
 
@@ -23,7 +26,7 @@ class Command {
     std::string getCommand();
     rapidjson::Document _jsonMsg;
     std::string _errMsg;
-    msg::Validator _valid;
+    validPtr _valid;
 };
 }  // namespace msgHandler
 

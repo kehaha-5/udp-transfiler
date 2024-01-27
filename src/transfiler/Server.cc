@@ -26,10 +26,18 @@ void Server::readBack() {
     inet_ntop(AF_INET, &clientAddr.sin_addr, host.data(), sizeof(host));
     auto prot = ntohs(clientAddr.sin_port);
     info_log("udp recvfrom data from ip %s prot %d", host.data(), prot);
+    if (len == 0) {
+        info_log("get data len is 0");
+        delete[] buff;
+        return;
+    }
     info_log("data is %s", buff);
-    msgHandler::Command handler(buff);
-    auto res = handler.handler();
-    info_log("handler msg");
-    _udpPtr->sendMsg(res, clientAddr);
+    std::string data = buff;
     delete[] buff;
+    data.reserve(len);
+
+    msgHandler::Command handler(data);
+    auto res = handler.handler();
+    info_log("handler msg respones is %s", res.c_str());
+    _udpPtr->sendMsg(res, clientAddr);
 };

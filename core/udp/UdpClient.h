@@ -12,7 +12,7 @@ class UdpClient {
    public:
     UdpClient(evenPtr even, std::string &host, __uint16_t port);
     void sendMsg(std::string &msg);
-    const char *rev();
+    std::string rev();
 
    private:
     int _socketfd;

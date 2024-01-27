@@ -27,8 +27,8 @@ UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port) : _loop(l
 
     info_log("this server is running in %s:%i", host, port);
 
-    _threadpool = std::make_unique<pool::ThreadPool>(1);
-    info_log("threadpool is created threadNum:%d", 1);
+    _threadpool = std::make_unique<pool::ThreadPool>(5);
+    info_log("threadpool is created threadNum:%d", 5);
 
     loop->addIo(_socketFd, std::bind(&UdpServer::handleRead, this), EPOLLIN | EPOLLET);
 }

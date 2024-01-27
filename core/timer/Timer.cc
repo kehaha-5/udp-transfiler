@@ -29,35 +29,35 @@ Timer::Timer() {
     exit_if(res == -1, "init runAt settime error");
 }
 
-u_long Timer::runEvery(u_long timerout, TimerCb cb) {
+uint Timer::runEvery(u_long timerout, TimerCb cb) {
     TimerEvenSharedPtr even = std::make_shared<timerEven>();
     even->timeout = timerout;
     even->interval = true;
     even->cd = cb;
     runAfter(even);
-    int index = _currTimerIndex++;
+    uint index = _currTimerIndex++;
     _allTimerEven[index] = even;
     return index;
 }
 
-u_long Timer::runAt(TimerCb cb) {
+uint Timer::runAt(TimerCb cb) {
     TimerEvenSharedPtr even = std::make_shared<timerEven>();
     even->timeout = _intervalMs;
     even->interval = true;
     even->cd = cb;
     runAfter(even);
-    int index = _currTimerIndex++;
+    uint index = _currTimerIndex++;
     _allTimerEven[index] = even;
     return index;
 }
 
-u_long Timer::runAfter(u_long timerout, TimerCb cb) {
+uint Timer::runAfter(u_long timerout, TimerCb cb) {
     TimerEvenSharedPtr even = std::make_shared<timerEven>();
     even->timeout = timerout;
     even->interval = false;
     even->cd = cb;
     runAfter(even);
-    int index = _currTimerIndex++;
+    uint index = _currTimerIndex++;
     _allTimerEven[index] = even;
     return index;
 }

@@ -39,10 +39,10 @@ class Timer {
         _allTimerEven.clear();
     };
     int getTimerfd() { return _timerfd; };
-    u_long runEvery(u_long timeroutMs, TimerCb cb);
-    u_long runAfter(u_long timeroutMs, TimerCb cb);
-    u_long runAt(TimerCb cb);
-    void cancelTimerEven(int index) { _allTimerEven[index].reset(); };
+    uint runEvery(u_long timeroutMs, TimerCb cb);
+    uint runAfter(u_long timeroutMs, TimerCb cb);
+    uint runAt(TimerCb cb);
+    void cancelTimerEven(uint index) { _allTimerEven[index].reset(); };
     TimerOutCb getOutTimer();
     u_long getIntervalTimer() { return _intervalMs; }
 

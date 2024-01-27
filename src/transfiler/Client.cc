@@ -40,20 +40,26 @@ void Client::ls() {
         _ackSet.insert(ack);
     }
 
-    const char* data = rev();
-    if (data == nullptr) {
+    auto data = rev();
+
+    if (data.empty()) {
         _os.showError("服务器或网络异常，接受数据为空，请重试");
+        return;
     }
 
-    debug_log("rev data is %s", data);
+    debug_log("rev data is %s", data.c_str());
     auto json = rapidjson::Document();
-    auto valid = msg::Validator();
-    json.Parse(data);
-    valid.vaildLsMsg(json);
+    json.Parse(data.c_str());
+    auto valid = msg::Validator(data);
 
-    msg::lsMsg respMsg = msg::lsMsg::getStruct(json);
+    if (!valid.vaildLsMsg(json)) {
+        _os.showError(valid.getErrMsg());
+        return;
+    }
+
+    msg::lsMsg respMsg = {};
+    respMsg.buildStruct(json);
     _os.ls(respMsg);
-    delete[] data;
 }
 
 void Client::timerExec(u_long ack, std::string msg) {
@@ -73,4 +79,4 @@ void Client::sendto(std::string& msg) {
     _client->sendMsg(msg);
 }
 
-const char* Client::rev() { return _client->rev(); }
+std::string Client::rev() { return _client->rev(); }

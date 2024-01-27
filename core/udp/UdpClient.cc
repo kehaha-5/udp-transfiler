@@ -2,6 +2,9 @@
 #include <strings.h>
 #include <sys/socket.h>
 
+#include <cstring>
+#include <string>
+
 #include "Constant.h"
 #include "Logging.h"
 #include "UdpClient.h"
@@ -27,20 +30,23 @@ UdpClient::UdpClient(evenPtr even, std::string &host, __uint16_t port) {
 }
 
 void UdpClient::sendMsg(std::string &msg) {
-    int res = sendto(_socketfd, msg.c_str(), msg.size(), 0, (const struct sockaddr *)&_serveraddr,
-                     sizeof(_serveraddr));
+    int res = sendto(_socketfd, msg.c_str(), msg.size(), 0, (const struct sockaddr *)&_serveraddr, sizeof(_serveraddr));
     exit_if(res == -1, "sendMsg");
 }
 
-const char *UdpClient::rev() {
-    char *data = new char[MAX_MSG_LENGTH];
+std::string UdpClient::rev() {
+    char *buff = new char[MAX_MSG_LENGTH];
+    std::memset(buff, 0, MAX_MSG_LENGTH);
     struct sockaddr_in serveraddr = {};
     socklen_t serverLen = sizeof(serveraddr);
-    long res =
-        recvfrom(_socketfd, data, MAX_MSG_LENGTH, MSG_WAITALL, (struct sockaddr *)&serveraddr, &serverLen);
+    long res = recvfrom(_socketfd, buff, MAX_MSG_LENGTH, MSG_WAITALL, (struct sockaddr *)&serveraddr, &serverLen);
     if (res == 0) {
-        delete[] data;
+        delete[] buff;
         return nullptr;
     }
+    std::string data = buff;
+    delete[] buff;
+    data.reserve(res);
+
     return data;
 }

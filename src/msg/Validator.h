@@ -8,12 +8,13 @@
 namespace msg {
 class Validator {
    public:
-    bool vaildMsg(rapidjson::Document& _jsonMsg);
-    bool vaildLsMsg(rapidjson::Document& _jsonMsg);
+    Validator(std::string& sourceMsg) : _sourceMsg(sourceMsg){};
+    bool vaildMsg(rapidjson::Document& jsonMsg);
+    bool vaildLsMsg(rapidjson::Document& jsonMsg);
     std::string getErrMsg() { return _errMsg; }
 
    private:
-    std::string getErrMsgByRapidJsonErrCode(rapidjson::ParseErrorCode errCode);
+    std::string& _sourceMsg;
     std::string _errMsg;
 };
 }  // namespace msg.

@@ -5,15 +5,14 @@
 using namespace msgHandler;
 
 std::string Command::handler() {
-    if (!_valid.vaildMsg(_jsonMsg)) {
-        _errMsg = _valid.getErrMsg();
+    if (!_valid->vaildMsg(_jsonMsg)) {
+        _errMsg = _valid->getErrMsg();
         return getErrorMsg();
     }
-    auto workfile = file::Directory::getInstance();
     std::string command = _jsonMsg["command"].GetString();
     if (std::strcmp(command.c_str(), "ls") == 0) {
         msg::lsMsg msg;
-        msg.files = workfile->ls();
+        msg.files = file::Directory::getInstance().ls();
         msg.ack = _jsonMsg["ack"].GetUint64();
         return msg.jsonStr();
     };
