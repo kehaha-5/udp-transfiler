@@ -1,124 +1,181 @@
-
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <system_error>
 #include <thread>
-#include <vector>
 
 #include "Logging.h"
-#include "file/Directory.h"
+#include "file/File.h"
 
-using namespace file;
-
-class TestFile : public testing::Test {
+class TestFile : public ::testing::Test {
    protected:
     void SetUp() {
         logConfig logconf = {logLever::debug, logAppender::console};
         Log::setConfig(logconf);
-        auto currentPath = std::filesystem::current_path();
-        std::cout << _currentPath << std::endl;
-        currentPath.append(_filePath);
-        _currentPath = currentPath;
-        std::filesystem::create_directory(_currentPath);
-        file::Directory::getInstance().setFilePath(_currentPath);
-        createFiles();
+        _currentPath = std::filesystem::current_path();
+        _currentPath.append("testFile");
+        std::error_code ec;
+        std::filesystem::create_directory(_currentPath, ec);
+        ASSERT_FALSE(ec);
+        // 在测试之前执行的设置
+        // 在这里生成测试文件（文本和二进制文件）
+        generateTextTestFile();
+        generateBinaryTestFile();
+        generateNotSupportFile();
     }
 
-    void TearDown() { fs::remove_all(_currentPath); }
+    void TearDown() { std::filesystem::remove_all(_currentPath); }
+
+    void generateTextTestFile() {
+        _textFile = _currentPath / "test.txt";
+        std::ofstream file(_textFile);
+        ASSERT_TRUE(file.is_open());
+
+        for (char letter = 'a'; letter <= 'z'; ++letter) {
+            _textFileContext += letter;
+        }
+        file.write(&_textFileContext[0], _textFileContext.size());
+        file.close();
+    }
+
+    void generateBinaryTestFile() {
+        // 生成二进制测试文件的代码
+        _binFile = _currentPath / "test.bin";
+        std::ofstream file(_binFile, std::ios::binary);
+        ASSERT_TRUE(file.is_open());
+
+        // 写入一些测试数据
+        for (char letter = 'a'; letter <= 'z'; ++letter) {
+            _binFileContext += letter;
+        }
+        file.write(&_binFileContext[0], _binFileContext.size());
+        file.close();
+    }
+
+    void generateNotSupportFile() {
+        _linkFile = _currentPath / "test.link.test";
+        _linkFile2 = _currentPath / "testLink";
+        std::ofstream linkFile(_linkFile);
+        std::error_code ec;
+        std::filesystem::create_symlink(_linkFile, _linkFile2, ec);
+        if (ec) {
+            debug_log("create_symlink code %i,msg %s", ec.value(), ec.message().c_str());
+            ASSERT_TRUE(ec);
+        }
+        ASSERT_TRUE(std::filesystem::equivalent(_linkFile, _linkFile2));
+        ASSERT_TRUE(std::filesystem::is_symlink(_linkFile2));
+    }
 
    public:
-    int _threadNum = 100;
-    std::string _currentPath;
-    std::vector<std::string> _files = {};
-    void createFiles() {
-        std::vector<std::string> files = {"1.txt", "2.txt", "3.txt", "4.txt", "5.txt"};
-        for (auto it : files) {
-            auto currentPath = std::filesystem::current_path();
-            auto currFile = currentPath.append(_filePath).append(it);
-            std::ofstream file(currFile);
-            if (file.is_open()) {
-                file << "hello word file name is " << it.data() << std::endl;
-                file.close();
-                _files.push_back(it.data());
-            }
-        }
-    }
-    void multiplyThreadTest(std::function<void()> testFun) {
-        try {
-            std::vector<std::thread> threads;
-            threads.resize(_threadNum);
-            for (int i = 0; i < _threadNum; i++) {
-                threads[i] = (std::thread(testFun));
-            }
-            for (int i = 0; i < _threadNum; i++) {
-                if (threads[i].joinable()) {
-                    threads[i].join();
-                }
-            }
-        } catch (std::exception& e) {
-            std::cout << e.what() << std::endl;
-            throw e;
-        }
-    }
-
-   private:
-    std::string _filePath = "testFile";
+    fs::path _currentPath;
+    fs::path _textFile;
+    std::string _textFileContext;
+    fs::path _binFile;
+    std::string _binFileContext;
+    fs::path _linkFile;
+    fs::path _linkFile2;
+    int _threadNum = 30;
 };
 
-TEST_F(TestFile, functionalTest) {
-    debug_log("curr path is %s", _currentPath.c_str());
-    debug_log("dir path is %s", Directory::getInstance().getFullPath().c_str());
-    ASSERT_STREQ(_currentPath.c_str(), Directory::getInstance().getFullPath().c_str());
+TEST_F(TestFile, functionalTestFile) {
+    file::File file(_textFile);
+    ASSERT_FALSE(file.hasError());
+
+    file::File fileNotExist("not_exist_file.txt");
+    ASSERT_TRUE(fileNotExist.hasError());
+    auto notExitErrMsg = fileNotExist.getErrMsg();
+    ASSERT_TRUE(notExitErrMsg.code == file::errCode::fileNotExist);
+
+    // TODO symlink file
+    //  file::File fileNotSupported(_linkFile2);
+    //  ASSERT_TRUE(fileNotSupported.hasError());
+    //  auto notSupportedMsg = fileNotSupported.getErrMsg();
+    //  ASSERT_TRUE(notSupportedMsg.code == file::errCode::fileTypeNotSupported);
 }
 
-TEST_F(TestFile, multiplyThreadTest) {
-    auto currPath = _currentPath;
-    auto fun = std::bind([currPath]() {
-        try {
-            debug_log("curr path is %s", currPath.c_str());
-            debug_log("dir path is %s", Directory::getInstance().getFullPath().c_str());
-            ASSERT_STREQ(Directory::getInstance().getFullPath().c_str(), currPath.c_str());
-            debug_log("thread exit~ !!!");
-        } catch (std::exception& e) {
-            std::cout << e.what() << std::endl;
-            throw e;
+TEST_F(TestFile, ReadTextFile) {
+    file::File file(_textFile);
+    file::fileData testData;
+
+    ASSERT_TRUE(file.getPosContext(0, 20, testData));
+    EXPECT_EQ(testData.realSize, 20);  // 这里根据实际文件内容的长度进行修改
+    EXPECT_STREQ(testData.data.c_str(), _textFileContext.substr(0, 20).c_str());
+
+    // 测试文件读取到最后
+    ASSERT_TRUE(file.getPosContext(0, 30, testData));
+    EXPECT_EQ(testData.realSize, _textFileContext.size());
+    EXPECT_STREQ(testData.data.c_str(), _textFileContext.c_str());
+
+    // 测试文件 pos 位置大于文件可读位置
+    ASSERT_FALSE(file.getPosContext(100, 1000, testData));
+    ASSERT_TRUE(file.hasError());
+    ASSERT_TRUE(file.getErrMsg().code == file::errCode::fileSzieOut);
+}
+
+TEST_F(TestFile, ReadBinaryFile) {
+    // 测试二进制文件正常读取
+    file::File file(_binFile);  // 请根据你的文件类构造函数进行修改
+    file::fileData testData;
+
+    ASSERT_TRUE(file.getPosContext(0, 20, testData));
+    EXPECT_EQ(testData.realSize, 20);  // 这里根据实际文件内容的长度进行修改
+    EXPECT_EQ(std::memcmp(testData.data.data(), _binFileContext.substr(0, 20).data(), 20), 0);
+
+    // 测试文件读取到最后
+    ASSERT_TRUE(file.getPosContext(0, 30, testData));
+    EXPECT_EQ(testData.realSize, _binFileContext.size());
+    EXPECT_EQ(memcmp(testData.data.data(), _binFileContext.data(), _binFileContext.size()), 0);
+
+    // 测试文件 pos 位置大于文件可读位置
+    ASSERT_FALSE(file.getPosContext(100, 1000, testData));
+    ASSERT_TRUE(file.getErrMsg().code == file::errCode::fileSzieOut);
+}
+
+TEST_F(TestFile, RandomReadBinaryFile) {
+    // 测试二进制文件正常读取
+    file::File file(_binFile);  // 请根据你的文件类构造函数进行修改
+    for (int i = 0; i < 26; i++) {
+        for (int j = (i == 0) ? 1 : i; j < 26; j++) {
+            file::fileData testData;
+            auto res = file.getPosContext(i, j, testData);
+            EXPECT_TRUE(res);
+            if (!res) {
+                debug_log("i is %i j is %i err is %s", i, j, file.getErrMsg().errMsg.c_str());
+            }
+            debug_log("i is %i j is %i ", i, j);
+            ASSERT_STREQ(testData.data.c_str(), _binFileContext.substr(i, j).c_str());
         }
-    });
-    multiplyThreadTest(fun);
-}
-
-TEST_F(TestFile, testLs) {
-    ASSERT_GT(_files.size(), 0);
-    auto lsInfo = Directory::getInstance().ls();
-    ASSERT_EQ(lsInfo.size(), _files.size());
-    for (auto it : lsInfo) {
-        auto res = std::find(_files.begin(), _files.end(), it.name);
-        ASSERT_TRUE(res != _files.end());
     }
 }
 
-TEST_F(TestFile, multiplyThreadTestLs) {
-    auto files = _files;
-    auto fun = std::bind([&files]() {
-        try {
-            ASSERT_GT(files.size(), 0);
-            auto lsInfo = Directory::getInstance().ls();
-            ASSERT_EQ(lsInfo.size(), files.size());
-            for (auto it : lsInfo) {
-                auto res = std::find(files.begin(), files.end(), it.name);
-                ASSERT_TRUE(res != files.end());
+TEST_F(TestFile, multiplyThreadReadTest) {
+    std::vector<std::thread> threads;
+    int _threadNum = 30;
+    threads.resize(_threadNum);
+    for (int i = 0; i < _threadNum; i++) {
+        threads[i] = std::thread(std::bind([this]() {
+            file::File file(_binFile);
+            for (int i = 0; i < 26; i++) {
+                for (int j = (i == 0) ? 1 : i; j < 26; j++) {
+                    file::fileData testData;
+                    auto res = file.getPosContext(i, j, testData);
+                    EXPECT_TRUE(res);
+                    if (!res) {
+                        debug_log("i is %i j is %i err is %s", i, j, file.getErrMsg().errMsg.c_str());
+                    }
+                    debug_log("i is %i j is %i ", i, j);
+                    ASSERT_STREQ(testData.data.c_str(), _binFileContext.substr(i, j).c_str());
+                }
             }
-        } catch (std::exception& e) {
-            std::cout << e.what() << std::endl;
-            throw e;
-        }
-    });
-    multiplyThreadTest(fun);
+        }));
+    }
+    for (int i = 0; i < _threadNum; i++) {
+        threads[i].join();
+    }
 }
 
 int main(int argc, char** argv) {
-    testing::InitGoogleTest(&argc, argv);
+    ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

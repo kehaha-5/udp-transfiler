@@ -2,17 +2,47 @@
 #define FIEL_FILE_H
 
 #include <filesystem>
+#include <fstream>
 #include <string>
 
 namespace fs = std::filesystem;
 
 namespace file {
+
+enum errCode {
+    fileNotExist = 0,
+    fileTypeNotSupported,
+    fileCanNotBeOpened,
+    failureInRead,
+    fileSzieOut,
+    invalidSzie,
+};
+
+struct errMsg {
+    errCode code;
+    std::string errMsg;
+};
+
+struct fileData {
+    std::string data;
+    int realSize;
+    std::string hash;
+};
+
 class File {
    public:
     File(std::string path);
+    bool hasError() { return _hasErr; }
+    errMsg getErrMsg() { return _err; }
+    bool getPosContext(int pos, int size, fileData &data);
 
    private:
+    void setErrMsg(errCode code);
+    std::string getErrMsgByErrCode(errCode code);
+    bool _hasErr = false;
+    errMsg _err;
     fs::path _filepathObj;
+    std::ifstream _file;
 };
 }  // namespace file
 

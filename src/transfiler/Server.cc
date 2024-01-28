@@ -1,6 +1,5 @@
 #include <netinet/in.h>
 
-#include <cstring>
 #include <functional>
 #include <memory>
 
@@ -17,23 +16,19 @@ Server::Server(EventLoop* loop, const char* host, uint16_t port) {
 }
 
 void Server::readBack() {
-    char* buff = new char[MAX_MSG_LENGTH];
-    std::memset(buff, 0, MAX_MSG_LENGTH);
+    std::string data(MAX_MSG_LENGTH, '\0');
     struct sockaddr_in clientAddr;
     int clientLen = sizeof(clientAddr);
-    int len = recvfrom(_udpPtr->getSocketfd(), buff, MAX_MSG_LENGTH, 0, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
-    std::string host;
-    inet_ntop(AF_INET, &clientAddr.sin_addr, host.data(), sizeof(host));
+    int len = recvfrom(_udpPtr->getSocketfd(), &data[0], MAX_MSG_LENGTH, 0, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
+    std::string host(IP_V4_LEN, '\0');
+    inet_ntop(AF_INET, &clientAddr.sin_addr, &host[0], sizeof(host));
     auto prot = ntohs(clientAddr.sin_port);
     info_log("udp recvfrom data from ip %s prot %d", host.data(), prot);
     if (len == 0) {
         info_log("get data len is 0");
-        delete[] buff;
         return;
     }
-    info_log("data is %s", buff);
-    std::string data = buff;
-    delete[] buff;
+    info_log("data is %s", data.c_str());
     data.reserve(len);
 
     msgHandler::Command handler(data);

@@ -2,7 +2,6 @@
 #include <strings.h>
 #include <sys/socket.h>
 
-#include <cstring>
 #include <string>
 
 #include "Constant.h"
@@ -35,18 +34,13 @@ void UdpClient::sendMsg(std::string &msg) {
 }
 
 std::string UdpClient::rev() {
-    char *buff = new char[MAX_MSG_LENGTH];
-    std::memset(buff, 0, MAX_MSG_LENGTH);
+    std::string data(MAX_MSG_LENGTH, '\0');
     struct sockaddr_in serveraddr = {};
     socklen_t serverLen = sizeof(serveraddr);
-    long res = recvfrom(_socketfd, buff, MAX_MSG_LENGTH, MSG_WAITALL, (struct sockaddr *)&serveraddr, &serverLen);
+    long res = recvfrom(_socketfd, &data[0], MAX_MSG_LENGTH, MSG_WAITALL, (struct sockaddr *)&serveraddr, &serverLen);
     if (res == 0) {
-        delete[] buff;
         return nullptr;
     }
-    std::string data = buff;
-    delete[] buff;
     data.reserve(res);
-
     return data;
 }

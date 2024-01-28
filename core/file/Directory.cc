@@ -3,7 +3,6 @@
 #include <chrono>
 #include <cmath>
 #include <cstdio>
-#include <cstring>
 #include <ctime>
 #include <filesystem>
 #include <string>
@@ -41,19 +40,16 @@ filesInfo Directory::ls() {
 
 std::string Directory::humanReadable(std::uintmax_t size) {
     std::string res;
-    char* buff = new char[10];  // 整数最多为4位超过4位上升一个单位，小数点一位，小数最多两位，终止\0符号一位
-    std::memset(buff, 0, 10);
+    res.resize(10, 0);
     double mantissa = size;
     int i{};
     for (; mantissa >= 1024.0; mantissa /= 1024.0, ++i) {  // 判断mantissa是否有单位默认单位是B，每个单位相差1024
     }
-    std::sprintf(buff, "%.2f", std::ceil(mantissa * 10.0) / 10.0);
-    res = buff;
+    std::sprintf(&res[0], "%.2f", std::ceil(mantissa * 10.0) / 10.0);
     res += i["BKMGTPE"];
     if (i > 0) {
         res += 'B';
     }
-    delete[] buff;
     return res;
 }
 

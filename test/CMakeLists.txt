@@ -9,20 +9,18 @@ FetchContent_MakeAvailable(googletest)
 
 include_directories(${PROJECT_SOURCE_DIR}/core ${PROJECT_SOURCE_DIR}/src)
 
-add_executable(TESTTIMER ${PROJECT_SOURCE_DIR}/test/TestTimer.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
-target_link_libraries(TESTTIMER GTest::gtest_main GTest::gtest rapidjson )
-
-add_executable(TESTACK ${PROJECT_SOURCE_DIR}/test/TestAck.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
-target_link_libraries(TESTACK GTest::gtest_main GTest::gtest rapidjson )
-
-add_executable(TESTFILE ${PROJECT_SOURCE_DIR}/test/TestFile.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
-target_link_libraries(TESTFILE GTest::gtest_main GTest::gtest rapidjson )
-
-
-
 include(GoogleTest)
-gtest_discover_tests(TESTTIMER)
-gtest_discover_tests(TESTACK)
-gtest_discover_tests(TESTFILE)
+
+function(addTest testName filename)
+  add_executable(${testName} ${PROJECT_SOURCE_DIR}/test/${filename}.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
+  target_link_libraries(${testName} GTest::gtest_main GTest::gtest rapidjson )
+  gtest_discover_tests(${testName})
+endfunction()
+
+addTest(TESTTIMER TestTimer)
+addTest(TESTACK TestAck)
+addTest(TESTDIR TestDir)
+addTest(TESTFILE TestFile)
+
 
 
