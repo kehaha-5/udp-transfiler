@@ -5,7 +5,7 @@
 
 #include <string>
 
-#include "file/Directory.h"
+#include "file/server/Directory.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 namespace msg {
@@ -14,7 +14,7 @@ struct lsMsg {
     lsMsg() { command = "ls"; };
     ~lsMsg() { files.clear(); }
     std::string command;
-    file::filesInfo files = {};
+    file::server::filesInfo files = {};
     u_long ack;
     std::string jsonStr() {
         rapidjson::StringBuffer str;
@@ -47,7 +47,7 @@ struct lsMsg {
         command = _jsonMsg["command"].GetString();
         files = {};
         for (auto& m : _jsonMsg["files"].GetArray()) {
-            file::fileInfo file = {};
+            file::server::fileInfo file = {};
             if (m.HasMember("last_write_time")) {
                 file.last_write_time = m["last_write_time"].GetString();
             }

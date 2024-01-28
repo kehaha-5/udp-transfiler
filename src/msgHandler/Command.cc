@@ -1,6 +1,6 @@
 
 #include "Command.h"
-#include "file/Directory.h"
+#include "file/server/Directory.h"
 #include "msg/Command.h"
 using namespace msgHandler;
 
@@ -12,7 +12,7 @@ std::string Command::handler() {
     std::string command = _jsonMsg["command"].GetString();
     if (std::strcmp(command.c_str(), "ls") == 0) {
         msg::lsMsg msg;
-        msg.files = file::Directory::getInstance().ls();
+        msg.files = file::server::Directory::getInstance().ls();
         msg.ack = _jsonMsg["ack"].GetUint64();
         return msg.jsonStr();
     };

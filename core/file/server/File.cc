@@ -8,7 +8,7 @@
 #include "File.h"
 #include "Logging.h"
 
-using namespace file;
+using namespace file::server;
 
 File::File(std::string path) {
     _filepathObj = path;
@@ -59,17 +59,17 @@ void File::setErrMsg(errCode code) {
 
 std::string File::getErrMsgByErrCode(errCode code) {
     switch (code) {
-        case file::errCode::fileNotExist:
+        case file::server::errCode::fileNotExist:
             return "文件不存在";
-        case file::errCode::fileTypeNotSupported:
+        case file::server::errCode::fileTypeNotSupported:
             return "不支持该文件类型的";
-        case file::errCode::fileCanNotBeOpened:
+        case file::server::errCode::fileCanNotBeOpened:
             return "文件无法被打开";
-        case file::errCode::failureInRead:
+        case file::server::errCode::failureInRead:
             return "文件读取错误";
-        case file::errCode::fileSzieOut:
+        case file::server::errCode::fileSzieOut:
             return "文件szie超出大小";
-        case file::errCode::invalidSzie:
+        case file::server::errCode::invalidSzie:
             return "非法长度";
         default:
             return "未知错误";

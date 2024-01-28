@@ -8,9 +8,9 @@
 #include <vector>
 
 #include "Logging.h"
-#include "file/Directory.h"
+#include "file/server/Directory.h"
 
-using namespace file;
+using namespace file::server;
 
 class TestDir : public testing::Test {
    protected:
@@ -22,7 +22,7 @@ class TestDir : public testing::Test {
         currentPath.append(_filePath);
         _currentPath = currentPath;
         std::filesystem::create_directory(_currentPath);
-        file::Directory::getInstance().setFilePath(_currentPath);
+        Directory::getInstance().setFilePath(_currentPath);
         createFiles();
     }
 

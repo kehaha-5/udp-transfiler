@@ -7,7 +7,7 @@
 
 namespace fs = std::filesystem;
 
-namespace file {
+namespace file::server {
 
 struct fileInfo {
     std::string last_write_time;
@@ -33,6 +33,6 @@ class Directory {
     std::string _fullPath;
 };
 
-}  // namespace file
+}  // namespace file::server
 
 #endif

@@ -10,7 +10,7 @@
 #include "Directory.h"
 #include "Logging.h"
 
-using namespace file;
+using namespace file::server;
 
 Directory& Directory::getInstance() {
     static Directory _self;

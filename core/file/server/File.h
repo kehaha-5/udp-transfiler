@@ -7,7 +7,7 @@
 
 namespace fs = std::filesystem;
 
-namespace file {
+namespace file::server {
 
 enum errCode {
     fileNotExist = 0,
@@ -44,6 +44,6 @@ class File {
     fs::path _filepathObj;
     std::ifstream _file;
 };
-}  // namespace file
+}  // namespace file::server
 
 #endif

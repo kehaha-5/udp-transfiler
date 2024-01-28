@@ -6,7 +6,9 @@
 #include <thread>
 
 #include "Logging.h"
-#include "file/File.h"
+#include "file/server/File.h"
+
+using namespace file::server;
 
 class TestFile : public ::testing::Test {
    protected:
@@ -79,24 +81,24 @@ class TestFile : public ::testing::Test {
 };
 
 TEST_F(TestFile, functionalTestFile) {
-    file::File file(_textFile);
+    File file(_textFile);
     ASSERT_FALSE(file.hasError());
 
-    file::File fileNotExist("not_exist_file.txt");
+    File fileNotExist("not_exist_file.txt");
     ASSERT_TRUE(fileNotExist.hasError());
     auto notExitErrMsg = fileNotExist.getErrMsg();
-    ASSERT_TRUE(notExitErrMsg.code == file::errCode::fileNotExist);
+    ASSERT_TRUE(notExitErrMsg.code == errCode::fileNotExist);
 
     // TODO symlink file
-    //  file::File fileNotSupported(_linkFile2);
+    //  File fileNotSupported(_linkFile2);
     //  ASSERT_TRUE(fileNotSupported.hasError());
     //  auto notSupportedMsg = fileNotSupported.getErrMsg();
-    //  ASSERT_TRUE(notSupportedMsg.code == file::errCode::fileTypeNotSupported);
+    //  ASSERT_TRUE(notSupportedMsg.code == errCode::fileTypeNotSupported);
 }
 
 TEST_F(TestFile, ReadTextFile) {
-    file::File file(_textFile);
-    file::fileData testData;
+    File file(_textFile);
+    fileData testData;
 
     ASSERT_TRUE(file.getPosContext(0, 20, testData));
     EXPECT_EQ(testData.realSize, 20);  // 这里根据实际文件内容的长度进行修改
@@ -110,13 +112,13 @@ TEST_F(TestFile, ReadTextFile) {
     // 测试文件 pos 位置大于文件可读位置
     ASSERT_FALSE(file.getPosContext(100, 1000, testData));
     ASSERT_TRUE(file.hasError());
-    ASSERT_TRUE(file.getErrMsg().code == file::errCode::fileSzieOut);
+    ASSERT_TRUE(file.getErrMsg().code == errCode::fileSzieOut);
 }
 
 TEST_F(TestFile, ReadBinaryFile) {
     // 测试二进制文件正常读取
-    file::File file(_binFile);  // 请根据你的文件类构造函数进行修改
-    file::fileData testData;
+    File file(_binFile);  // 请根据你的文件类构造函数进行修改
+    fileData testData;
 
     ASSERT_TRUE(file.getPosContext(0, 20, testData));
     EXPECT_EQ(testData.realSize, 20);  // 这里根据实际文件内容的长度进行修改
@@ -129,15 +131,15 @@ TEST_F(TestFile, ReadBinaryFile) {
 
     // 测试文件 pos 位置大于文件可读位置
     ASSERT_FALSE(file.getPosContext(100, 1000, testData));
-    ASSERT_TRUE(file.getErrMsg().code == file::errCode::fileSzieOut);
+    ASSERT_TRUE(file.getErrMsg().code == errCode::fileSzieOut);
 }
 
 TEST_F(TestFile, RandomReadBinaryFile) {
     // 测试二进制文件正常读取
-    file::File file(_binFile);  // 请根据你的文件类构造函数进行修改
+    File file(_binFile);  // 请根据你的文件类构造函数进行修改
     for (int i = 0; i < 26; i++) {
         for (int j = (i == 0) ? 1 : i; j < 26; j++) {
-            file::fileData testData;
+            fileData testData;
             auto res = file.getPosContext(i, j, testData);
             EXPECT_TRUE(res);
             if (!res) {
@@ -155,10 +157,10 @@ TEST_F(TestFile, multiplyThreadReadTest) {
     threads.resize(_threadNum);
     for (int i = 0; i < _threadNum; i++) {
         threads[i] = std::thread(std::bind([this]() {
-            file::File file(_binFile);
+            File file(_binFile);
             for (int i = 0; i < 26; i++) {
                 for (int j = (i == 0) ? 1 : i; j < 26; j++) {
-                    file::fileData testData;
+                    fileData testData;
                     auto res = file.getPosContext(i, j, testData);
                     EXPECT_TRUE(res);
                     if (!res) {
