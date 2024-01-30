@@ -20,6 +20,7 @@ class TimerTest : public testing::Test {
     }
     void TearDown() {
         _loop->setRunning(false);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
         delete _loop;
     }
 

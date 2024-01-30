@@ -2,7 +2,7 @@
 #define INTERACTION_H
 #include <string>
 
-#include "msg/Command.h"
+#include "msg/Msg.h"
 
 namespace interaction {
 struct inputCommand {

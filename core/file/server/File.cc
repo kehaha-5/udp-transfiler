@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 
-#include "Constant.h"
 #include "File.h"
 #include "Logging.h"
 
@@ -33,7 +32,7 @@ bool File::getPosContext(int pos, int size, fileData &data) {
             setErrMsg(errCode::fileCanNotBeOpened);
             return false;
         }
-        data.data.resize(MAX_FILE_DATA_SIZE, '\0');
+        data.data.resize(size, 0);
         file.seekg(pos);
         file.read(&data.data[0], size);
         data.realSize = file.gcount();

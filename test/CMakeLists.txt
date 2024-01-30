@@ -21,6 +21,7 @@ addTest(TESTTIMER TestTimer)
 addTest(TESTACK TestAck)
 addTest(TESTDIR TestDir)
 addTest(TESTFILE TestFile)
+addTest(TESTMSG TestMsg)
 
 
 

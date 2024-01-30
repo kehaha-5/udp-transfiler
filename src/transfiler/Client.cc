@@ -8,7 +8,7 @@
 #include "EventLoop.h"
 #include "Interaction.h"
 #include "Logging.h"
-#include "msg/Command.h"
+#include "msg/Msg.h"
 #include "msg/Validator.h"
 #include "transfiler/AckRandom.h"
 #include "udp/UdpClient.h"
@@ -31,7 +31,6 @@ void Client::execCommand(interaction::inputCommand command) {
 void Client::ls() {
     msg::lsMsg msg = {};
     auto ack = AckRandom::getAck();
-    msg.ack = ack;
     auto strMsg = msg.jsonStr();
     debug_log("client send msg %s", strMsg.c_str());
     sendto(strMsg);
