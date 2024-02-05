@@ -39,8 +39,8 @@ std::string UdpClient::rev() {
     socklen_t serverLen = sizeof(serveraddr);
     long res = recvfrom(_socketfd, &data[0], MAX_MSG_LENGTH, MSG_WAITALL, (struct sockaddr *)&serveraddr, &serverLen);
     if (res == 0) {
-        return nullptr;
+        return std::string();
     }
-    data.reserve(res);
+    data.resize(res);
     return data;
 }

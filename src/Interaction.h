@@ -1,8 +1,7 @@
 #ifndef INTERACTION_H
 #define INTERACTION_H
 #include <string>
-
-#include "msg/Msg.h"
+#include "file/server/Directory.h"
 
 namespace interaction {
 struct inputCommand {
@@ -14,7 +13,7 @@ class Interaction {
    public:
     inputCommand input(std::string cliName);
     void showMsg(std::string &msg);
-    void ls(msg::lsMsg &lsMsg);
+    void ls(file::server::filesInfo &fileinfos);
     void showError(std::string msg);
 
    private:

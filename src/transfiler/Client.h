@@ -12,6 +12,8 @@
 
 #include "EventLoop.h"
 #include "Interaction.h"
+#include "msg/Buffer.h"
+#include "msg/proto/package_msg.pb.h"
 #include "udp/UdpClient.h"
 
 namespace transfiler {
@@ -19,6 +21,8 @@ typedef std::unique_ptr<udp::UdpClient> udpClientPtr;
 typedef std::shared_ptr<EventLoop> evevPtr;
 typedef std::function<std::string()> msgCb;
 typedef std::set<u_long> ackSet;
+typedef std::function<void()> HandlerRecvCb;
+
 class Client {
    public:
     Client(std::string host, __uint16_t port);
@@ -30,7 +34,10 @@ class Client {
     void downfile();
     void handleRead();
     void timerExec(u_long ack, std::string msg);
-    void sendto(std::string& msg);
+    void sendto(std::string& msg, msg::proto::MsgType type);
+    void listenResq();
+    void setHandlerRecvCb(HandlerRecvCb cb) { _handlerRecvCd = cb; }
+    void listenResqAndHandler();
     std::string rev();
     udpClientPtr _client;
     interaction::Interaction _os;
@@ -39,6 +46,8 @@ class Client {
     std::mutex _ackSetLock;
     std::mutex _sendtoLock;
     std::thread _timerThread;
+    msg::Buffer _msgBuffer;
+    HandlerRecvCb _handlerRecvCd;
 };
 }  // namespace transfiler
 #endif

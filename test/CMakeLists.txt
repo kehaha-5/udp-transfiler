@@ -13,7 +13,7 @@ include(GoogleTest)
 
 function(addTest testName filename)
   add_executable(${testName} ${PROJECT_SOURCE_DIR}/test/${filename}.cc ${CORE_H} ${CORE_CPP} ${SRC_H} ${SRC_CPP} )
-  target_link_libraries(${testName} GTest::gtest_main GTest::gtest rapidjson )
+  target_link_libraries(${testName} GTest::gtest_main GTest::gtest protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite  )
   gtest_discover_tests(${testName})
 endfunction()
 

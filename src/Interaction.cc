@@ -62,12 +62,12 @@ inputCommand Interaction::input(std::string cliName) {
     }
 }
 
-void Interaction::ls(msg::lsMsg& lsMsg) {
+void Interaction::ls(file::server::filesInfo& fileinfos) {
     std::cout << std::setw(LSLASTWRITETIMEW) << std::left << "last_write_time";
     std::cout << std::setw(LSSIZEW) << std::left << "size";
     std::cout << std::left << "name";
     std::cout << std::endl;
-    for (auto it : lsMsg.files) {
+    for (auto it : fileinfos) {
         std::cout << std::setw(LSLASTWRITETIMEW) << std::left << it.last_write_time;
         std::cout << std::setw(LSSIZEW) << std::left << it.size;
         std::cout << std::left << it.name;

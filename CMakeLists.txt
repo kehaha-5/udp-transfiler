@@ -34,9 +34,9 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)   
 
-find_package(RapidJSON CONFIG REQUIRED)
+find_package(protobuf CONFIG REQUIRED)
 
-target_link_libraries(TRANFILER_CLIENT PRIVATE rapidjson)
-target_link_libraries(TRANFILER_SERVER PRIVATE rapidjson)
+target_link_libraries(TRANFILER_CLIENT PRIVATE protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite)
+target_link_libraries(TRANFILER_SERVER PRIVATE protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/test)

@@ -19,7 +19,7 @@ int main(int, char**) {
     client = make_unique<Client>("127.0.0.1", 23111);
     clientInteraction = make_unique<Interaction>();
     while (true) {
-        inputCommand command = clientInteraction->input("ftp>");
+        inputCommand command = clientInteraction->input("udp-transfiler>");
         client->execCommand(command);
     }
 }

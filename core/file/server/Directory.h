@@ -2,6 +2,7 @@
 #define FILE_DIRECTORY_H
 
 #include <filesystem>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -31,6 +32,7 @@ class Directory {
     Directory(){};
     fs::path _filepathObj;
     std::string _fullPath;
+    std::mutex _lsLock;
 };
 
 }  // namespace file::server

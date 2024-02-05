@@ -116,6 +116,5 @@ TimerOutCb Timer::getOutTimer() {
         _currTimerWheelIt = _timerWheel.begin();
         _currTimerWheelIndex = 0;
     }
-    debug_log("timer index add once now is %i", _currTimerWheelIndex);
     return item;
 }

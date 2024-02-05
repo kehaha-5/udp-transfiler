@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package msg.proto;
+
+option optimize_for = CODE_SIZE;
+
+enum MsgType{
+  Command=1;
+  FileInfos=2;
+};
+
+// Define the base message.
+message PackageMsg {
+  // Define the subcontract info fields.
+  required uint64 ack = 1; // 标识唯一一个信息 信息可能会被分成很多包
+  required uint32 order = 2;// 此包在信息中的位置 0,1,2,3,4,5
+  required uint32 dataLen = 3;// 本次信息的长度
+  required uint32 tatolSzie = 4;// 整个信息的总长度
+  required MsgType msgType = 5;
+
+  // Define the data field.
+  required bytes data = 6;
+}
+

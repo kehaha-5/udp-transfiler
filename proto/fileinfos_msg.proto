@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package msg.proto;
+
+
+option optimize_for = CODE_SIZE;
+
+message fileInfo{
+    required string name = 1;
+    required string size = 2;
+    required string last_write_time = 3;
+}
+
+message FileInfoMsg{
+    repeated fileInfo fileinfos = 1;
+}

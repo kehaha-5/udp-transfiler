@@ -26,15 +26,19 @@ void Directory::setFilePath(std::string path) {
 filesInfo Directory::ls() {
     auto directoryIt = fs::directory_iterator(_filepathObj);
     filesInfo infos;
-    for (auto item : directoryIt) {
-        if (item.is_regular_file()) {
-            fileInfo info;
-            info.name = item.path().filename();
-            info.size = humanReadable(item.file_size());
-            info.last_write_time = fileTimeToStr(item.last_write_time());
-            infos.push_back(info);
+    {
+    std::lock_guard<std::mutex> lock(_lsLock);
+        for (auto item : directoryIt) {
+            if (item.is_regular_file()) {
+                fileInfo info;
+                info.name = item.path().filename();
+                info.size = humanReadable(item.file_size());
+                info.last_write_time = fileTimeToStr(item.last_write_time());
+                infos.push_back(info);
+            }
         }
     }
+
     return infos;
 }
 

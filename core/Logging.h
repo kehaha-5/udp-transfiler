@@ -1,3 +1,5 @@
+#ifndef LOGGING_H
+#define LOGGING_H
 #include <cerrno>
 #include <cstdarg>
 #include <cstdio>
@@ -53,3 +55,5 @@ inline void IFEXIT(bool condition, const char* fileName, const char* func, int l
 #define debug_log(args...) LOG(logType::debug, __FILE__, __func__, __LINE__, ##args);
 #define exit_if(condition, args...) IFEXIT(condition, __FILE__, __func__, __LINE__, ##args);
 #define exit_log(args...) IFEXIT(true, __FILE__, __func__, __LINE__, ##args);
+
+#endif

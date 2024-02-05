@@ -59,7 +59,6 @@ void EventLoop::handleTimer() {
     for (timer::TimerCb cb : cbs) {
         cb();
     }
-    debug_log("handleTimer has do weal %i task", cbs.size());
 }
 
 void EventLoop::startTimer() {

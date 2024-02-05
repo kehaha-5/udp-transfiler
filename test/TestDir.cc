@@ -110,6 +110,7 @@ TEST_F(TestDir, multiplyThreadTestLs) {
                 auto res = std::find(files.begin(), files.end(), it.name);
                 ASSERT_TRUE(res != files.end());
             }
+            info_log("thread run finish %lu", std::this_thread::get_id());
         } catch (std::exception& e) {
             std::cout << e.what() << std::endl;
             throw e;

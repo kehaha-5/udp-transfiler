@@ -86,6 +86,16 @@
             ],
             "group": "test",
             "detail": "valgrindTest"
+        },
+        {
+            "type": "shell",
+            "label": "buildProtocMsg",
+            "options": {
+                "cwd": "${workspaceFolder}/proto"
+            },
+            "command": "rm -rf ${workspaceFolder}/src/msg/proto/* && protoc *.proto  --cpp_out=${workspaceFolder}/src/msg/proto",
+            "group": "build",
+            "detail": "build proto msg"
         }
     ]
 }

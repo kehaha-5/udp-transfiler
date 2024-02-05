@@ -1,120 +1,167 @@
 #ifndef MSG_COMMAND_H
 #define MSG_COMMAND_H
-#include <rapidjson/document.h>
 #include <sys/types.h>
 
+#include <cassert>
 #include <cmath>
-#include <cstring>
 #include <string>
 #include <vector>
 
 #include "Constant.h"
+#include "Logging.h"
 #include "file/server/Directory.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
+#include "msg/proto/command_msg.pb.h"
+#include "msg/proto/fileinfos_msg.pb.h"
+#include "msg/proto/package_msg.pb.h"
+
+using namespace msg::proto;
 namespace msg {
 
-const u_int EXTENT_INFO_LEN = sizeof(u_long) + (sizeof(u_int) * 3);
-const u_int JSON_MARK_LEN = 20;  // 数据用json表示时，json字符串的标志位
-const u_int PALYLOAD_LEN = MAX_MSG_LENGTH - EXTENT_INFO_LEN - JSON_MARK_LEN;
+const u_int EXTENT_INFO_LEN = sizeof(u_long) + (sizeof(u_int) * 3) + 5;
+const u_int PALYLOAD_LEN = MAX_MSG_LENGTH - EXTENT_INFO_LEN;
 
-struct Msg {
-    u_long ack;          // 标识唯一一个信息 信息可能会被分成很多包
-    u_int order;         // 此包在信息中的位置 0,1,2,3,4,5
-    u_int tatolPackges;  // 分包数量
-    u_int tatolSzie;     // 整个信息的总长度
-    char* data;          // json数据
-    ~Msg() { delete[] data; }
-};
+template <typename T>
+inline bool basePaserAndValidateMsg(T& resqMsg, std::string& strData, std::string& errMsg) {
+    if (!resqMsg.ParseFromString(strData)) {
+        errMsg = "parse falut ";
+        return false;
+    }
+    debug_log("str is %s", resqMsg.DebugString().c_str());
+    if (!resqMsg.IsInitialized()) {
+        errMsg = "require has not be set ";
+        errMsg += resqMsg.InitializationErrorString();
+        return false;
+    }
+    return true;
+}
 
-struct lsMsg {
-    lsMsg() { command = "ls"; };
-    ~lsMsg() { files.clear(); }
-    std::string command;
-    file::server::filesInfo files = {};
-    std::string jsonStr() {
-        rapidjson::StringBuffer str;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(str);
-        writer.StartObject();
-        writer.Key("command");
-        writer.String(command.c_str());
-        writer.Key("files");
-        writer.StartArray();
-        for (auto it : files) {
-            writer.StartObject();
-            writer.Key("last_write_time");
-            writer.String(it.last_write_time.c_str());
-            writer.Key("name");
-            writer.String(it.name.c_str());
-            writer.Key("size");
-            writer.String(it.size.c_str());
-            writer.EndObject();
+struct Package {
+    u_long ack;       // 标识唯一一个信息 信息可能会被分成很多包
+    u_int order;      // 此包在信息中的位置 0,1,2,3,4,5
+    u_int tatolSzie;  // 整个信息的总长度
+    u_int dataLen;    // 本次信息的长度
+    ::MsgType msgType;
+    std::string data;  // 数据
+    void serialized(std::string* out) {
+        PackageMsg resMsg;
+        resMsg.set_ack(ack);
+        resMsg.set_order(order);
+        resMsg.set_datalen(dataLen);
+        resMsg.set_tatolszie(tatolSzie);
+        resMsg.set_data(data);
+        resMsg.set_msgtype(msgType);
+        assert(resMsg.ByteSizeLong() <= MAX_MSG_LENGTH);
+        assert(resMsg.SerializeToString(out));
+    }
+    bool build(std::string& strData, std::string& errMsg) {
+        PackageMsg resqMsg;
+        if (!basePaserAndValidateMsg<PackageMsg>(resqMsg, strData, errMsg)) {
+            return false;
         }
-        writer.EndArray();
-        writer.EndObject();
-        writer.Flush();
-        return str.GetString();
-    };
-
-    void buildStruct(rapidjson::Document& _jsonMsg) {
-        command = _jsonMsg["command"].GetString();
-        files = {};
-        for (auto& m : _jsonMsg["files"].GetArray()) {
-            file::server::fileInfo file = {};
-            if (m.HasMember("last_write_time")) {
-                file.last_write_time = m["last_write_time"].GetString();
-            }
-            if (m.HasMember("size")) {
-                file.size = m["size"].GetString();
-            }
-            if (m.HasMember("name")) {
-                file.name = m["name"].GetString();
-            }
-            files.push_back(file);
+        if (!resqMsg.unknown_fields().empty()) {
+            errMsg = "command type undefind";
+            return false;
         }
+        ack = resqMsg.ack();
+        order = resqMsg.order();
+        tatolSzie = resqMsg.tatolszie();
+        dataLen = resqMsg.datalen();
+        data = resqMsg.data();
+        msgType = resqMsg.msgtype();
+        return true;
     };
 };
 
-struct errMsg {
-    errMsg(std::string _msg, u_long _ack = 0) : msg(_msg){};
-    std::string command = "error";
+struct Command {
+    CommandType command;
+    std::string args;
     std::string msg;
-    std::string jsonStr() {
-        rapidjson::StringBuffer str;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(str);
-        writer.StartObject();
-        writer.Key("err");
-        writer.String(msg.c_str());
-        writer.EndObject();
-        return str.GetString();
+    void serialized(std::string* out) {
+        CommandMsg resMsg;
+        resMsg.set_command(command);
+        if (!msg.empty()) {
+            resMsg.set_msg(msg);
+        }
+        if (!args.empty()) {
+            resMsg.set_args(args);
+        }
+        assert(resMsg.SerializeToString(out));
     };
+    bool build(std::string& strData, std::string& errMsg) {
+        CommandMsg resqMsg;
+        if (!basePaserAndValidateMsg<CommandMsg>(resqMsg, strData, errMsg)) {
+            return false;
+        }
+        if (!resqMsg.unknown_fields().empty()) {
+            errMsg = "command type undefind";
+            return false;
+        }
+        if ((resqMsg.command() == COMMAND_ERRORMSG) && resqMsg.msg().empty()) {
+            errMsg = "no err msg form error command";
+            return false;
+        }
+        if ((resqMsg.command() == COMMAND_DOWNFILE) && resqMsg.args().empty()) {
+            errMsg = "downfile without args";
+            return false;
+        }
+        command = resqMsg.command();
+        args = resqMsg.args();
+        msg = resqMsg.msg();
+        return true;
+    }
 };
 
-inline std::vector<Msg> getsubcontractInfo(std::string& jsonStr, u_long ack) {
-    char data[jsonStr.size()];
-    double tatolSzie = jsonStr.size();
+struct FileInfos {
+    file::server::filesInfo infos = {};
+    void serialized(std::string* out) {
+        FileInfoMsg resMsg;
+        for (auto& it : infos) {
+            auto data = resMsg.add_fileinfos();
+            data->set_name(it.name);
+            data->set_size(it.size);
+            data->set_last_write_time(it.last_write_time);
+        }
+        assert(resMsg.SerializeToString(out));
+    };
+    bool build(std::string& strData, std::string& errMsg) {
+        FileInfoMsg resqMsg;
+        if (!basePaserAndValidateMsg<FileInfoMsg>(resqMsg, strData, errMsg)) {
+            return false;
+        }
+        for (int i = 0; i < resqMsg.fileinfos_size(); i++) {
+            auto fileinfo = resqMsg.fileinfos(i);
+            file::server::fileInfo tmp = {fileinfo.last_write_time(), fileinfo.size(), fileinfo.name()};
+            infos.push_back(tmp);
+        }
+        return true;
+    }
+};
+
+inline std::vector<Package> getsubcontractInfo(std::string& seriallizeStr, u_long ack, MsgType type) {
+    double tatolSzie = seriallizeStr.size();
     double tatolPackges = std::ceil(tatolSzie / PALYLOAD_LEN);
-    std::vector<Msg> msgs;
+    std::vector<Package> msgs;
     msgs.resize(tatolPackges);
     int startPos = 0;
     u_short order = 0;
     for (auto& it : msgs) {
-        it.data = new char[PALYLOAD_LEN + 1];
-        std::memset(it.data, '\0', PALYLOAD_LEN + 1);
-        it.tatolPackges = tatolPackges;
         it.tatolSzie = tatolSzie;
         if ((PALYLOAD_LEN + startPos) <= tatolSzie) {
-            std::strncpy(it.data, jsonStr.c_str() + startPos, PALYLOAD_LEN);
+            it.data = seriallizeStr.substr(startPos, PALYLOAD_LEN);
+            it.dataLen = PALYLOAD_LEN;
         } else {
-            std::strncpy(it.data, jsonStr.c_str() + startPos, tatolSzie - startPos);
+            it.data = seriallizeStr.substr(startPos, tatolSzie - startPos);
+            it.dataLen = tatolSzie - startPos;
         }
         it.ack = ack;
         it.order = order;
+        it.msgType = type;
         order++;
         startPos += PALYLOAD_LEN;
     }
     return msgs;
 }
+
 }  // namespace msg
 
 #endif

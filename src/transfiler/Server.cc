@@ -1,12 +1,18 @@
 #include <netinet/in.h>
+#include <sys/socket.h>
 
 #include <functional>
 #include <memory>
+#include <mutex>
+#include <vector>
 
 #include "Constant.h"
 #include "Logging.h"
 #include "Server.h"
-#include "msgHandler/Command.h"
+#include "msg/Buffer.h"
+#include "msg/Msg.h"
+#include "msg/proto/package_msg.pb.h"
+#include "msgHandler/Handler.h"
 
 using namespace transfiler;
 
@@ -23,16 +29,51 @@ void Server::readBack() {
     std::string host(IP_V4_LEN, '\0');
     inet_ntop(AF_INET, &clientAddr.sin_addr, &host[0], sizeof(host));
     auto prot = ntohs(clientAddr.sin_port);
-    info_log("udp recvfrom data from ip %s prot %d", host.data(), prot);
+    info_log("udp recvfrom data to ip %s prot %d", host.data(), prot);
     if (len == 0) {
-        info_log("get data len is 0");
+        warn_log("get data len is 0");
         return;
     }
-    info_log("data is %s", data.c_str());
-    data.reserve(len);
-
-    msgHandler::Command handler(data);
-    auto res = handler.handler();
-    info_log("handler msg respones is %s", res.c_str());
-    _udpPtr->sendMsg(res, clientAddr);
+    // make sure parse data success
+    data.resize(len);
+    msg::Package msg;
+    std::string errMsg;
+    // build package msg
+    if (!msg.build(data, errMsg)) {
+        warn_log("build package msg fail err is %s ", errMsg.c_str());
+        return;
+    }
+    // add package msg in buffer to componenting the full msg
+    MsgBuffPtr msgBuff = std::make_unique<msg::Buffer>();
+    {
+        std::lock_guard<std::mutex> lock_guard(_msgBuffMapLock);
+        auto it = _msgBuffMap.find(msg.ack);
+        if (it != _msgBuffMap.end()) {
+            msgBuff = it->second;
+        } else {
+            _msgBuffMap.insert({msg.ack, msgBuff});
+        }
+        msgBuff->setData(msg);
+    }
+    // check full msg has be build finish
+    if (msgBuff->hasAllData()) {
+        std::string res;
+        msgHandler::Handler handler;
+        std::vector<msg::Package> resqMsg;
+        msg::proto::MsgType resMsgType;
+        // handler msg amd subcontract
+        if (!handler.handlerCommand(msgBuff, &res, resMsgType)) {
+            handler.getErrorMsg(&res);
+            resqMsg = msg::getsubcontractInfo(res, msgBuff->getAck(), msg::proto::MsgType::Command);
+        } else {
+            resqMsg = msg::getsubcontractInfo(res, msgBuff->getAck(), resMsgType);
+        }
+        // send package
+        std::string packageMsg;
+        for (auto& it : resqMsg) {
+            it.serialized(&packageMsg);
+            _udpPtr->sendMsg(packageMsg, clientAddr);
+        }
+        info_log("udp send data to ip %s prot %d", host.data(), prot);
+    }
 };
