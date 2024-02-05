@@ -61,6 +61,6 @@
     },
     "clang-format.assumeFilename": "${workspaceFolder}/.clang-format",
     "cmake.configureSettings": {
-        "CMAKE_TOOLCHAIN_FILE": "/home/kehaha/surface/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     }
 }

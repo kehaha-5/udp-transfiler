@@ -19,7 +19,7 @@ Directory& Directory::getInstance() {
 
 void Directory::setFilePath(std::string path) {
     _filepathObj = fs::weakly_canonical(path);
-    exit_if(!fs::exists(_filepathObj), "the file does not exist!");
+    exit_if(!fs::exists(_filepathObj), "the file does not exist! %XRs", fs::weakly_canonical(path).c_str());
     _fullPath = fs::weakly_canonical(path);
 }
 
@@ -27,7 +27,7 @@ filesInfo Directory::ls() {
     auto directoryIt = fs::directory_iterator(_filepathObj);
     filesInfo infos;
     {
-    std::lock_guard<std::mutex> lock(_lsLock);
+        std::lock_guard<std::mutex> lock(_lsLock);
         for (auto item : directoryIt) {
             if (item.is_regular_file()) {
                 fileInfo info;
