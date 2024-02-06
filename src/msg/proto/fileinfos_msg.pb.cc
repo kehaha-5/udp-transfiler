@@ -90,8 +90,8 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_fileinfos_5fmsg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\023fileinfos_msg.proto\022\tmsg.proto\"\?\n\010file"
-  "Info\022\014\n\004name\030\001 \002(\t\022\014\n\004size\030\002 \002(\t\022\027\n\017last"
-  "_write_time\030\003 \002(\t\"5\n\013FileInfoMsg\022&\n\tfile"
+  "Info\022\014\n\004name\030\001 \001(\t\022\014\n\004size\030\002 \001(\t\022\027\n\017last"
+  "_write_time\030\003 \001(\t\"5\n\013FileInfoMsg\022&\n\tfile"
   "infos\030\001 \003(\0132\023.msg.proto.fileInfoB\002H\002"
   ;
 static ::_pbi::once_flag descriptor_table_fileinfos_5fmsg_2eproto_once;
@@ -125,9 +125,6 @@ class fileInfo::_Internal {
   }
   static void set_has_last_write_time(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000007) ^ 0x00000007) != 0;
   }
 };
 

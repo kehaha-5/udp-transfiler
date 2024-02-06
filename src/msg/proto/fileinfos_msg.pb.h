@@ -176,7 +176,7 @@ class fileInfo final :
     kSizeFieldNumber = 2,
     kLastWriteTimeFieldNumber = 3,
   };
-  // required string name = 1;
+  // optional string name = 1;
   bool has_name() const;
   private:
   bool _internal_has_name() const;
@@ -194,7 +194,7 @@ class fileInfo final :
   std::string* _internal_mutable_name();
   public:
 
-  // required string size = 2;
+  // optional string size = 2;
   bool has_size() const;
   private:
   bool _internal_has_size() const;
@@ -212,7 +212,7 @@ class fileInfo final :
   std::string* _internal_mutable_size();
   public:
 
-  // required string last_write_time = 3;
+  // optional string last_write_time = 3;
   bool has_last_write_time() const;
   private:
   bool _internal_has_last_write_time() const;
@@ -403,7 +403,7 @@ class FileInfoMsg final :
 #endif  // __GNUC__
 // fileInfo
 
-// required string name = 1;
+// optional string name = 1;
 inline bool fileInfo::_internal_has_name() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
@@ -471,7 +471,7 @@ inline void fileInfo::set_allocated_name(std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:msg.proto.fileInfo.name)
 }
 
-// required string size = 2;
+// optional string size = 2;
 inline bool fileInfo::_internal_has_size() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
@@ -539,7 +539,7 @@ inline void fileInfo::set_allocated_size(std::string* size) {
   // @@protoc_insertion_point(field_set_allocated:msg.proto.fileInfo.size)
 }
 
-// required string last_write_time = 3;
+// optional string last_write_time = 3;
 inline bool fileInfo::_internal_has_last_write_time() const {
   bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;

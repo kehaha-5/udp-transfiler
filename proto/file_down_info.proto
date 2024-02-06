@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package msg.proto;
+
+option optimize_for = CODE_SIZE;
+
+message fileDownInfo{
+    required string name = 1;
+    required uint64 size = 2;
+    required string hash = 3;
+    required string humanReadableSize = 4;
+}
+
+message FileDownInfoMsg{
+    repeated fileDownInfo fileinfos = 1;
+}

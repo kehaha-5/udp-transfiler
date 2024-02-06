@@ -14,7 +14,8 @@ class Handler {
     void getErrorMsg(std::string* res);
 
    private:
-    void ls(std::string* out);
+    void ls(std::string* out, msg::proto::MsgType& msgType);
+    bool downfile(std::string& arg, std::string* out, msg::proto::MsgType& msgType);
     std::string _errMsg;
 };
 }  // namespace msgHandler

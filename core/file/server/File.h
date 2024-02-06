@@ -1,6 +1,8 @@
 #ifndef FIEL_FILE_H
 #define FIEL_FILE_H
 
+#include <sys/types.h>
+
 #include <filesystem>
 #include <fstream>
 #include <string>

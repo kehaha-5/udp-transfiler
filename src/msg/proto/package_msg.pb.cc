@@ -80,12 +80,12 @@ const char descriptor_table_protodef_package_5fmsg_2eproto[] PROTOBUF_SECTION_VA
   "eMsg\022\013\n\003ack\030\001 \002(\004\022\r\n\005order\030\002 \002(\r\022\017\n\007data"
   "Len\030\003 \002(\r\022\021\n\ttatolSzie\030\004 \002(\r\022#\n\007msgType\030"
   "\005 \002(\0162\022.msg.proto.MsgType\022\014\n\004data\030\006 \002(\014*"
-  "%\n\007MsgType\022\013\n\007Command\020\001\022\r\n\tFileInfos\020\002B\002"
-  "H\002"
+  ";\n\007MsgType\022\013\n\007Command\020\001\022\r\n\tFileInfos\020\002\022\024"
+  "\n\020FileDownloadInfo\020\003B\002H\002"
   ;
 static ::_pbi::once_flag descriptor_table_package_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_package_5fmsg_2eproto = {
-    false, false, 202, descriptor_table_protodef_package_5fmsg_2eproto,
+    false, false, 224, descriptor_table_protodef_package_5fmsg_2eproto,
     "package_msg.proto",
     &descriptor_table_package_5fmsg_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_package_5fmsg_2eproto::offsets,
@@ -108,6 +108,7 @@ bool MsgType_IsValid(int value) {
   switch (value) {
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;

@@ -31,18 +31,15 @@ class TestDir : public testing::Test {
    public:
     int _threadNum = 100;
     std::string _currentPath;
-    std::vector<std::string> _files = {};
+    std::vector<std::string> _existFileName = {"1.txt", "2.txt", "3.txt", "4.txt", "5.txt"};
     void createFiles() {
-        std::vector<std::string> files = {"1.txt", "2.txt", "3.txt", "4.txt", "5.txt"};
-        for (auto it : files) {
+        for (auto it : _existFileName) {
             auto currentPath = std::filesystem::current_path();
             auto currFile = currentPath.append(_filePath).append(it);
             std::ofstream file(currFile);
-            if (file.is_open()) {
-                file << "hello word file name is " << it.data() << std::endl;
-                file.close();
-                _files.push_back(it.data());
-            }
+            ASSERT_TRUE(file.is_open());
+            file << "hello word file name is " << it.data() << std::endl;
+            file.close();
         }
     }
     void multiplyThreadTest(std::function<void()> testFun) {
@@ -90,17 +87,17 @@ TEST_F(TestDir, multiplyThreadTest) {
 }
 
 TEST_F(TestDir, testLs) {
-    ASSERT_GT(_files.size(), 0);
+    ASSERT_GT(_existFileName.size(), 0);
     auto lsInfo = Directory::getInstance().ls();
-    ASSERT_EQ(lsInfo.size(), _files.size());
+    ASSERT_EQ(lsInfo.size(), _existFileName.size());
     for (auto it : lsInfo) {
-        auto res = std::find(_files.begin(), _files.end(), it.name);
-        ASSERT_TRUE(res != _files.end());
+        auto res = std::find(_existFileName.begin(), _existFileName.end(), it.name);
+        ASSERT_TRUE(res != _existFileName.end());
     }
 }
 
 TEST_F(TestDir, multiplyThreadTestLs) {
-    auto files = _files;
+    auto files = _existFileName;
     auto fun = std::bind([&files]() {
         try {
             ASSERT_GT(files.size(), 0);
@@ -119,6 +116,30 @@ TEST_F(TestDir, multiplyThreadTestLs) {
     multiplyThreadTest(fun);
 }
 
+TEST_F(TestDir, getFileInfoTest) {
+    filesDownInfo data = {};
+    Directory::getInstance().getAllFileDownInfo(data);
+    ASSERT_EQ(data.size(), _existFileName.size());
+    for (auto& it : data) {
+        debug_log("file name is  %s  and hash is %s", it.name.c_str(), it.hash.c_str());
+        auto findRes = std::find(_existFileName.begin(), _existFileName.end(), it.name);
+        EXPECT_TRUE(findRes != _existFileName.end());
+    }
+
+    data = {};
+    std::string errMsg;
+    ASSERT_TRUE(Directory::getInstance().getSpecialFileDownInfo(data, _existFileName[1], errMsg));
+    ASSERT_STREQ(data[0].name.c_str(), _existFileName[1].c_str());
+
+    data = {};
+    errMsg.clear();
+    ASSERT_FALSE(Directory::getInstance().getSpecialFileDownInfo(data, "test.bin", errMsg));
+
+    data = {};
+    // TODO symlink file
+    //  ASSERT_FALSE(file.getSpecialFileDownInfo(data, "testLink"));
+    //  ASSERT_EQ(file.getErrMsg().code, errCode::fileTypeNotSupported);
+}
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

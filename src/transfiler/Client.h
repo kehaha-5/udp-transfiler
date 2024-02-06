@@ -31,14 +31,14 @@ class Client {
 
    private:
     void ls();
-    void downfile();
+    void downfile(std::string& args);
     void handleRead();
     void timerExec(u_long ack, std::string msg);
     void sendto(std::string& msg, msg::proto::MsgType type);
     void listenResq();
     void setHandlerRecvCb(HandlerRecvCb cb) { _handlerRecvCd = cb; }
     void listenResqAndHandler();
-    std::string rev();
+    std::string rev() { return _client->rev(); }
     udpClientPtr _client;
     interaction::Interaction _os;
     evevPtr _even;

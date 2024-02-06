@@ -2,7 +2,6 @@
 #include <string>
 
 #include "Interaction.h"
-#include "Logging.h"
 #include "log/Log.h"
 #include "transfiler/Client.h"
 

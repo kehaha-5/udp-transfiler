@@ -17,16 +17,25 @@ struct fileInfo {
 };
 
 typedef std::vector<fileInfo> filesInfo;
+struct fileDownInfo {
+    std::string name;
+    u_long size;
+    std::string hash;
+    std::string humanReadableSize;
+};
 
+typedef std::vector<fileDownInfo> filesDownInfo;
 class Directory {
    public:
-    static Directory& getInstance(std::string path);
-    static Directory& getInstance();
+    static Directory &getInstance();
     filesInfo ls();
     std::string getFullPath() { return _fullPath; }
     void setFilePath(std::string path);
+    bool getSpecialFileDownInfo(filesDownInfo &data, const std::string &name, std::string &errMsg);
+    void getAllFileDownInfo(filesDownInfo &data);
 
    private:
+    bool getFileDownInfo(fileDownInfo &data, const std::string &name, std::string &errMsg);
     std::string humanReadable(std::uintmax_t size);
     std::string fileTimeToStr(std::filesystem::file_time_type time);
     Directory(){};

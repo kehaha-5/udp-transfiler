@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <system_error>
@@ -77,6 +78,7 @@ class TestFile : public ::testing::Test {
     std::string _binFileContext;
     fs::path _linkFile;
     fs::path _linkFile2;
+    int fileSize = 4;  //_textFile _binFile _linkFile _linkFile2
     int _threadNum = 30;
 };
 
@@ -95,6 +97,7 @@ TEST_F(TestFile, functionalTestFile) {
     //  auto notSupportedMsg = fileNotSupported.getErrMsg();
     //  ASSERT_TRUE(notSupportedMsg.code == errCode::fileTypeNotSupported);
 }
+
 
 TEST_F(TestFile, ReadTextFile) {
     File file(_textFile);

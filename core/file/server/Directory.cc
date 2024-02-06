@@ -6,13 +6,15 @@
 #include <ctime>
 #include <filesystem>
 #include <string>
+#include <sstream>
 
 #include "Directory.h"
 #include "Logging.h"
+#include "file/FileHash.h"
 
 using namespace file::server;
 
-Directory& Directory::getInstance() {
+Directory &Directory::getInstance() {
     static Directory _self;
     return _self;
 }
@@ -28,7 +30,7 @@ filesInfo Directory::ls() {
     filesInfo infos;
     {
         std::lock_guard<std::mutex> lock(_lsLock);
-        for (auto item : directoryIt) {
+        for (auto &item : directoryIt) {
             if (item.is_regular_file()) {
                 fileInfo info;
                 info.name = item.path().filename();
@@ -40,6 +42,47 @@ filesInfo Directory::ls() {
     }
 
     return infos;
+}
+
+bool Directory::getSpecialFileDownInfo(filesDownInfo &data, const std::string &name, std::string &errMsg) {
+    fileDownInfo info = {};
+    if (!getFileDownInfo(info, name, errMsg)) {
+        return false;
+    }
+    data.push_back(info);
+    return true;
+}
+
+void Directory::getAllFileDownInfo(filesDownInfo &data) {
+    auto directory = fs::directory_iterator{_filepathObj};
+    for (auto &it : directory) {
+        fileDownInfo info = {};
+        std::string errMsg;
+        if (getFileDownInfo(info, it.path().filename(), errMsg)) {
+            data.push_back(info);
+        }
+    }
+}
+
+bool Directory::getFileDownInfo(fileDownInfo &data, const std::string &name, std::string &errMsg) {
+    auto file = _filepathObj / name;
+    std::stringstream errStrStream;
+    if (!fs::exists(file)) {
+        errStrStream << "file [" << name << "] not exist";
+        errMsg = errStrStream.str();
+        return false;
+    }
+    if (!fs::is_regular_file(file)) {
+        errStrStream << "file [" << name << "] not be sppurted";
+        errMsg = errStrStream.str();
+        return false;
+    }
+    data.name = name;
+    data.size = fs::file_size(file);
+    data.hash = FileHash::getInstance().getHashByFsPath(file);
+    data.humanReadableSize = humanReadable(fs::file_size(file));
+
+    return true;
 }
 
 std::string Directory::humanReadable(std::uintmax_t size) {

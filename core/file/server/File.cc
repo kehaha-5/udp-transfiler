@@ -1,12 +1,12 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <ios>
 #include <iostream>
 #include <string>
 
 #include "File.h"
 #include "Logging.h"
-
 using namespace file::server;
 
 File::File(std::string path) {
@@ -20,6 +20,7 @@ File::File(std::string path) {
         return;
     }
 }
+
 
 bool File::getPosContext(int pos, int size, fileData &data) {
     try {
@@ -50,6 +51,7 @@ bool File::getPosContext(int pos, int size, fileData &data) {
     }
 }
 
+
 void File::setErrMsg(errCode code) {
     _hasErr = true;
     _err.code = code;
@@ -59,18 +61,18 @@ void File::setErrMsg(errCode code) {
 std::string File::getErrMsgByErrCode(errCode code) {
     switch (code) {
         case file::server::errCode::fileNotExist:
-            return "文件不存在";
+            return "file not exsit !!!";
         case file::server::errCode::fileTypeNotSupported:
-            return "不支持该文件类型的";
+            return "file type not be supported";
         case file::server::errCode::fileCanNotBeOpened:
-            return "文件无法被打开";
+            return "can not open file";
         case file::server::errCode::failureInRead:
-            return "文件读取错误";
+            return "failure in read file";
         case file::server::errCode::fileSzieOut:
-            return "文件szie超出大小";
+            return "file size over limit ";
         case file::server::errCode::invalidSzie:
-            return "非法长度";
+            return "invail file size";
         default:
-            return "未知错误";
+            return "unkonw error";
     }
 }

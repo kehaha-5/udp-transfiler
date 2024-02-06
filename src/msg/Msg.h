@@ -11,6 +11,7 @@
 #include "Logging.h"
 #include "file/server/Directory.h"
 #include "msg/proto/command_msg.pb.h"
+#include "msg/proto/file_down_info.pb.h"
 #include "msg/proto/fileinfos_msg.pb.h"
 #include "msg/proto/package_msg.pb.h"
 
@@ -121,6 +122,9 @@ struct FileInfos {
             data->set_size(it.size);
             data->set_last_write_time(it.last_write_time);
         }
+        if (infos.size() == 0) {
+            auto data = resMsg.add_fileinfos();
+        }
         assert(resMsg.SerializeToString(out));
     };
     bool build(std::string& strData, std::string& errMsg) {
@@ -131,6 +135,33 @@ struct FileInfos {
         for (int i = 0; i < resqMsg.fileinfos_size(); i++) {
             auto fileinfo = resqMsg.fileinfos(i);
             file::server::fileInfo tmp = {fileinfo.last_write_time(), fileinfo.size(), fileinfo.name()};
+            infos.push_back(tmp);
+        }
+        return true;
+    }
+};
+
+struct FileDownInfo {
+    file::server::filesDownInfo infos = {};
+    void serialized(std::string* out) {
+        FileDownInfoMsg resMsg;
+        for (auto& it : infos) {
+            auto data = resMsg.add_fileinfos();
+            data->set_name(it.name);
+            data->set_size(it.size);
+            data->set_hash(it.hash);
+            data->set_humanreadablesize(it.humanReadableSize);
+        }
+        assert(resMsg.SerializeToString(out));
+    };
+    bool build(std::string& strData, std::string& errMsg) {
+        FileDownInfoMsg resqMsg;
+        if (!basePaserAndValidateMsg<FileDownInfoMsg>(resqMsg, strData, errMsg)) {
+            return false;
+        }
+        for (int i = 0; i < resqMsg.fileinfos_size(); i++) {
+            auto fileinfo = resqMsg.fileinfos(i);
+            file::server::fileDownInfo tmp = {fileinfo.name(), fileinfo.size(), fileinfo.hash(), fileinfo.humanreadablesize()};
             infos.push_back(tmp);
         }
         return true;

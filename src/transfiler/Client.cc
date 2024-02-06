@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <sstream>
 
 #include "Client.h"
 #include "EventLoop.h"
@@ -26,9 +27,55 @@ Client::Client(std::string host, __uint16_t port) {
 }
 
 void Client::execCommand(interaction::inputCommand command) {
-    if (command.command == "ls") {
-        ls();
-    }
+    switch (command.command) {
+        case interaction::LS:
+            ls();
+            break;
+        case interaction::DOWNLOADFILE:
+            downfile(command.args);
+            break;
+        default:
+            break;
+    };
+}
+
+void Client::downfile(std::string& args) {
+    msg::Command msg;
+    msg.command = msg::proto::COMMAND_DOWNFILE;
+    msg.args = args;
+    std::string strMsg;
+    msg.serialized(&strMsg);
+    sendto(strMsg, msg::proto::MsgType::Command);
+    setHandlerRecvCb(std::bind([this]() {
+        msg::FileDownInfo msg;
+        std::string errMsg;
+
+        if (_msgBuffer.getMsgType() == msg::proto::Command) {
+            msg::Command msg;
+            if (msg.build(_msgBuffer.getData(), errMsg)) {
+                errMsg = msg.msg;
+            }
+            _os.showError(errMsg);
+            return;
+        }
+
+        if (msg.build(_msgBuffer.getData(), errMsg)) {
+            std::stringstream confirmMsg;
+            confirmMsg << "do you want to down \n";
+            int num = 1;
+            for (auto& it : msg.infos) {
+                confirmMsg << "\t"
+                           << "#" << num << "  " << it.name << "  size:" << it.humanReadableSize << "\n ";
+                num++;
+            }
+            if (_os.confirm(confirmMsg.str())) {
+                debug_log("will be down file !!!");
+            }
+            return;
+        }
+        _os.showError(errMsg);
+    }));
+    listenResqAndHandler();
 }
 
 void Client::ls() {
@@ -36,7 +83,6 @@ void Client::ls() {
     msg.command = msg::proto::COMMAND_LS;
     std::string strMsg;
     msg.serialized(&strMsg);
-    debug_log("client send msg %s", strMsg.c_str());
     sendto(strMsg, msg::proto::MsgType::Command);
     setHandlerRecvCb(std::bind([this]() {
         msg::FileInfos fileinfos;
@@ -63,6 +109,7 @@ void Client::timerExec(u_long ack, std::string msg) {
 }
 
 void Client::sendto(std::string& msg, msg::proto::MsgType type) {
+    debug_log("client send msg ");
     auto ack = AckRandom::getAck();
     {
         std::lock_guard<std::mutex> lock(_ackSetLock);
@@ -86,8 +133,6 @@ void Client::listenResqAndHandler() {
     _even->loop();
 }
 
-std::string Client::rev() { return _client->rev(); }
-
 void Client::listenResq() {
     auto data = rev();
     if (data.empty()) {
@@ -102,11 +147,11 @@ void Client::listenResq() {
     _msgBuffer.setData(msg);
 
     if (_msgBuffer.hasAllData()) {
-        _handlerRecvCd();
         {
             std::lock_guard<std::mutex> lock(_ackSetLock);
             _ackSet.erase(_msgBuffer.getAck());
         }
+        _handlerRecvCd();
         _msgBuffer.clear();
         _even->setRunning(false);
         return;
