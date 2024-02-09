@@ -12,7 +12,7 @@ typedef std::unordered_map<fs::path, std::string> PathToHash;
 
 class FileHash {
    public:
-    static FileHash& getInstance();
+    static FileHash &getInstance();
     std::string_view getHashByFsPath(const fs::path &path);
 
    private:

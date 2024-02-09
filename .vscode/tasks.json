@@ -93,7 +93,7 @@
             "options": {
                 "cwd": "${workspaceFolder}/proto"
             },
-            "command": "rm -rf ${workspaceFolder}/src/msg/proto/* && protoc *.proto  --cpp_out=${workspaceFolder}/src/msg/proto",
+            "command": "rm -rf ${workspaceFolder}/src/msg/proto/* ${workspaceFolder}/src/downfile/interruptionInfo/* && protoc *_msg.proto  --cpp_out=${workspaceFolder}/src/msg/proto  && protoc downfile_interruption_info.proto --cpp_out=${workspaceFolder}/src/downfile/interruptionInfo/",
             "group": "build",
             "detail": "build proto msg"
         }

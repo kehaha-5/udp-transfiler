@@ -22,6 +22,7 @@ addTest(TESTACK TestAck)
 addTest(TESTDIR TestDir)
 addTest(TESTFILE TestFile)
 addTest(TESTMSG TestMsg)
+addTest(TESTCONFIG TestConfig)
 
 
 

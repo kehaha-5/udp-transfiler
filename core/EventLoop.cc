@@ -1,5 +1,6 @@
 #include <sys/epoll.h>
 
+#include <cassert>
 #include <cstddef>
 #include <functional>
 
@@ -34,7 +35,10 @@ void EventLoop::addIo(int fd, ioCallBack cd, unsigned int mask) {
     exit_if(res == -1, "epoll_ctl");
 }
 
-void EventLoop::delIo(int fd) { epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, NULL); }
+void EventLoop::delIo(int fd) {
+    epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, NULL);
+    _ioEvents.erase(fd);
+}
 
 void EventLoop::loop() {
     while (_isRunning) {

@@ -10,8 +10,8 @@
 #include "FileHash.h"
 
 FileHash& FileHash::getInstance() {
-    static FileHash _self;
-    return _self;
+    static FileHash self;
+    return self;
 }
 
 std::string_view FileHash::getHashByFsPath(const fs::path& path) {

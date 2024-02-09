@@ -11,7 +11,7 @@
 #include "Logging.h"
 #include "file/server/Directory.h"
 #include "msg/proto/command_msg.pb.h"
-#include "msg/proto/file_down_info.pb.h"
+#include "msg/proto/file_down_info_msg.pb.h"
 #include "msg/proto/fileinfos_msg.pb.h"
 #include "msg/proto/package_msg.pb.h"
 

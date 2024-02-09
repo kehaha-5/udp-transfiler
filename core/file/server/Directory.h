@@ -33,6 +33,9 @@ class Directory {
     void setFilePath(std::string path);
     bool getSpecialFileDownInfo(filesDownInfo &data, const std::string &name, std::string &errMsg);
     void getAllFileDownInfo(filesDownInfo &data);
+    // Delete the copy constructor
+    Directory(const Directory &) = delete;
+
 
    private:
     bool getFileDownInfo(fileDownInfo &data, const std::string &name, std::string &errMsg);

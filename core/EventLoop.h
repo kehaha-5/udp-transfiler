@@ -25,7 +25,7 @@ class EventLoop {
         close(_epollFd);
         delete _timer;
     };
-    void addIo(int fd, ioCallBack cd, unsigned int mask);
+    void addIo(int fd, ioCallBack cd, unsigned int mask); // modify io cb fun by this fun
     void delIo(int fd);
     void loop();
     void setRunning(bool running) { _isRunning = running; };

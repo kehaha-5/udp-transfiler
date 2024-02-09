@@ -25,7 +25,8 @@
                     "ignoreFailures": true
                 }
             ]
-        },{
+        },
+        {
             "name": "TESTACK",
             "type": "cppdbg",
             "request": "launch",
@@ -74,7 +75,8 @@
                     "ignoreFailures": true
                 }
             ]
-        }, {
+        },
+        {
             "name": "TESTDIR",
             "type": "cppdbg",
             "request": "launch",
@@ -98,7 +100,33 @@
                     "ignoreFailures": true
                 }
             ]
-        },{
+        },
+        {
+            "name": "TESTCONFIG",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/TESTCONFIG",
+            "cwd": "${workspaceFolder}/build/test/",
+            "args": [],
+            "stopAtEntry": false,
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "preLaunchTask": "CMake: build",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "TESTMSG",
             "type": "cppdbg",
             "request": "launch",

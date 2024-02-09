@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package downfile.interruption;
+
+
+option optimize_for = CODE_SIZE; 
+
+message SingleBlockInfo {
+    required uint64 startPos= 1;
+    required bool isDownload = 2 [default=false];
+}
+
+message DownfileInterruptionInfo{
+    repeated SingleBlockInfo info = 1;
+    required string name =2;
+    required uint64 hasDownloadedSzie=3 [default=0];
+}

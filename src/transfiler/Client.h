@@ -28,6 +28,7 @@ class Client {
     Client(std::string host, __uint16_t port);
     void execCommand(interaction::inputCommand command);
     ~Client() { _ackSet.clear(); }
+    std::string rev() { return _client->rev(); }
 
    private:
     void ls();
@@ -38,7 +39,7 @@ class Client {
     void listenResq();
     void setHandlerRecvCb(HandlerRecvCb cb) { _handlerRecvCd = cb; }
     void listenResqAndHandler();
-    std::string rev() { return _client->rev(); }
+    void setMsgIoCb() { _even->addIo(_client->getSocketfd(), std::bind(&Client::listenResq, this), EPOLLIN | EPOLLET); };
     udpClientPtr _client;
     interaction::Interaction _os;
     evevPtr _even;
