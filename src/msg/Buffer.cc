@@ -4,16 +4,34 @@
 
 using namespace msg;
 
-void Buffer::setData(Package& package) {
+void Buffer::setData(std::string &msg) {
+    msg::Package packageMsg;
+    std::string errMsg;
+    if (!packageMsg.build(msg, errMsg)) {
+        warn_log("package msg build fault %s", errMsg.c_str());
+        return;
+    }
     if (!_init) {
-        _data.resize(package.tatolSzie);
-        _ack = package.ack;
-        _tatolLenght = package.tatolSzie;
-        _msgType = package.msgType;
+        _data.resize(packageMsg.tatolSzie);
+        _ack = packageMsg.ack;
+        _tatolLenght = packageMsg.tatolSzie;
+        _msgType = packageMsg.msgType;
         _init = true;
     }
-    package.data.copy(&_data[package.order * PALYLOAD_LEN], package.data.size());
-    _hasRevLenght += package.dataLen;
+    packageMsg.data.copy(&_data[packageMsg.order * PALYLOAD_LEN], packageMsg.data.size());
+    _hasRevLenght += packageMsg.dataLen;
+}
+
+void Buffer::setData(Package &msg) {
+    if (!_init) {
+        _data.resize(msg.tatolSzie);
+        _ack = msg.ack;
+        _tatolLenght = msg.tatolSzie;
+        _msgType = msg.msgType;
+        _init = true;
+    }
+    msg.data.copy(&_data[msg.order * PALYLOAD_LEN], msg.data.size());
+    _hasRevLenght += msg.dataLen;
 }
 
 void Buffer::clear() {

@@ -29,7 +29,7 @@ PROTOBUF_CONSTEXPR FileDownMsg::FileDownMsg(
   , /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.data_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.startpos_)*/int64_t{0}
-  , /*decltype(_impl_.ack_)*/int64_t{0}} {}
+  , /*decltype(_impl_.size_)*/int64_t{0}} {}
 struct FileDownMsgDefaultTypeInternal {
   PROTOBUF_CONSTEXPR FileDownMsgDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -54,7 +54,7 @@ const uint32_t TableStruct_file_5fdown_5fmsg_2eproto::offsets[] PROTOBUF_SECTION
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.name_),
   PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.startpos_),
-  PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.ack_),
+  PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.size_),
   PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.data_),
   0,
   2,
@@ -70,13 +70,13 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_file_5fdown_5fmsg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\023file_down_msg.proto\022\tmsg.proto\"H\n\013File"
+  "\n\023file_down_msg.proto\022\tmsg.proto\"I\n\013File"
   "DownMsg\022\014\n\004name\030\001 \002(\t\022\020\n\010startPos\030\002 \002(\003\022"
-  "\013\n\003ack\030\003 \002(\003\022\014\n\004data\030\004 \001(\014B\002H\002"
+  "\014\n\004size\030\003 \001(\003\022\014\n\004data\030\004 \001(\014B\002H\002"
   ;
 static ::_pbi::once_flag descriptor_table_file_5fdown_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_file_5fdown_5fmsg_2eproto = {
-    false, false, 110, descriptor_table_protodef_file_5fdown_5fmsg_2eproto,
+    false, false, 111, descriptor_table_protodef_file_5fdown_5fmsg_2eproto,
     "file_down_msg.proto",
     &descriptor_table_file_5fdown_5fmsg_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_file_5fdown_5fmsg_2eproto::offsets,
@@ -103,14 +103,14 @@ class FileDownMsg::_Internal {
   static void set_has_startpos(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
   }
-  static void set_has_ack(HasBits* has_bits) {
+  static void set_has_size(HasBits* has_bits) {
     (*has_bits)[0] |= 8u;
   }
   static void set_has_data(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
   static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x0000000d) ^ 0x0000000d) != 0;
+    return ((has_bits[0] & 0x00000005) ^ 0x00000005) != 0;
   }
 };
 
@@ -129,7 +129,7 @@ FileDownMsg::FileDownMsg(const FileDownMsg& from)
     , decltype(_impl_.name_){}
     , decltype(_impl_.data_){}
     , decltype(_impl_.startpos_){}
-    , decltype(_impl_.ack_){}};
+    , decltype(_impl_.size_){}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _impl_.name_.InitDefault();
@@ -149,8 +149,8 @@ FileDownMsg::FileDownMsg(const FileDownMsg& from)
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.startpos_, &from._impl_.startpos_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.ack_) -
-    reinterpret_cast<char*>(&_impl_.startpos_)) + sizeof(_impl_.ack_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.size_) -
+    reinterpret_cast<char*>(&_impl_.startpos_)) + sizeof(_impl_.size_));
   // @@protoc_insertion_point(copy_constructor:msg.proto.FileDownMsg)
 }
 
@@ -164,7 +164,7 @@ inline void FileDownMsg::SharedCtor(
     , decltype(_impl_.name_){}
     , decltype(_impl_.data_){}
     , decltype(_impl_.startpos_){int64_t{0}}
-    , decltype(_impl_.ack_){int64_t{0}}
+    , decltype(_impl_.size_){int64_t{0}}
   };
   _impl_.name_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING

@@ -10,9 +10,9 @@ int main(int, char **) {
     logConfig logconf = {logLever::debug, logAppender::console};
     Log::setConfig(logconf);
     EventLoop event;
-    auto servConf = config::ServerConfig::getInstance().getConfig();
-    transfiler::Server server(&event, servConf.ip.c_str(), servConf.port);
-    file::server::Directory::getInstance().setFilePath("./testFile");
+    config::ServerConfig::getInstance().setConfigThreadNum(1);
+    transfiler::Server server(&event, config::ServerConfig::getInstance().getIp().c_str(), config::ServerConfig::getInstance().getPort(), config::ServerConfig::getInstance().getThreadNum());
+    file::server::Directory::getInstance().setFilePath();
     info_log("this file path is %s", file::server::Directory::getInstance().getFullPath().c_str());
     event.loop();
 }

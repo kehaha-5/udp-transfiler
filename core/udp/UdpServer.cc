@@ -10,7 +10,7 @@
 
 using namespace udp;
 
-UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port) : _loop(loop) {
+UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port,u_short threadNum) : _loop(loop) {
     // create socket
     _socketFd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
     exit_if(_socketFd == -1, "create socket error");
@@ -27,8 +27,8 @@ UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port) : _loop(l
 
     info_log("this server is running in %s:%i", host, port);
 
-    _threadpool = std::make_unique<pool::ThreadPool>(5);
-    info_log("threadpool is created threadNum:%d", 5);
+    _threadpool = std::make_unique<pool::ThreadPool>(threadNum);
+    info_log("threadpool is created threadNum:%d", threadNum);
 
     loop->addIo(_socketFd, std::bind(&UdpServer::handleRead, this), EPOLLIN | EPOLLET);
 }

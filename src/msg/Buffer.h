@@ -9,7 +9,8 @@
 namespace msg {
 class Buffer {
    public:
-    void setData(Package& package);
+    void setData(std::string &msg);
+    void setData(Package &msg);
     std::string& getData() { return _data; };
     u_short getSize() { return _hasRevLenght; }
     u_long getAck() { return _ack; }

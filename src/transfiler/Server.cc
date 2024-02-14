@@ -1,5 +1,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 #include <functional>
 #include <memory>
@@ -16,8 +17,8 @@
 
 using namespace transfiler;
 
-Server::Server(EventLoop* loop, const char* host, uint16_t port) {
-    _udpPtr = std::make_unique<udp::UdpServer>(loop, host, port);
+Server::Server(EventLoop* loop, const char* host, uint16_t port,u_short threadNum) {
+    _udpPtr = std::make_unique<udp::UdpServer>(loop, host, port,threadNum);
     _udpPtr->setReadBack(std::bind(&Server::readBack, this));
 }
 
@@ -70,9 +71,12 @@ void Server::readBack() {
         }
         // send package
         std::string packageMsg;
+        // avoid create too many protobuf object
+        PackageMsg protobufMsg;
         for (auto& it : resqMsg) {
-            it.serialized(&packageMsg);
+            it.serialized(&packageMsg, protobufMsg);
             _udpPtr->sendMsg(packageMsg, clientAddr);
+            protobufMsg.Clear();
         }
         info_log("udp send data to ip %s prot %d", host.data(), prot);
     }

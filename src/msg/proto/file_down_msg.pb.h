@@ -171,7 +171,7 @@ class FileDownMsg final :
     kNameFieldNumber = 1,
     kDataFieldNumber = 4,
     kStartPosFieldNumber = 2,
-    kAckFieldNumber = 3,
+    kSizeFieldNumber = 3,
   };
   // required string name = 1;
   bool has_name() const;
@@ -222,17 +222,17 @@ class FileDownMsg final :
   void _internal_set_startpos(int64_t value);
   public:
 
-  // required int64 ack = 3;
-  bool has_ack() const;
+  // optional int64 size = 3;
+  bool has_size() const;
   private:
-  bool _internal_has_ack() const;
+  bool _internal_has_size() const;
   public:
-  void clear_ack();
-  int64_t ack() const;
-  void set_ack(int64_t value);
+  void clear_size();
+  int64_t size() const;
+  void set_size(int64_t value);
   private:
-  int64_t _internal_ack() const;
-  void _internal_set_ack(int64_t value);
+  int64_t _internal_size() const;
+  void _internal_set_size(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:msg.proto.FileDownMsg)
@@ -248,7 +248,7 @@ class FileDownMsg final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
     int64_t startpos_;
-    int64_t ack_;
+    int64_t size_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_file_5fdown_5fmsg_2eproto;
@@ -360,32 +360,32 @@ inline void FileDownMsg::set_startpos(int64_t value) {
   // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.startPos)
 }
 
-// required int64 ack = 3;
-inline bool FileDownMsg::_internal_has_ack() const {
+// optional int64 size = 3;
+inline bool FileDownMsg::_internal_has_size() const {
   bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
   return value;
 }
-inline bool FileDownMsg::has_ack() const {
-  return _internal_has_ack();
+inline bool FileDownMsg::has_size() const {
+  return _internal_has_size();
 }
-inline void FileDownMsg::clear_ack() {
-  _impl_.ack_ = int64_t{0};
+inline void FileDownMsg::clear_size() {
+  _impl_.size_ = int64_t{0};
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
-inline int64_t FileDownMsg::_internal_ack() const {
-  return _impl_.ack_;
+inline int64_t FileDownMsg::_internal_size() const {
+  return _impl_.size_;
 }
-inline int64_t FileDownMsg::ack() const {
-  // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.ack)
-  return _internal_ack();
+inline int64_t FileDownMsg::size() const {
+  // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.size)
+  return _internal_size();
 }
-inline void FileDownMsg::_internal_set_ack(int64_t value) {
+inline void FileDownMsg::_internal_set_size(int64_t value) {
   _impl_._has_bits_[0] |= 0x00000008u;
-  _impl_.ack_ = value;
+  _impl_.size_ = value;
 }
-inline void FileDownMsg::set_ack(int64_t value) {
-  _internal_set_ack(value);
-  // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.ack)
+inline void FileDownMsg::set_size(int64_t value) {
+  _internal_set_size(value);
+  // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.size)
 }
 
 // optional bytes data = 4;

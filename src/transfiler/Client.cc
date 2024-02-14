@@ -10,20 +10,23 @@
 #include "EventLoop.h"
 #include "Interaction.h"
 #include "Logging.h"
+#include "ack/AckSet.h"
+#include "config/ClientConfig.h"
+#include "downfile/Downloader.h"
 #include "msg/Msg.h"
 #include "msg/proto/command_msg.pb.h"
 #include "msg/proto/package_msg.pb.h"
-#include "transfiler/AckRandom.h"
 #include "udp/UdpClient.h"
 
 using namespace transfiler;
 
 Client::Client(std::string host, __uint16_t port) {
-    _even = std::make_unique<EventLoop>();
-    _client = std::make_unique<udp::UdpClient>(_even, host, port);
+    _even = std::make_shared<EventLoop>();
+    _client = std::make_shared<udp::UdpClient>(_even, host, port);
     _even->startTimer();
-    _even->addIo(_client->getSocketfd(), std::bind(&Client::listenResq, this), EPOLLIN | EPOLLET);
     _os = interaction::Interaction();
+    _ackSet = std::make_unique<ack::AckSet>();
+    setMsgIoCb();
 }
 
 void Client::execCommand(interaction::inputCommand command) {
@@ -61,15 +64,31 @@ void Client::downfile(std::string& args) {
 
         if (msg.build(_msgBuffer.getData(), errMsg)) {
             std::stringstream confirmMsg;
+            std::stringstream notDownloadMsg;
+            file::server::filesDownInfo downloadInfos;
             confirmMsg << "do you want to down \n";
+            notDownloadMsg << "the file size is 0.00B can not be download !!! \n";
             int num = 1;
+            int notDownloadNum = 1;
             for (auto& it : msg.infos) {
-                confirmMsg << "\t"
-                           << "#" << num << "  " << it.name << "  size:" << it.humanReadableSize << "\n ";
-                num++;
+                if (it.size > 0) {
+                    confirmMsg << "\t"
+                               << "#" << num << "  " << it.name << "  size:" << it.humanReadableSize << "\n ";
+                    num++;
+                    downloadInfos.push_back(std::move(it));
+                }
+                if (it.size == 0) {
+                    notDownloadMsg << "\t"
+                                   << "#" << notDownloadNum << "  " << it.name << "  size:" << it.humanReadableSize << "\n ";
+                    notDownloadNum++;
+                }
             }
+            _os.showError(notDownloadMsg.str());
             if (_os.confirm(confirmMsg.str())) {
                 debug_log("will be down file !!!");
+                downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client);
+                downloader.start();
+                setMsgIoCb();
             }
             return;
         }
@@ -97,33 +116,23 @@ void Client::ls() {
     listenResqAndHandler();
 }
 
-void Client::timerExec(u_long ack, std::string msg) {
-    ackSet::iterator it;
-    {
-        std::lock_guard<std::mutex> lock(_ackSetLock);
-        it = _ackSet.find(ack);
-    }
-    if (it != _ackSet.end()) {
-        debug_log("the package will be resend ack is %s", ack);
-    }
-}
+void Client::timerExec(u_long ack) { auto msg = _ackSet->getMsgByAck(ack); }
 
 void Client::sendto(std::string& msg, msg::proto::MsgType type) {
     debug_log("client send msg ");
-    auto ack = AckRandom::getAck();
-    {
-        std::lock_guard<std::mutex> lock(_ackSetLock);
-        _ackSet.insert(ack);
-    }
+    auto ack = _ackSet->getAck(msg);
 
     auto resMsg = msg::getsubcontractInfo(msg, ack, type);
 
     {
-        std::lock_guard<std::mutex> lock(_ackSetLock);
+        std::lock_guard<std::mutex> lock(_sendtoLock);
         std::string msg;
+        // avoid create too many protobuf object
+        PackageMsg protobufMsg;
         for (auto& it : resMsg) {
-            it.serialized(&msg);
+            it.serialized(&msg, protobufMsg);
             _client->sendMsg(msg);
+            protobufMsg.Clear();
         }
     }
 }
@@ -139,18 +148,11 @@ void Client::listenResq() {
         warn_log("recv data is empty()");
         return;
     }
-    msg::Package msg;
-    std::string errMsg;
-    if (!msg.build(data, errMsg)) {
-        warn_log("package msg build fault %s", errMsg.c_str());
-    }
-    _msgBuffer.setData(msg);
+
+    _msgBuffer.setData(data);
 
     if (_msgBuffer.hasAllData()) {
-        {
-            std::lock_guard<std::mutex> lock(_ackSetLock);
-            _ackSet.erase(_msgBuffer.getAck());
-        }
+        _ackSet->delMsgByAck(_msgBuffer.getAck());
         _handlerRecvCd();
         _msgBuffer.clear();
         _even->setRunning(false);

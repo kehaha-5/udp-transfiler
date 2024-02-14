@@ -4,12 +4,10 @@
 #include <unistd.h>
 
 #include <atomic>
-#include <cassert>
 #include <functional>
 #include <memory>
 #include <queue>
 #include <thread>
-#include <utility>
 #include <vector>
 
 #include "EventLoop.h"
@@ -30,17 +28,7 @@ class ThreadPool {
    public:
     ThreadPool(int threadNum);
     void sendMsg(queueMsgCb cb);
-    ~ThreadPool() {
-        for (auto it = _msgQueues.begin(); it != _msgQueues.end(); it++) {
-            QueueItem queueItem = it->second;
-            close(queueItem.evenfd);
-            assert(queueItem.queue.size() == 0);
-        }
-        _msgQueues.clear();
-        _threadPool.clear();
-        _threadPool.shrink_to_fit();
-    };
-
+    
    private:
     void queueHandle(int index);
     void threadRun(int index);

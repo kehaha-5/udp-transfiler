@@ -107,3 +107,7 @@ bool Interaction::confirm(std::string confirmMsg) {
     }
     return false;
 }
+
+void Interaction::showMsg(std::string msg){
+    std::cout << msg << std::endl;
+}

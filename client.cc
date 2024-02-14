@@ -16,8 +16,7 @@ unique_ptr<Interaction> clientInteraction;
 int main(int, char**) {
     logConfig logconf = {logLever::debug, logAppender::console};
     Log::setConfig(logconf);
-    auto clientConf = config::ClientConfig::getInstance().getConfig();
-    client = make_unique<Client>(clientConf.ip.c_str(), clientConf.port);
+    client = make_unique<Client>(config::ClientConfig::getInstance().getIp().c_str(), config::ClientConfig::getInstance().getPort());
     clientInteraction = make_unique<Interaction>();
     while (true) {
         inputCommand command = clientInteraction->input("udp-transfiler>");

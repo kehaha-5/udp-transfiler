@@ -2,6 +2,7 @@
 #define UDP_UDPSERVER_H
 
 #include <arpa/inet.h>
+#include <sys/types.h>
 
 #include <functional>
 
@@ -14,7 +15,7 @@ typedef std::function<void()> CallBack;
 
 class UdpServer {
    public:
-    UdpServer(EventLoop* loop, const char* host, __uint16_t port);
+    UdpServer(EventLoop* loop, const char* host, __uint16_t port,u_short threadNum);
     ~UdpServer() { close(_socketFd); };
     void setReadBack(CallBack cb) { _rb = cb; };
     void setWriteBack(CallBack cb) { _wb = cb; };

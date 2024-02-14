@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Logging.h"
+#include "config/ServerConfig.h"
 #include "file/server/Directory.h"
 
 using namespace file::server;
@@ -22,7 +23,8 @@ class TestDir : public testing::Test {
         currentPath.append(_filePath);
         _currentPath = currentPath;
         std::filesystem::create_directory(_currentPath);
-        Directory::getInstance().setFilePath(_currentPath);
+        config::ServerConfig::getInstance().setConfigFilePath(_currentPath);
+        Directory::getInstance().setFilePath();
         createFiles();
     }
 
@@ -118,7 +120,8 @@ TEST_F(TestDir, multiplyThreadTestLs) {
 
 TEST_F(TestDir, getFileInfoTest) {
     filesDownInfo data = {};
-    Directory::getInstance().getAllFileDownInfo(data);
+    std::string errMsg;
+    ASSERT_TRUE(Directory::getInstance().getAllFileDownInfo(data, errMsg));
     ASSERT_EQ(data.size(), _existFileName.size());
     for (auto& it : data) {
         debug_log("file name is  %s  and hash is %s", it.name.c_str(), it.hash.c_str());
@@ -127,7 +130,7 @@ TEST_F(TestDir, getFileInfoTest) {
     }
 
     data = {};
-    std::string errMsg;
+    errMsg.clear();
     ASSERT_TRUE(Directory::getInstance().getSpecialFileDownInfo(data, _existFileName[1], errMsg));
     ASSERT_STREQ(data[0].name.c_str(), _existFileName[1].c_str());
 

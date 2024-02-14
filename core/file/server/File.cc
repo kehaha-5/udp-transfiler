@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <fstream>
-#include <functional>
 #include <ios>
 #include <iostream>
 #include <string>
@@ -28,8 +27,8 @@ bool File::getPosContext(int pos, int size, fileData &data) {
             setErrMsg(errCode::invalidSzie);
             return false;
         }
-        std::ifstream file(_filepathObj, std::ios::binary);
-        if (!file.is_open()) {
+        std::ifstream file(_filepathObj, std::ios::binary | std::ios_base::in);
+        if (!file.good()) {
             setErrMsg(errCode::fileCanNotBeOpened);
             return false;
         }
@@ -42,7 +41,6 @@ bool File::getPosContext(int pos, int size, fileData &data) {
             setErrMsg(errCode::fileSzieOut);
             return false;
         }
-        data.hash = std::hash<std::string>{}(data.data);
         return true;
     } catch (std::ios_base::failure &e) {
         setErrMsg(errCode::failureInRead);

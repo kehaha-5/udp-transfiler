@@ -8,7 +8,7 @@
 #include "msg/Msg.h"
 #include "msg/proto/command_msg.pb.h"
 #include "msg/proto/package_msg.pb.h"
-#include "transfiler/AckRandom.h"
+#include "ack/AckRandom.h"
 
 class TestMsg : public testing::Test {
    protected:
@@ -49,7 +49,7 @@ TEST_F(TestMsg, subcontractTset) {
     for (int i = 1; i <= tatolFor; i++) {
         std::string data;
         getLetterTableByBytesNum(msg::PALYLOAD_LEN * i, data);
-        auto ack = transfiler::AckRandom::getAck();
+        auto ack = ack::AckRandom::getAck();
         auto msg = msg::getsubcontractInfo(data, ack, msg::proto::Command);
         ASSERT_EQ(msg.size(), i);
         for (int j = 0; j < msg.size(); j++) {
@@ -70,7 +70,7 @@ TEST_F(TestMsg, bufferSimpleTest) {
     getLetterTableByBytesNum(msg::PALYLOAD_LEN, msg.msg);
     std::string out;
     msg.serialized(&out);
-    auto ack = transfiler::AckRandom::getAck();
+    auto ack = ack::AckRandom::getAck();
     auto resMsg = msg::getsubcontractInfo(out, ack, msg::proto::Command);
     msg::Buffer buff;
     for (auto& it : resMsg) {
@@ -88,7 +88,7 @@ TEST_F(TestMsg, bufferTest) {
     getLetterTableByBytesNum(msg::PALYLOAD_LEN * packNum, msg.msg);
     std::string out;
     msg.serialized(&out);
-    auto ack = transfiler::AckRandom::getAck();
+    auto ack = ack::AckRandom::getAck();
     auto resMsg = msg::getsubcontractInfo(out, ack, msg::proto::Command);
     ASSERT_EQ(resMsg.size(), packNum + 1);
     msg::Buffer buff;

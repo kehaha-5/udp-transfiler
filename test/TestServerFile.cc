@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <system_error>
@@ -11,7 +10,7 @@
 
 using namespace file::server;
 
-class TestFile : public ::testing::Test {
+class TestServerFile : public ::testing::Test {
    protected:
     void SetUp() {
         logConfig logconf = {logLever::debug, logAppender::console};
@@ -82,7 +81,7 @@ class TestFile : public ::testing::Test {
     int _threadNum = 30;
 };
 
-TEST_F(TestFile, functionalTestFile) {
+TEST_F(TestServerFile, functionalTestFile) {
     File file(_textFile);
     ASSERT_FALSE(file.hasError());
 
@@ -99,7 +98,7 @@ TEST_F(TestFile, functionalTestFile) {
 }
 
 
-TEST_F(TestFile, ReadTextFile) {
+TEST_F(TestServerFile, ReadTextFile) {
     File file(_textFile);
     fileData testData;
 
@@ -118,7 +117,7 @@ TEST_F(TestFile, ReadTextFile) {
     ASSERT_TRUE(file.getErrMsg().code == errCode::fileSzieOut);
 }
 
-TEST_F(TestFile, ReadBinaryFile) {
+TEST_F(TestServerFile, ReadBinaryFile) {
     // 测试二进制文件正常读取
     File file(_binFile);  // 请根据你的文件类构造函数进行修改
     fileData testData;
@@ -137,7 +136,7 @@ TEST_F(TestFile, ReadBinaryFile) {
     ASSERT_TRUE(file.getErrMsg().code == errCode::fileSzieOut);
 }
 
-TEST_F(TestFile, RandomReadBinaryFile) {
+TEST_F(TestServerFile, RandomReadBinaryFile) {
     // 测试二进制文件正常读取
     File file(_binFile);  // 请根据你的文件类构造函数进行修改
     for (int i = 0; i < 26; i++) {
@@ -154,7 +153,7 @@ TEST_F(TestFile, RandomReadBinaryFile) {
     }
 }
 
-TEST_F(TestFile, multiplyThreadReadTest) {
+TEST_F(TestServerFile, multiplyThreadReadTest) {
     std::vector<std::thread> threads;
     int _threadNum = 30;
     threads.resize(_threadNum);

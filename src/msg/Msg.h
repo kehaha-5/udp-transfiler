@@ -43,8 +43,8 @@ struct Package {
     u_int dataLen;    // 本次信息的长度
     ::MsgType msgType;
     std::string data;  // 数据
-    void serialized(std::string* out) {
-        PackageMsg resMsg;
+    void serialized(std::string* out, PackageMsg& resMsg) {
+        resMsg.Clear();
         resMsg.set_ack(ack);
         resMsg.set_order(order);
         resMsg.set_datalen(dataLen);

@@ -35,4 +35,5 @@ build
 test.cpp
 BuildTest
 .cache
-testFile/*
+upload/*
+downloadfile/*

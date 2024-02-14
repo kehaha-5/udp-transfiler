@@ -5,11 +5,12 @@
 #include <cstdio>
 #include <ctime>
 #include <filesystem>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "Directory.h"
 #include "Logging.h"
+#include "config/ServerConfig.h"
 #include "file/FileHash.h"
 
 using namespace file::server;
@@ -19,7 +20,8 @@ Directory &Directory::getInstance() {
     return _self;
 }
 
-void Directory::setFilePath(std::string path) {
+void Directory::setFilePath() {
+    auto path = config::ServerConfig::getInstance().getFilepath();
     _filepathObj = fs::weakly_canonical(path);
     exit_if(!fs::exists(_filepathObj), "the file does not exist! %XRs", fs::weakly_canonical(path).c_str());
     _fullPath = fs::weakly_canonical(path);
@@ -53,7 +55,7 @@ bool Directory::getSpecialFileDownInfo(filesDownInfo &data, const std::string &n
     return true;
 }
 
-void Directory::getAllFileDownInfo(filesDownInfo &data) {
+bool Directory::getAllFileDownInfo(filesDownInfo &data, std::string &errMsg) {
     auto directory = fs::directory_iterator{_filepathObj};
     for (auto &it : directory) {
         fileDownInfo info = {};
@@ -62,6 +64,11 @@ void Directory::getAllFileDownInfo(filesDownInfo &data) {
             data.push_back(info);
         }
     }
+    if (data.empty()) {
+        errMsg = "not file exist in the server";
+        return false;
+    }
+    return true;
 }
 
 bool Directory::getFileDownInfo(fileDownInfo &data, const std::string &name, std::string &errMsg) {
@@ -101,8 +108,8 @@ std::string Directory::humanReadable(std::uintmax_t size) {
 }
 
 std::string Directory::fileTimeToStr(std::filesystem::file_time_type time) {
-    auto ftimepoint = std::chrono::time_point_cast<std::chrono::system_clock::duration>(time - std::filesystem::file_time_type::clock::now() +
-                                                                                        std::chrono::system_clock::now());
+    auto ftimepoint = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+        time - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
     auto cftime = std::chrono::system_clock::to_time_t(ftimepoint);
     std::string str = std::asctime(std::localtime(&cftime));
     str.pop_back();  // rm the trailing '\n' put by `asctime`

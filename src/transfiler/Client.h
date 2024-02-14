@@ -12,43 +12,44 @@
 
 #include "EventLoop.h"
 #include "Interaction.h"
+#include "ack/AckSet.h"
 #include "msg/Buffer.h"
 #include "msg/proto/package_msg.pb.h"
 #include "udp/UdpClient.h"
 
 namespace transfiler {
-typedef std::unique_ptr<udp::UdpClient> udpClientPtr;
-typedef std::shared_ptr<EventLoop> evevPtr;
+typedef std::shared_ptr<EventLoop> evenPtr;
 typedef std::function<std::string()> msgCb;
+typedef std::shared_ptr<udp::UdpClient> udpClientPtr;
 typedef std::set<u_long> ackSet;
 typedef std::function<void()> HandlerRecvCb;
+typedef std::unique_ptr<ack::AckSet> AckSetPtr;
 
 class Client {
    public:
     Client(std::string host, __uint16_t port);
     void execCommand(interaction::inputCommand command);
-    ~Client() { _ackSet.clear(); }
-    std::string rev() { return _client->rev(); }
+    void setHandlerRecvCb(HandlerRecvCb cb) { _handlerRecvCd = cb; }
 
    private:
     void ls();
-    void downfile(std::string& args);
-    void handleRead();
-    void timerExec(u_long ack, std::string msg);
+    std::string rev() { return _client->rev(); }
     void sendto(std::string& msg, msg::proto::MsgType type);
-    void listenResq();
-    void setHandlerRecvCb(HandlerRecvCb cb) { _handlerRecvCd = cb; }
     void listenResqAndHandler();
+    void handleRead();
+    void listenResq();
+    void downfile(std::string& args);
+    void timerExec(u_long ack);
     void setMsgIoCb() { _even->addIo(_client->getSocketfd(), std::bind(&Client::listenResq, this), EPOLLIN | EPOLLET); };
     udpClientPtr _client;
     interaction::Interaction _os;
-    evevPtr _even;
-    ackSet _ackSet;
-    std::mutex _ackSetLock;
+    evenPtr _even;
+    AckSetPtr _ackSet;
     std::mutex _sendtoLock;
     std::thread _timerThread;
-    msg::Buffer _msgBuffer;
     HandlerRecvCb _handlerRecvCd;
+    msg::Buffer _msgBuffer;
+
 };
 }  // namespace transfiler
 #endif

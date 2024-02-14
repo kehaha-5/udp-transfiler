@@ -30,12 +30,11 @@ class Directory {
     static Directory &getInstance();
     filesInfo ls();
     std::string getFullPath() { return _fullPath; }
-    void setFilePath(std::string path);
+    void setFilePath();
     bool getSpecialFileDownInfo(filesDownInfo &data, const std::string &name, std::string &errMsg);
-    void getAllFileDownInfo(filesDownInfo &data);
+    bool getAllFileDownInfo(filesDownInfo &data, std::string &errMsg);
     // Delete the copy constructor
     Directory(const Directory &) = delete;
-
 
    private:
     bool getFileDownInfo(fileDownInfo &data, const std::string &name, std::string &errMsg);

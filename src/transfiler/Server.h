@@ -6,10 +6,7 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
-#include <vector>
-
 #include "msg/Buffer.h"
-#include "msg/Msg.h"
 #include "udp/UdpServer.h"
 namespace transfiler {
 typedef std::unique_ptr<udp::UdpServer> UdpSerPtr;
@@ -18,7 +15,7 @@ typedef std::unordered_map<u_long, MsgBuffPtr> MsgBuffMap;
 
 class Server {
    public:
-    Server(EventLoop* loop, const char* host, uint16_t port);
+    Server(EventLoop* loop, const char* host, uint16_t port,u_short threadNum);
     ~Server() { _msgBuffMap.clear(); }
     void readBack();
     void writeBack();

@@ -1,11 +1,11 @@
-#ifndef TRANSFILER_ACK_RANDOM_H
-#define TRANSFILER_ACK_RANDOM_H
+#ifndef CORE_ACK_ACK_RANDOM_H
+#define CORE_ACK_ACK_RANDOM_H
 
 #include <sys/types.h>
 
 #include <mutex>
 #include <unordered_set>
-namespace transfiler {
+namespace ack {
 typedef std::unordered_set<u_long> unqiueAck;
 class AckRandom {
    public:
@@ -18,6 +18,6 @@ class AckRandom {
     static unqiueAck _set;
     static std::mutex _setLock;
 };
-}  // namespace transfiler
+}  // namespace acksss
 
 #endif

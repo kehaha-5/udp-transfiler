@@ -9,9 +9,8 @@
 #include "ServerConfig.h"
 
 using namespace config;
-namespace fs = std::filesystem;
 
-ServerConfig &ServerConfig::getInstance() {
+ServerConfig& ServerConfig::getInstance() {
     static ServerConfig serverConfig;
     return serverConfig;
 }
@@ -19,16 +18,23 @@ ServerConfig &ServerConfig::getInstance() {
 ServerConfig::ServerConfig() { setDefualtConfig(); }
 
 void ServerConfig::setDefualtConfig() {
-    _config = {};
-    _config.filePath = "./upload";
-    _config.ip = "0.0.0.0";
-    _config.port = 23111;
-    _config.threadNum = 5;
+    _ip = "0.0.0.0";
+    _port = 23111;
+    _threadNum = 5;
+}
+
+void ServerConfig::setConfigFilePath(std::string filePath) {
+    _filePath = filePath;
+    if (!fs::exists(_filePath)) {
+        fs::create_directories(_filePath);
+        info_log("the file directoriey not exist,has create this file directoriey");
+    }
 }
 
 void ServerConfig::setConfigFile(std::string filePath) {
     if (!fs::exists(filePath)) {
         warn_log("config file not exist !!! using defualt Configuration");
+        return;
     }
     std::ifstream configFile(filePath, std::ios_base::in);
     if (!configFile.good()) {
@@ -37,21 +43,32 @@ void ServerConfig::setConfigFile(std::string filePath) {
     std::string line;
     while (std::getline(configFile, line)) {
         if (findStrContain(line, "ip")) {
-            _config.ip = getConfigData(line);
+            _ip = getConfigData(line);
         }
         if (findStrContain(line, "filePath")) {
-            _config.filePath = getConfigData(line);
+            _filePath = getConfigData(line);
         }
         if (findStrContain(line, "port")) {
-            if (!getIntConfigData(line, _config.port)) {
+            if (!getIntConfigData(line, _port)) {
                 warn_log("port is not a number !!! using defualt Configuration");
             }
         }
         if (findStrContain(line, "threadNum")) {
-            if (!getIntConfigData(line, _config.threadNum)) {
+            if (!getIntConfigData(line, _threadNum)) {
                 warn_log("threadNum is not a number !!! using defualt Configuration");
             }
         }
         line.clear();
     }
+}
+
+const fs::path& ServerConfig::getFilepath() {
+    if (_filePath.string().empty()) {
+        _filePath = "./download";
+    }
+    if (!fs::exists(_filePath)) {
+        fs::create_directories(_filePath);
+        info_log("the file directoriey not exist,has create this file directoriey");
+    }
+    return _filePath;
 }

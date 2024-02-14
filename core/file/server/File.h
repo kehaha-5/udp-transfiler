@@ -28,7 +28,6 @@ struct errMsg {
 struct fileData {
     std::string data;
     int realSize;
-    std::string hash;
 };
 
 class File {

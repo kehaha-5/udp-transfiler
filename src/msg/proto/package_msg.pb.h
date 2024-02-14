@@ -61,11 +61,12 @@ namespace proto {
 enum MsgType : int {
   Command = 1,
   FileInfos = 2,
-  FileDownloadInfo = 3
+  FileDownloadInfo = 3,
+  FileDownloadRes = 4
 };
 bool MsgType_IsValid(int value);
 constexpr MsgType MsgType_MIN = Command;
-constexpr MsgType MsgType_MAX = FileDownloadInfo;
+constexpr MsgType MsgType_MAX = FileDownloadRes;
 constexpr int MsgType_ARRAYSIZE = MsgType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MsgType_descriptor();

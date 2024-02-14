@@ -10,6 +10,20 @@
 #include "config/ClientConfig.h"
 #include "config/ServerConfig.h"
 
+struct serverConfig {
+    std::string ip;
+    u_short port;
+    std::string filePath;
+    u_short threadNum;
+};
+
+struct clientConfig {
+    std::string ip;
+    u_short port;
+    std::string filePath;
+    u_short downloadThreadNum;
+};
+
 class TestConfig : public testing::Test {
    protected:
     void SetUp() {
@@ -38,23 +52,23 @@ class TestConfig : public testing::Test {
         clientConfig << "ip=" << _clientConfig.ip << "\n";
         clientConfig << "port=" << _clientConfig.port << "\n";
         clientConfig << "filePath=" << _clientConfig.filePath << "\n";
-        clientConfig << "downloadthreadNum=" << _clientConfig.downloadthreadNum << "\n";
+        clientConfig << "downloadThreadNum=" << _clientConfig.downloadThreadNum << "\n";
         clientConfig.close();
 
         std::ofstream badServerFilePath(_badServerFilePath, std::ios_base::out);
         ASSERT_TRUE(serverConfig.good());
         badServerFilePath << "ip=" << _serverConfig.ip << "\n";
         badServerFilePath << "port="
-                     << "port"
-                     << "\n";
+                          << "port"
+                          << "\n";
         badServerFilePath << "filePath=" << _serverConfig.filePath << "\n";
         badServerFilePath << "threadNum="
-                     << "threadNum"
-                     << "\n";
+                          << "threadNum"
+                          << "\n";
         badServerFilePath.close();
     }
     void initConfig() {
-        _clientConfig.downloadthreadNum = 10;
+        _clientConfig.downloadThreadNum = 10;
         _clientConfig.filePath = "./client_download";
         _clientConfig.ip = "127.0.0.1";
         _clientConfig.port = 23111;
@@ -67,9 +81,9 @@ class TestConfig : public testing::Test {
 
    public:
     std::filesystem::path _currentPath;
-    config::clientConfig _clientConfig;
-    config::serverConfig _serverConfig;
-    config::serverConfig _badServerConfig;
+    clientConfig _clientConfig;
+    serverConfig _serverConfig;
+    serverConfig _badServerConfig;
     std::filesystem::path _clientFilePath;
     std::filesystem::path _serverFilePath;
     std::filesystem::path _badServerFilePath;
@@ -77,39 +91,34 @@ class TestConfig : public testing::Test {
 
 TEST_F(TestConfig, functionalTest) {
     config::ServerConfig::getInstance().setConfigFile(_serverFilePath);
-    auto serConf = config::ServerConfig::getInstance().getConfig();
-    ASSERT_STREQ(serConf.filePath.c_str(), _serverConfig.filePath.c_str());
-    ASSERT_STREQ(serConf.ip.c_str(), _serverConfig.ip.c_str());
-    ASSERT_EQ(serConf.port, _serverConfig.port);
-    ASSERT_EQ(serConf.threadNum, _serverConfig.threadNum);
+    ASSERT_STREQ(config::ServerConfig::getInstance().getFilepath().c_str(), _serverConfig.filePath.c_str());
+    ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), _serverConfig.ip.c_str());
+    ASSERT_EQ(config::ServerConfig::getInstance().getPort(), _serverConfig.port);
+    ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), _serverConfig.threadNum);
 
     config::ClientConfig::getInstance().setConfigFile(_clientFilePath);
-    auto clientConf = config::ClientConfig::getInstance().getConfig();
-    ASSERT_STREQ(clientConf.filePath.c_str(), _clientConfig.filePath.c_str());
-    ASSERT_STREQ(clientConf.ip.c_str(), _clientConfig.ip.c_str());
-    ASSERT_EQ(clientConf.port, _clientConfig.port);
-    ASSERT_EQ(clientConf.downloadthreadNum, _clientConfig.downloadthreadNum);
+    ASSERT_STREQ(config::ClientConfig::getInstance().getFilepath().c_str(), _clientConfig.filePath.c_str());
+    ASSERT_STREQ(config::ClientConfig::getInstance().getIp().c_str(), _clientConfig.ip.c_str());
+    ASSERT_EQ(config::ClientConfig::getInstance().getPort(), _clientConfig.port);
+    ASSERT_EQ(config::ClientConfig::getInstance().getDownloadThreadNum(), _clientConfig.downloadThreadNum);
 }
 
 TEST_F(TestConfig, defualtValueTest) {
-    auto serConf = config::ServerConfig::getInstance().getConfig();
-    ASSERT_STREQ(serConf.filePath.c_str(), "./upload");
-    ASSERT_STREQ(serConf.ip.c_str(), "0.0.0.0");
-    ASSERT_EQ(serConf.port, 23111);
-    ASSERT_EQ(serConf.threadNum, 5);
+    ASSERT_STREQ(config::ServerConfig::getInstance().getFilepath().c_str(), "./download");
+    ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), "0.0.0.0");
+    ASSERT_EQ(config::ServerConfig::getInstance().getPort(), 23111);
+    ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), 5);
 
-    auto clientConf = config::ClientConfig::getInstance().getConfig();
-    ASSERT_STREQ(clientConf.filePath.c_str(), "./upload");
-    ASSERT_STREQ(clientConf.ip.c_str(), "127.0.0.1");
-    ASSERT_EQ(clientConf.port, 23111);
-    ASSERT_EQ(clientConf.downloadthreadNum, 5);
+    ASSERT_STREQ(config::ClientConfig::getInstance().getFilepath().c_str(), "./downloadfile");
+    ASSERT_STREQ(config::ClientConfig::getInstance().getIp().c_str(), "127.0.0.1");
+    ASSERT_EQ(config::ClientConfig::getInstance().getPort(), 23111);
+    ASSERT_EQ(config::ClientConfig::getInstance().getDownloadThreadNum(), 5);
 }
 
 TEST_F(TestConfig, getIntErrorTest) {
     config::ServerConfig::getInstance().setConfigFile(_serverFilePath);
-    auto serConf = config::ServerConfig::getInstance().getConfig();
-    ASSERT_STREQ(serConf.filePath.c_str(), _serverConfig.filePath.c_str());
-    ASSERT_STREQ(serConf.ip.c_str(), _serverConfig.ip.c_str());
-    ASSERT_EQ(serConf.port, 23111);
-    ASSERT_EQ(serConf.threadNum, 5);
+    ASSERT_STREQ(config::ServerConfig::getInstance().getFilepath().c_str(), _serverConfig.filePath.c_str());
+    ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), _serverConfig.ip.c_str());
+    ASSERT_EQ(config::ServerConfig::getInstance().getPort(), 23111);
+    ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), 5);
 }
