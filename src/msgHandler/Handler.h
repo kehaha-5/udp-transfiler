@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "msg/proto/file_down_msg.pb.h"
 #include "transfiler/Server.h"
 
 namespace msgHandler {
@@ -16,6 +17,7 @@ class Handler {
    private:
     void ls(std::string* out, msg::proto::MsgType& msgType);
     bool downfile(std::string& arg, std::string* out, msg::proto::MsgType& msgType);
+    bool downfileRes(msg::proto::FileDownMsg& resqMsg, std::string* out);
     std::string _errMsg;
 };
 }  // namespace msgHandler

@@ -8,6 +8,7 @@ enum MsgType{
   Command=1;
   FileInfos=2;
   FileDownloadInfo=3;
+  FileDownloadRes=4;
 };
 
 // Define the base message.

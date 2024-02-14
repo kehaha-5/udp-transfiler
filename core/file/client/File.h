@@ -13,6 +13,7 @@ namespace file::client {
 const int SINGLE_WRITE_SIZE = 1024;
 
 namespace fs = std::filesystem;
+
 class File {
    public:
     File(std::string fileName, u_long size);

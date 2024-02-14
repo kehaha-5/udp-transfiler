@@ -37,3 +37,4 @@ BuildTest
 .cache
 upload/*
 downloadfile/*
+download/*

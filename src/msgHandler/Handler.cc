@@ -1,8 +1,14 @@
+#include <filesystem>
+
+#include "Constant.h"
 #include "Handler.h"
 #include "Interaction.h"
+#include "config/ServerConfig.h"
 #include "file/server/Directory.h"
+#include "file/server/File.h"
 #include "msg/Msg.h"
 #include "msg/proto/command_msg.pb.h"
+#include "msg/proto/file_down_msg.pb.h"
 #include "msg/proto/package_msg.pb.h"
 #include "utils.h"
 
@@ -27,8 +33,13 @@ bool Handler::handlerCommand(transfiler::MsgBuffPtr buff, std::string* res, msg:
             }
             return true;
         }
-        case msg::proto::FileInfos: {
-            return true;
+        case msg::proto::FileDownloadRes: {
+            msg::proto::FileDownMsg resqMsg;
+            if (!msg::basePaserAndValidateMsg<msg::proto::FileDownMsg>(resqMsg, buff->getData(), _errMsg)) {
+                return false;
+            }
+            msgType = msg::proto::FileDownloadRes;
+            return downfileRes(resqMsg, res);
         }
         default: {
             _errMsg = "can not identify msg type";
@@ -65,7 +76,9 @@ bool Handler::downfile(std::string& arg, std::string* out, msg::proto::MsgType& 
     }
     if ((pos = arg.find(interaction::DWONLOADFILE_ALL_ARG)), pos != std::string::npos) {
         file::server::filesDownInfo data;
-        file::server::Directory::getInstance().getAllFileDownInfo(data);
+        if (!file::server::Directory::getInstance().getAllFileDownInfo(data, _errMsg)) {
+            return false;
+        }
         msg::FileDownInfo msg = {};
         msg.infos = data;
         msg.serialized(out);
@@ -74,6 +87,20 @@ bool Handler::downfile(std::string& arg, std::string* out, msg::proto::MsgType& 
     }
     _errMsg = "unkown args";
     return false;
+}
+
+bool Handler::downfileRes(msg::proto::FileDownMsg& resqMsg, std::string* out) {
+    auto filePath = config::ServerConfig::getInstance().getFilepath();
+    file::server::File file(filePath.append(resqMsg.name()));
+    file::server::fileData data = {};
+    if (!file.getPosContext(resqMsg.startpos(), MAX_FILE_DATA_SIZE, data)) {
+        _errMsg = file.getErrMsg().errMsg;
+        return false;
+    };
+    resqMsg.set_data(data.data);
+    resqMsg.set_size(data.realSize);
+    resqMsg.SerializeToString(out);
+    return true;
 }
 
 void Handler::getErrorMsg(std::string* res) {

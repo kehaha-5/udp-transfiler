@@ -83,7 +83,9 @@ void Client::downfile(std::string& args) {
                     notDownloadNum++;
                 }
             }
-            _os.showError(notDownloadMsg.str());
+            if (msg.infos.empty()) {
+                _os.showError(notDownloadMsg.str());
+            }
             if (_os.confirm(confirmMsg.str())) {
                 debug_log("will be down file !!!");
                 downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client);
