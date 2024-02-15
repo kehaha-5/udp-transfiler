@@ -30,7 +30,7 @@ UdpServer::UdpServer(EventLoop* loop, const char* host, uint16_t port,u_short th
     _threadpool = std::make_unique<pool::ThreadPool>(threadNum);
     info_log("threadpool is created threadNum:%d", threadNum);
 
-    loop->addIo(_socketFd, std::bind(&UdpServer::handleRead, this), EPOLLIN | EPOLLET);
+    loop->addIo(_socketFd, std::bind(&UdpServer::handleRead, this), EPOLLIN);
 }
 
 void UdpServer::sendMsg(std::string& msg, sockaddr_in clientAddr) {

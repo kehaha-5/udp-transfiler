@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "Constant.h"
-#include "Logging.h"
 #include "file/server/Directory.h"
 #include "msg/proto/command_msg.pb.h"
 #include "msg/proto/file_down_info_msg.pb.h"

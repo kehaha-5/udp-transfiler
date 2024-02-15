@@ -4,14 +4,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <cassert>
 #include <functional>
+#include <memory>
 
 #include "timer/Timer.h"
-#define MAXEVENTS 1000
+#define MAXEVENTS 10000
 
 struct ioEvent;
 typedef std::function<void()> ioCallBack;
 typedef std::unordered_map<int, ioEvent> IoEvents;
+typedef std::shared_ptr<timer::Timer> TimerPtr;
 
 struct ioEvent {
     ioCallBack rb;
@@ -21,11 +24,8 @@ struct ioEvent {
 class EventLoop {
    public:
     EventLoop();
-    ~EventLoop() {
-        close(_epollFd);
-        delete _timer;
-    };
-    void addIo(int fd, ioCallBack cd, unsigned int mask); // modify io cb fun by this fun
+    ~EventLoop() { close(_epollFd); };
+    void addIo(int fd, ioCallBack cd, unsigned int mask);  // modify io cb fun by this fun
     void delIo(int fd);
     void loop();
     void setRunning(bool running) { _isRunning = running; };
@@ -38,10 +38,15 @@ class EventLoop {
     void handleTimer();
     void startTimer();
     void stopTimer();
+    bool isRunning() { return _isRunning; }
+    TimerPtr getTimer() {
+        assert(_timer);
+        return _timer;
+    }
 
    private:
     int _epollFd;
-    timer::Timer* _timer = nullptr;
+    TimerPtr _timer;
     IoEvents _ioEvents;
     ioCallBack _timerCb;
     bool _isRunning = true;

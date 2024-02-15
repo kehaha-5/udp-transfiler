@@ -3,7 +3,6 @@
 
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <sstream>
 #include <thread>
 
@@ -26,7 +25,7 @@ Client::Client(std::string host, __uint16_t port) {
     _client = std::make_shared<udp::UdpClient>(_even, host, port);
     _even->startTimer();
     _os = interaction::Interaction();
-    _ackSet = std::make_unique<ack::AckSet>();
+    _ackSet = std::make_shared<ack::AckSet>(_even->getTimer());
     setMsgIoCb();
 }
 
@@ -88,22 +87,21 @@ void Client::downfile(std::string& args) {
             }
             if (_os.confirm(confirmMsg.str())) {
                 debug_log("will be down file !!!");
-                downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client);
-                std::thread osThread = std::thread(std::bind([&downloader, this]() {
-                    int num = 0;
-                    bool getSpeed = false;
-                    while (!downloader.hasFinish()) {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                        if (num == 10) {
-                            getSpeed = true;
-                            num = 0;
-                        }
-                        _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
-                        num++;
-                    }
-                }));
-                osThread.detach();
+                downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client,
+                                                _ackSet);
                 downloader.start();
+                int num = 0;
+                bool getSpeed = false;
+                while (!downloader.hasFinish()) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    if (num == 50) {
+                        getSpeed = true;
+                        num = 0;
+                    }
+                    _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
+                    num++;
+                }
+                _os.showMsg(downloader.getDownloadStatistics());
                 setMsgIoCb();
             }
             return;
@@ -132,25 +130,32 @@ void Client::ls() {
     listenResqAndHandler();
 }
 
-void Client::timerExec(u_long ack) { auto msg = _ackSet->getMsgByAck(ack); }
+void Client::timerExce(u_long ack, std::vector<msg::Package> msg) {
+    // avoid create too many protobuf object
+    PackageMsg protobufMsg;
+    std::string sendMsg;
+    for (auto& it : msg) {
+        it.serialized(&sendMsg, protobufMsg);
+        _client->sendMsg(sendMsg);
+        protobufMsg.Clear();
+    }
+}
 
 void Client::sendto(std::string& msg, msg::proto::MsgType type) {
     debug_log("client send msg ");
-    auto ack = _ackSet->getAck(msg);
+    auto ack = _ackSet->getAck();
 
     auto resMsg = msg::getsubcontractInfo(msg, ack, type);
 
-    {
-        std::lock_guard<std::mutex> lock(_sendtoLock);
-        std::string msg;
-        // avoid create too many protobuf object
-        PackageMsg protobufMsg;
-        for (auto& it : resMsg) {
-            it.serialized(&msg, protobufMsg);
-            _client->sendMsg(msg);
-            protobufMsg.Clear();
-        }
+    std::string sendMsg;
+    // avoid create too many protobuf object
+    PackageMsg protobufMsg;
+    for (auto& it : resMsg) {
+        it.serialized(&sendMsg, protobufMsg);
+        _client->sendMsg(sendMsg);
+        protobufMsg.Clear();
     }
+    _ackSet->setCbByAck(ack, std::bind(&Client::timerExce, this, ack, resMsg));
 }
 
 void Client::listenResqAndHandler() {

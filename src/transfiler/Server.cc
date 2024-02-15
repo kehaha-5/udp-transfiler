@@ -17,8 +17,8 @@
 
 using namespace transfiler;
 
-Server::Server(EventLoop* loop, const char* host, uint16_t port,u_short threadNum) {
-    _udpPtr = std::make_unique<udp::UdpServer>(loop, host, port,threadNum);
+Server::Server(EventLoop* loop, const char* host, uint16_t port, u_short threadNum) {
+    _udpPtr = std::make_unique<udp::UdpServer>(loop, host, port, threadNum);
     _udpPtr->setReadBack(std::bind(&Server::readBack, this));
 }
 
@@ -30,7 +30,6 @@ void Server::readBack() {
     std::string host(IP_V4_LEN, '\0');
     inet_ntop(AF_INET, &clientAddr.sin_addr, &host[0], sizeof(host));
     auto prot = ntohs(clientAddr.sin_port);
-    info_log("udp recvfrom data to ip %s prot %d", host.data(), prot);
     if (len == 0) {
         warn_log("get data len is 0");
         return;
@@ -56,6 +55,7 @@ void Server::readBack() {
         }
         msgBuff->setData(msg);
     }
+    info_log("udp recvfrom data to ip %s prot %d ack is %lu", host.data(), prot, msgBuff->getAck(), msgBuff->getSize());
     // check full msg has be build finish
     if (msgBuff->hasAllData()) {
         std::string res;
@@ -78,6 +78,6 @@ void Server::readBack() {
             _udpPtr->sendMsg(packageMsg, clientAddr);
             protobufMsg.Clear();
         }
-        info_log("udp send data to ip %s prot %d", host.data(), prot);
+        info_log("udp send data to ip %s prot %d ack is %lu", host.data(), prot, msgBuff->getAck());
     }
 };

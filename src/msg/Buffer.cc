@@ -1,5 +1,6 @@
 
 #include "Buffer.h"
+#include "Logging.h"
 #include "msg/Msg.h"
 
 using namespace msg;

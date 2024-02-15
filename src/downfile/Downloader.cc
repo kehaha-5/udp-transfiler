@@ -1,13 +1,17 @@
 #include <sys/types.h>
 
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <ios>
 #include <memory>
+#include <sstream>
 #include <string>
+#include <thread>
 
 #include "Constant.h"
 #include "Downloader.h"
@@ -16,22 +20,29 @@
 #include "downfile/DownloaderEvents.h"
 #include "downfile/interruptionInfo/downfile_interruption_info.pb.h"
 #include "file/client/File.h"
+#include "utils.h"
 
 using namespace downfile;
 
-Downloader::Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client)
+Downloader::Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client, AckSetPtr ackSetPtr)
     : _info(info), _even(even), _client(client), _threadNum(threadNum) {
     initDownloadInfo();
-    _downloaderEventsPtr = std::make_shared<DownloaderEvents>(_even, _client, _writeMapPtr, _threadNum);
+    _downloaderEventsPtr = std::make_shared<DownloaderEvents>(_even, _client, _writeMapPtr, _threadNum,ackSetPtr);
 }
 
 void Downloader::start() {
-    // 发送数据和接收数据并把数据处理分发到线程池
-    for (auto &it : _info) {
-        auto queue = buildDownQueueByInterruptionData(it.hash);
-        _downloaderEventsPtr->start(queue, it.size);
-    }
-    _isfinish = true;
+    auto downMainThread = std::thread(std::bind([this]() {
+        _start = std::chrono::system_clock::now();
+        // 发送数据和接收数据并把数据处理分发到线程池
+        for (auto &it : _info) {
+            auto queue = buildDownQueueByInterruptionData(it.hash);
+            _totalSendPackages += queue.size();
+            _downloaderEventsPtr->start(queue, it.size);
+        }
+        _isfinish = true;
+        _end = std::chrono::system_clock::now();
+    }));
+    downMainThread.detach();
 }
 
 void Downloader::initDownloadInfo() {
@@ -66,12 +77,14 @@ void Downloader::buildInterruptionInfoFile(const file::server::fileDownInfo &inf
         warn_log("create download interruption file error");
         return;
     }
-    u_long filePackges = std::ceil(info.size / MAX_FILE_DATA_SIZE);
+    // u_long filePackges = std::ceil(info.size / MAX_FILE_DATA_SIZE);
     DownfileInterruptionInfo interruptionData;
-    for (u_long i = 0; i < filePackges; i++) {
+    int size = 0;
+    for (u_long i = 0; i < info.size; i += MAX_FILE_DATA_SIZE) {
         auto data = interruptionData.add_info();
         data->set_isdownload(false);
-        data->set_startpos(i * MAX_FILE_DATA_SIZE);
+        data->set_startpos(size * MAX_FILE_DATA_SIZE);
+        size++;
     }
     interruptionData.set_hasdownloadedszie(0);
     interruptionData.set_name(info.name);
@@ -115,6 +128,7 @@ std::string Downloader::getDownloadStrDetails(bool getSpeed) {
     }
     if (std::strcmp(_lastDetailsFilename.c_str(), data.filename.c_str()) != 0) {
         details += '\n';
+        _lastDetailsFilename = data.filename;
     } else {
         // Move the cursor to the beginning of the current line
         details += '\r';
@@ -131,10 +145,28 @@ std::string Downloader::getDownloadStrDetails(bool getSpeed) {
     }
     details.append("  ");
     details.append(std::to_string(data.percentage * 10) + "%");
-    details.append("  ");
+    details.append(" ");
+    details.append("[hasDown:" + std::to_string(data.hasDownlaodSzie) + "/totalSzie:" + std::to_string(data.totalSize) + "]");
+    details.append(" ");
+    details.append("[hasRecv:" + std::to_string(data.hasRecvPackages) + "/totalSend:" + std::to_string(data.totalSendPackage) + "]");
+    details.append(" ");
     details.append(data.speed);
-    details.append("  ");
+    details.append("      ");
     return details;
+}
+
+std::string Downloader::getDownloadStatistics() {
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start);
+    std::stringstream details;
+    details << "\n";
+    details << "total download file " << _info.size() << "\n";
+    details << "total download size " << utils::humanReadable(_totalSendPackages * MAX_FILE_DATA_SIZE) << "\n";
+    details << "total package should be sent " << _totalSendPackages << "\n";
+    details << "time-consuming " << duration.count() / 1000 << " s\n";
+    details << "speeds " << utils::humanReadable(std::ceil((_totalSendPackages * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
+            << " peer second \n";
+    details << "download finsih \n";
+    return details.str();
 }
 
 std::string Downloader::getInterruptionFileName(const std::string &fileHash) {

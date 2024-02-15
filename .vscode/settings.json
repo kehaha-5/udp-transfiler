@@ -62,6 +62,5 @@
     "clang-format.assumeFilename": "${workspaceFolder}/.clang-format",
     "cmake.configureSettings": {
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-    },
-    "clang-format.executable": "clang-format-17"
+    }
 }

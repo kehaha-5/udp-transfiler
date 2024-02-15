@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <memory>
 
 #include "EventLoop.h"
 #include "Logging.h"
@@ -44,7 +45,6 @@ void EventLoop::loop() {
         epoll_event events[MAXEVENTS];
         int num = epoll_wait(_epollFd, events, MAXEVENTS,
                              -1);  // timeout 参数关系到定时器的超时时间，至少要与定时器时间一致，尽量不要设置为0，否则导致cpu一直轮询
-        exit_if(num == -1, "epoll_wait error");
         for (int i = 0; i < num; i++) {
             if (events[i].events & EPOLL_EVENTS::EPOLLIN) {
                 auto it = _ioEvents.find(events[i].data.fd);
@@ -67,7 +67,7 @@ void EventLoop::handleTimer() {
 
 void EventLoop::startTimer() {
     if (_timer == nullptr) {
-        _timer = new timer::Timer();
+        _timer = std::make_shared<timer::Timer>();
     }
     addIo(_timer->getTimerfd(), std::bind(&EventLoop::handleTimer, this), EPOLLIN);
 }

@@ -3,11 +3,10 @@
 #include <rapidjson/rapidjson.h>
 #include <sys/types.h>
 
+#include <chrono>
 #include <memory>
 #include <unordered_map>
-#include <vector>
 
-#include "Constant.h"
 #include "downfile/DownloaderEvents.h"
 #include "downfile/interruptionInfo/downfile_interruption_info.pb.h"
 #include "file/client/File.h"
@@ -18,9 +17,6 @@ namespace downfile {
 
 using namespace interruption;
 
-const int CACHE_REQ_NUM = 10;
-const int CACHE_DATA_SIZE = CACHE_REQ_NUM * MAX_FILE_DATA_SIZE;
-
 typedef std::shared_ptr<udp::UdpClient> UdpClientPtr;
 typedef std::shared_ptr<EventLoop> EventPtr;
 typedef std::unordered_map<std::string, DownfileInterruptionInfo> DownfileInterruptionInfos;
@@ -28,13 +24,15 @@ typedef std::shared_ptr<file::client::File> ClientFilePtr;
 typedef std::unordered_map<std::string, ClientFilePtr> WriteMap;
 typedef std::shared_ptr<WriteMap> WriteMapPtr;
 typedef std::shared_ptr<DownloaderEvents> DownloaderEventsPtr;
+typedef std::shared_ptr<ack::AckSet> AckSetPtr;
 
 class Downloader {
    public:
-    Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client);
+    Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client, AckSetPtr ackSetPtr);
     void start();
     bool hasFinish() { return _isfinish; }
     std::string getDownloadStrDetails(bool getSpeed);
+    std::string getDownloadStatistics();
 
    private:
     void initDownloadInfo();
@@ -51,7 +49,10 @@ class Downloader {
     DownloaderEventsPtr _downloaderEventsPtr;
     int _threadNum;
     std::string _lastDetailsFilename;
+    std::uintmax_t _totalSendPackages = 0;
     bool _isfinish = false;
+    std::chrono::time_point<std::chrono::system_clock> _start;
+    std::chrono::time_point<std::chrono::system_clock> _end;
 };
 }  // namespace downfile
 
