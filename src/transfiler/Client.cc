@@ -93,8 +93,8 @@ void Client::downfile(std::string& args) {
                 int num = 0;
                 bool getSpeed = false;
                 while (!downloader.hasFinish()) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                    if (num == 50) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    if (num == 500) {
                         getSpeed = true;
                         num = 0;
                     }
@@ -132,6 +132,7 @@ void Client::ls() {
 
 void Client::timerExce(u_long ack, std::vector<msg::Package> msg) {
     // avoid create too many protobuf object
+    debug_log("the package will be resend ack is %lu", ack);
     PackageMsg protobufMsg;
     std::string sendMsg;
     for (auto& it : msg) {

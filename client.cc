@@ -16,7 +16,8 @@ unique_ptr<Interaction> clientInteraction;
 int main(int, char**) {
     logConfig logconf = {logLever::debug, logAppender::console};
     Log::setConfig(logconf);
-    config::ClientConfig::getInstance().setConfigDownloadThreadNum(5);
+    config::ClientConfig::getInstance().setConfigDownloadThreadNum(10);
+    // config::ClientConfig::getInstance().setConfigIp("192.168.1.100");
     client = make_unique<Client>(config::ClientConfig::getInstance().getIp().c_str(), config::ClientConfig::getInstance().getPort());
     clientInteraction = make_unique<Interaction>();
     while (true) {

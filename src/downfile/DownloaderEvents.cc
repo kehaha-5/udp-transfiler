@@ -64,7 +64,7 @@ void DownloaderEvents::sendMsg(FileDownMsg &msg) {
 
 void DownloaderEvents::timerExce(u_long ack, std::vector<msg::Package> msg) {
     // avoid create too many protobuf object
-    debug_log("will be resend ack is %lu", ack);
+    // debug_log("will be resend ack is %lu", ack);
     PackageMsg protobufMsg;
     std::string sendMsg;
     for (auto &it : msg) {
@@ -117,7 +117,7 @@ void DownloaderEvents::handlerRecv() {
 
 downloadDetails &DownloaderEvents::getDownloadDetail(bool getSpeed) {
     std::lock_guard<std::mutex> lock_guard(_detailsLock);
-    _downloadDetails.percentage = std::round(((_hasDownlaodSzie / _totalSzie) * 10));
+    _downloadDetails.percentage = std::round(((_hasDownlaodSzie * 10 / _totalSzie)));
     _downloadDetails.hasDownlaodSzie = _hasDownlaodSzie;
     _downloadDetails.totalSize = _totalSzie;
     _downloadDetails.hasRecvPackages = _hasRecvPackages;
