@@ -10,7 +10,7 @@ int main(int, char **) {
     logConfig logconf = {logLever::debug, logAppender::console};
     Log::setConfig(logconf);
     EventLoop event;
-    config::ServerConfig::getInstance().setConfigThreadNum(1);
+    config::ServerConfig::getInstance().setConfigThreadNum(30);
      config::ServerConfig::getInstance().setConfigFilePath("./upload");
     transfiler::Server server(&event, config::ServerConfig::getInstance().getIp().c_str(), config::ServerConfig::getInstance().getPort(),
                               config::ServerConfig::getInstance().getThreadNum());

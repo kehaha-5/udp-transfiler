@@ -5,6 +5,7 @@
 #include <memory>
 #include <mutex>
 #include <sstream>
+#include <thread>
 
 #include "Client.h"
 #include "EventLoop.h"
@@ -52,7 +53,6 @@ void Client::downfile(std::string& args) {
     setHandlerRecvCb(std::bind([this]() {
         msg::FileDownInfo msg;
         std::string errMsg;
-
         if (_msgBuffer.getMsgType() == msg::proto::Command) {
             msg::Command msg;
             if (msg.build(_msgBuffer.getData(), errMsg)) {
@@ -83,12 +83,26 @@ void Client::downfile(std::string& args) {
                     notDownloadNum++;
                 }
             }
-            if (msg.infos.empty()) {
+            if (notDownloadNum != 0) {
                 _os.showError(notDownloadMsg.str());
             }
             if (_os.confirm(confirmMsg.str())) {
                 debug_log("will be down file !!!");
                 downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client);
+                std::thread osThread = std::thread(std::bind([&downloader, this]() {
+                    int num = 0;
+                    bool getSpeed = false;
+                    while (!downloader.hasFinish()) {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                        if (num == 10) {
+                            getSpeed = true;
+                            num = 0;
+                        }
+                        _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
+                        num++;
+                    }
+                }));
+                osThread.detach();
                 downloader.start();
                 setMsgIoCb();
             }

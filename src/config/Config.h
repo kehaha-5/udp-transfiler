@@ -19,11 +19,11 @@ class Config {
     }
     const std::string getConfigData(std::string &line) {
         auto eqPos = line.find("=") + 1;
-        return trim(line.substr(eqPos, std::string::npos));
+        return utils::trim(line.substr(eqPos, std::string::npos));
     }
     bool getIntConfigData(std::string &line, u_short &res) {
         auto eqPos = line.find("=") + 1;
-        std::istringstream iss(trim(line.substr(eqPos, std::string::npos)));
+        std::istringstream iss(utils::trim(line.substr(eqPos, std::string::npos)));
         if (iss >> res) {
             return true;
         }

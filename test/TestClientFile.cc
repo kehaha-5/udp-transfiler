@@ -52,7 +52,7 @@ TEST_F(TestClientFile, functionalTest) {
     file.init();
     std::string data;
     getLetterTableByBytesNum(1024, data);
-    file.wirite(1024, data, 1024);
+    file.write(1024, data, 1024);
     ASSERT_EQ(getFileSzie(fileName), 2048);
     ASSERT_STREQ(data.c_str(), getFileContext(fileName, 1024, 1024).c_str());
 }

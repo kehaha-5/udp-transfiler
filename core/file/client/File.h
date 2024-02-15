@@ -8,6 +8,7 @@
 #include <mutex>
 #include <string>
 
+
 namespace file::client {
 
 const int SINGLE_WRITE_SIZE = 1024;
@@ -18,8 +19,11 @@ class File {
    public:
     File(std::string fileName, u_long size);
     bool init();
-    bool wirite(int pos, const std::string& data, int size);
-    ~File() { _file.close(); }
+    bool write(int pos, const std::string& data, int size);
+    ~File() {
+        _file.flush();
+        _file.close();
+    }
 
    private:
     fs::path _fileName;

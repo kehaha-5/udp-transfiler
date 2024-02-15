@@ -16,7 +16,8 @@ const int LSLASTWRITETIMEW = 30;
 void Interaction::help() {
     std::cout << "command:" << std::endl;
     std::cout << "\t" << COMMAND_LS << std::endl;
-    std::cout << "\t" << COMMAND_DOWNLOADFILE << "\n\t\t" << DWONLOADFILE_FILE_ARG << "," << DWONLOADFILE_ALL_ARG << "," << DWONLOADFILE_USAGE << std::endl;
+    std::cout << "\t" << COMMAND_DOWNLOADFILE << "\n\t\t" << DWONLOADFILE_FILE_ARG << "," << DWONLOADFILE_ALL_ARG << ","
+              << DWONLOADFILE_USAGE << std::endl;
     std::cout << "\t"
               << "exit" << std::endl;
 }
@@ -32,7 +33,7 @@ inputCommand Interaction::input(std::string cliName) {
             }
             command += ch;
         }
-        command = trim(command);
+        command = utils::trim(command);
         if (command.empty()) {
             continue;
         } else if (command == "help") {
@@ -47,7 +48,7 @@ inputCommand Interaction::input(std::string cliName) {
             unsigned long pos;
             if ((pos = command.find(DWONLOADFILE_FILE_ARG)), pos != std::string::npos) {
                 arg = command.substr(pos);
-                auto fileName = trim(arg.substr(interaction::DWONLOADFILE_FILE_ARG.size()));
+                auto fileName = utils::trim(arg.substr(interaction::DWONLOADFILE_FILE_ARG.size()));
                 if (fileName.empty()) {
                     std::cout << "invalid args file name is empty" << std::endl;
                     continue;
@@ -100,7 +101,7 @@ bool Interaction::confirm(std::string confirmMsg) {
             break;
         }
     }
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     auto res = tolower(input[0]);
     if (res == 121) {  // lower y
         return true;
@@ -108,6 +109,4 @@ bool Interaction::confirm(std::string confirmMsg) {
     return false;
 }
 
-void Interaction::showMsg(std::string msg){
-    std::cout << msg << std::endl;
-}
+void Interaction::showMsg(std::string msg) { std::cout << msg << std::flush; }

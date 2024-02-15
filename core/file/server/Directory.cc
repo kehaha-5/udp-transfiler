@@ -36,7 +36,7 @@ filesInfo Directory::ls() {
             if (item.is_regular_file()) {
                 fileInfo info;
                 info.name = item.path().filename();
-                info.size = humanReadable(item.file_size());
+                info.size = utils::humanReadable(item.file_size());
                 info.last_write_time = fileTimeToStr(item.last_write_time());
                 infos.push_back(info);
             }
@@ -87,24 +87,9 @@ bool Directory::getFileDownInfo(fileDownInfo &data, const std::string &name, std
     data.name = name;
     data.size = fs::file_size(file);
     data.hash = FileHash::getInstance().getHashByFsPath(file);
-    data.humanReadableSize = humanReadable(fs::file_size(file));
+    data.humanReadableSize = utils::humanReadable(fs::file_size(file));
 
     return true;
-}
-
-std::string Directory::humanReadable(std::uintmax_t size) {
-    std::string res;
-    res.resize(10, 0);
-    double mantissa = size;
-    int i{};
-    for (; mantissa >= 1024.0; mantissa /= 1024.0, ++i) {  // 判断mantissa是否有单位默认单位是B，每个单位相差1024
-    }
-    std::sprintf(&res[0], "%.2f", std::ceil(mantissa * 10.0) / 10.0);
-    res += i["BKMGTPE"];
-    if (i > 0) {
-        res += 'B';
-    }
-    return res;
 }
 
 std::string Directory::fileTimeToStr(std::filesystem::file_time_type time) {

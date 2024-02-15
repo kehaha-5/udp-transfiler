@@ -2,11 +2,12 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <ios>
 #include <memory>
-#include <thread>
+#include <string>
 
 #include "Constant.h"
 #include "Downloader.h"
@@ -19,20 +20,18 @@
 using namespace downfile;
 
 Downloader::Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client)
-    : _info(info), _even(even), _client(client), _threadNum(threadNum) {}
-
-void Downloader::start() {
+    : _info(info), _even(even), _client(client), _threadNum(threadNum) {
     initDownloadInfo();
     _downloaderEventsPtr = std::make_shared<DownloaderEvents>(_even, _client, _writeMapPtr, _threadNum);
-    auto downloadThread = std::thread(std::bind([this]() {
-        // 发送数据和接收数据并把数据处理分发到线程池
-        for (auto &it : _info) {
-            auto queue = buildDownQueueByInterruptionData(it.hash);
-            _downloaderEventsPtr->start(queue);
-        }
-        _isfinish = true;
-    }));
-    downloadThread.detach();
+}
+
+void Downloader::start() {
+    // 发送数据和接收数据并把数据处理分发到线程池
+    for (auto &it : _info) {
+        auto queue = buildDownQueueByInterruptionData(it.hash);
+        _downloaderEventsPtr->start(queue, it.size);
+    }
+    _isfinish = true;
 }
 
 void Downloader::initDownloadInfo() {
@@ -106,6 +105,36 @@ DownQueue Downloader::buildDownQueueByInterruptionData(std::string &fileHash) {
         }
     }
     return downQueue;
+}
+
+std::string Downloader::getDownloadStrDetails(bool getSpeed) {
+    std::string details;
+    auto data = _downloaderEventsPtr->getDownloadDetail(getSpeed);
+    if (_lastDetailsFilename.empty()) {
+        _lastDetailsFilename = data.filename;
+    }
+    if (std::strcmp(_lastDetailsFilename.c_str(), data.filename.c_str()) != 0) {
+        details += '\n';
+    } else {
+        // Move the cursor to the beginning of the current line
+        details += '\r';
+    }
+    details.append(data.filename);
+    details.append("  ");
+
+    for (int i = 0; i < 20; i++) {
+        if (i < (data.percentage * 2)) {
+            details.append("#");
+        } else {
+            details.append(".");
+        }
+    }
+    details.append("  ");
+    details.append(std::to_string(data.percentage * 10) + "%");
+    details.append("  ");
+    details.append(data.speed);
+    details.append("  ");
+    return details;
 }
 
 std::string Downloader::getInterruptionFileName(const std::string &fileHash) {

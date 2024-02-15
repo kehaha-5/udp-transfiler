@@ -1,12 +1,21 @@
+#include <sys/epoll.h>
+#include <sys/types.h>
+
 #include <cassert>
+#include <cmath>
 #include <functional>
 #include <memory>
 
+#include "Constant.h"
 #include "DownloaderEvents.h"
+#include "Logging.h"
 #include "ack/AckSet.h"
+#include "downfile/Downloader.h"
+#include "msg/Buffer.h"
 #include "msg/Msg.h"
 #include "msg/proto/file_down_msg.pb.h"
 #include "msg/proto/package_msg.pb.h"
+#include "utils.h"
 
 using namespace downfile;
 
@@ -18,8 +27,11 @@ DownloaderEvents::DownloaderEvents(EventPtr even, UdpClientPtr client, WriteMapP
     _even->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::handlerRecv, this), EPOLLIN | EPOLLET);
 }
 
-void DownloaderEvents::start(DownQueue &queue) {
+void DownloaderEvents::start(DownQueue &queue, u_long size) {
     FileDownMsg fileDownMsg;
+    _lastStatisticsTime = std::chrono::system_clock::now();
+    _totalSzie = size;
+    initDownloadDetails(queue.front().name);
     std::string msg;
     while (!queue.empty()) {
         for (int i = 0; i < _threadNum; i++) {
@@ -72,13 +84,35 @@ void DownloaderEvents::handlerRecv() {
             return;
         }
         auto file = _writeMapPtr->find(msg.name());
-        file->second->wirite(msg.startpos(), msg.data(), msg.size());
+        if (!file->second->write(msg.startpos(), msg.data(), msg.size())) {
+            warn_log("the file can not be write !!!");
+            return;
+        }
+        _hasDownlaodSzie += MAX_FILE_DATA_SIZE;
+        _ackSetPtr->delMsgByAck(msgBuffer.getAck());
         _onceLoop++;
         if (_onceLoop == _threadNum) {
             _onceLoop = 0;
             setRunning(false);
         }
     }));
+}
+
+downloadDetails &DownloaderEvents::getDownloadDetail(bool getSpeed) {
+    if (_hasDownlaodSzie != 0) {
+        _downloadDetails.percentage = std::ceil((_hasDownlaodSzie / _totalSzie) * 10);
+    }
+    if (getSpeed) {
+        _downloadDetails.speed = utils::humanReadable((_hasDownlaodSzie - _lastDownloadSzie));
+        _lastDownloadSzie = _hasDownlaodSzie;
+    }
+    return _downloadDetails;
+}
+
+void DownloaderEvents::initDownloadDetails(std::string filename) {
+    _downloadDetails.filename = filename;
+    _downloadDetails.percentage = 0;
+    _downloadDetails.speed = "-/-";
 }
 
 void DownloaderEvents::loop() {

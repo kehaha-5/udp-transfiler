@@ -59,7 +59,7 @@ void Handler::ls(std::string* out, msg::proto::MsgType& msgType) {
 bool Handler::downfile(std::string& arg, std::string* out, msg::proto::MsgType& msgType) {
     unsigned long pos;
     if ((pos = arg.find(interaction::DWONLOADFILE_FILE_ARG)), pos != std::string::npos) {
-        auto fileName = trim(arg.substr(pos + interaction::DWONLOADFILE_FILE_ARG.size()));
+        auto fileName = utils::trim(arg.substr(pos + interaction::DWONLOADFILE_FILE_ARG.size()));
         if (fileName.empty()) {
             _errMsg = "file name is empty";
             return false;

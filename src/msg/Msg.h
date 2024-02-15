@@ -27,7 +27,6 @@ inline bool basePaserAndValidateMsg(T& resqMsg, std::string& strData, std::strin
         errMsg = "parse falut ";
         return false;
     }
-    debug_log("str is %s", resqMsg.DebugString().c_str());
     if (!resqMsg.IsInitialized()) {
         errMsg = "require has not be set ";
         errMsg += resqMsg.InitializationErrorString();

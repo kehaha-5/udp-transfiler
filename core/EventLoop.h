@@ -7,7 +7,7 @@
 #include <functional>
 
 #include "timer/Timer.h"
-#define MAXEVENTS 100
+#define MAXEVENTS 1000
 
 struct ioEvent;
 typedef std::function<void()> ioCallBack;

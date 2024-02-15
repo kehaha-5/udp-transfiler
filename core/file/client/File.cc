@@ -38,7 +38,7 @@ bool File::init() {
     return true;
 }
 
-bool File::wirite(int pos, const std::string& data, int size) {
+bool File::write(int pos, const std::string& data, int size) {
     if (!_file.good()) {
         _errMsg = "file is not good ";
         return false;
@@ -51,7 +51,6 @@ bool File::wirite(int pos, const std::string& data, int size) {
             return false;
         }
         _file.write(data.c_str(), size);
-        _file.flush();
     }
     return true;
 }

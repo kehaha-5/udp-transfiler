@@ -38,7 +38,6 @@ class Directory {
 
    private:
     bool getFileDownInfo(fileDownInfo &data, const std::string &name, std::string &errMsg);
-    std::string humanReadable(std::uintmax_t size);
     std::string fileTimeToStr(std::filesystem::file_time_type time);
     Directory(){};
     fs::path _filepathObj;
