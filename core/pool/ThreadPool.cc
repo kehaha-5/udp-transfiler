@@ -1,6 +1,5 @@
 #include <sys/eventfd.h>
 
-#include <cassert>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -76,6 +75,9 @@ void ThreadPool::closeThreadPool() {
             while (!it.second.queue.empty()) {
             };
             auto itt = _eventMap.find(it.second.evenfd);
+            if (itt == _eventMap.end()){
+                continue;
+            }
             itt->second->setRunning(false);
         }
     }

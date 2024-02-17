@@ -14,7 +14,7 @@
 using namespace udp;
 
 UdpClient::UdpClient(evenPtr even, std::string &host, __uint16_t port) {
-    _socketfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
+    _socketfd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
     exit_if(_socketfd == -1, "create socket error");
 
     struct sockaddr_in servaddr;
@@ -29,13 +29,22 @@ UdpClient::UdpClient(evenPtr even, std::string &host, __uint16_t port) {
     _serveraddr = servaddr;
 
     debug_log("connect ip %s port %d", host.c_str(), port);
-
-    setNonBlocking();
 }
 
-void UdpClient::sendMsg(std::string &msg) {
+bool UdpClient::sendMsg(std::string &msg) {
+    int sendbuf;
+    socklen_t sendbuf_len = sizeof(sendbuf);
+    getsockopt(_socketfd, SOL_SOCKET, SO_SNDBUF, &sendbuf, &sendbuf_len);
+    if (sendbuf < MAX_MSG_LENGTH) {
+        return false;
+    }
     int res = sendto(_socketfd, msg.c_str(), msg.size(), 0, (const struct sockaddr *)&_serveraddr, sizeof(_serveraddr));
-    exit_if(res == -1, "sendMsg");
+    if (res == -1) {
+        if (!(errno == EAGAIN || errno == EWOULDBLOCK)) {
+            exit_if(res == -1, "sendMsg");
+        }
+    }
+    return true;
 }
 
 std::string UdpClient::rev() {
@@ -55,12 +64,4 @@ std::string UdpClient::rev() {
     assert(res <= MAX_MSG_LENGTH);
     data.resize(res);
     return data;
-}
-
-void UdpClient::setNonBlocking() {
-    int flags = fcntl(_socketfd, F_GETFL);
-    exit_if(flags == -1, "set non-blocking F_GETFL");
-
-    int res = fcntl(_socketfd, F_SETFL, flags | O_NONBLOCK);
-    exit_if(res == -1, "set non-blocking F_GETFL");
 }

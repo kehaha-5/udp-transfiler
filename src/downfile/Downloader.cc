@@ -175,11 +175,13 @@ std::string Downloader::getDownloadStatistics() {
                     << " error msg is:" << _downloaderErrorInfos[i].errMsg << "\n";
         }
     }
-    details << "successfully download size " << utils::humanReadable(_totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
-    details << "total packets should be sent " << _totalSendPackets << "\n";
-    details << "time-consuming " << duration.count() / 1000 << " s\n";
-    details << "speeds " << utils::humanReadable(std::ceil((_totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
-            << " peer second \n";
+    if (_totalSendPackets != 0) {
+        details << "successfully download size " << utils::humanReadable(_totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
+        details << "total packets should be sent " << _totalSendPackets << "\n";
+        details << "time-consuming " << duration.count() / 1000 << " s\n";
+        details << "speeds " << utils::humanReadable(std::ceil((_totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
+                << " peer second \n";
+    }
     details << "download finsih \n";
     return details.str();
 }

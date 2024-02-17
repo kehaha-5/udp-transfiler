@@ -13,12 +13,11 @@ class UdpClient {
    public:
     UdpClient(evenPtr even, std::string &host, __uint16_t port);
     ~UdpClient() { close(_socketfd); }
-    void sendMsg(std::string &msg);
+    bool sendMsg(std::string &msg);
     std::string rev();
     int getSocketfd() { return _socketfd; }
 
    private:
-    void setNonBlocking();
     int _socketfd;
     struct sockaddr_in _serveraddr;
 };

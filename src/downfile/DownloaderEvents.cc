@@ -11,6 +11,7 @@
 
 #include "Constant.h"
 #include "DownloaderEvents.h"
+#include "EventLoop.h"
 #include "Logging.h"
 #include "downfile/Downloader.h"
 #include "msg/Buffer.h"
@@ -23,26 +24,49 @@
 using namespace downfile;
 
 DownloaderEvents::DownloaderEvents(EventPtr even, UdpClientPtr client, WriteMapPtr writeMapPtr, int threadNum, AckSetPtr ackSetPtr)
-    : _even(even), _client(client), _writeMapPtr(writeMapPtr), _ackSetPtr(ackSetPtr) {
+    : _recvEvent(even), _client(client), _writeMapPtr(writeMapPtr), _ackSetPtr(ackSetPtr) {
     _threadPool = std::make_unique<pool::ThreadPool>(threadNum);
     _threadNum = threadNum;
-    _even->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::handlerRecv, this), EPOLLIN);
+    _recvEvent->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::handlerRecv, this), EPOLLIN);
     std::thread eventThread = std::thread(std::bind(&DownloaderEvents::listenResq, this));
     eventThread.detach();
+    _sendEvent = std::make_shared<EventLoop>();
 }
 
 bool DownloaderEvents::start(DownQueue &queue, u_long size) {
     _totalSzie = size;
     initDownloadDetails(queue.front().name);
+
+    _sendEvent->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::setDataWithEvents, this, std::ref(queue)), EPOLLOUT | EPOLLET);
+
+    while (!(_hasRecvPackets >= _totalSendPackets) || !_sendDataFinish) {
+        if (!_sendDataFinish) {
+            sendRes();
+        }
+        {
+            std::lock_guard<std::mutex> lock_guard(_seterrLock);
+            if (_err) {
+                _downloadDetails.iserr = true;
+                _downloadDetails.errMsg = getErrMsg();
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void DownloaderEvents::setDataWithEvents(DownQueue &queue) {
     std::string msg;
     FileDownMsg fileDownMsg;
-    while (!queue.empty() && _even->isRunning()) {
+    while (!queue.empty() && _recvEvent->isRunning()) {
         auto start = std::chrono::system_clock::now();
         for (int i = 0; i < MAX_SEND_PACKETS; i++) {
             if (!queue.empty()) {
                 fileDownMsg.set_name(queue.front().name);
                 fileDownMsg.set_startpos(queue.front().startPos);
-                sendMsg(fileDownMsg);
+                if (!sendMsg(fileDownMsg)) {
+                    _sendEvent->setRunning(false);
+                }
                 fileDownMsg.Clear();
                 _totalSendPackets++;
                 queue.pop();
@@ -55,23 +79,12 @@ bool DownloaderEvents::start(DownQueue &queue, u_long size) {
         if (duration.count() < 1000 && !queue.empty()) {  //小于1秒
             std::this_thread::sleep_for(std::chrono::milliseconds(1000 - duration.count()));
         }
-        {
-            std::lock_guard<std::mutex> lock_guard(_seterrLock);
-            if (_err) {
-                _downloadDetails.iserr = true;
-                _downloadDetails.errMsg = getErrMsg();
-                return false;
-            }
-        }
     }
-
-    while (!(_hasRecvPackets >= _totalSendPackets)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    return true;
+    _sendDataFinish = true;
+    _sendEvent->setRunning(false);
 }
 
-void DownloaderEvents::sendMsg(FileDownMsg &msg) {
+bool DownloaderEvents::sendMsg(FileDownMsg &msg) {
     std::string out;
     assert(msg.SerializeToString(&out));
     auto ack = _ackSetPtr->getAck();
@@ -80,10 +93,9 @@ void DownloaderEvents::sendMsg(FileDownMsg &msg) {
     PackageMsg protobufMsg;
     // debug_log("send data ack is %lu", ack);
     _ackSetPtr->setCbByAck(ack, std::bind(&DownloaderEvents::timerExce, this, ack, resMsg));
-    for (auto &it : resMsg) {
-        it.serialized(&sendMsg, protobufMsg);
-        _client->sendMsg(sendMsg);
-    }
+    assert(resMsg.size() == 1);
+    resMsg[0].serialized(&sendMsg, protobufMsg);
+    return _client->sendMsg(sendMsg);
 }
 
 void DownloaderEvents::timerExce(u_long ack, std::vector<msg::Package> msg) {
@@ -158,7 +170,6 @@ void DownloaderEvents::handlerRecv() {
         _hasDownlaodSzie += msg.size();
         _ackSetPtr->delMsgByAck(msgBuffer.getAck());
         _hasRecvPackets++;
-
     }));
 }
 
@@ -182,6 +193,7 @@ void DownloaderEvents::initDownloadDetails(std::string filename) {
     _lastDownloadSzie = 0;
     _totalSendPackets = 0;
     _hasResendPackets = 0;
+    _sendDataFinish = false;
     _hasRecvPackets.store(0);
     _downloadDetails.clear();
     _downloadDetails.filename = filename;
@@ -198,6 +210,11 @@ void DownloaderEvents::setErrMsg(std::string errMsg) {
 }
 
 void DownloaderEvents::listenResq() {
-    _even->setRunning(true);
-    _even->loop();
+    _recvEvent->setRunning(true);
+    _recvEvent->loop();
+}
+
+void DownloaderEvents::sendRes() {
+    _sendEvent->setRunning(true);
+    _sendEvent->loop();
 }

@@ -62,20 +62,23 @@ class DownloaderEvents {
     downloadDetails& getDownloadDetail(bool getSpeed);
     ~DownloaderEvents() {
         _threadPool->closeThreadPool();
-        _even->setRunning(false);
+        _recvEvent->setRunning(false);
     }
 
    private:
     std::string& getErrMsg() { return _errMsg; };
-    void sendMsg(msg::proto::FileDownMsg& msg);
+    bool sendMsg(msg::proto::FileDownMsg& msg);
     void handlerRecv();
     void listenResq();
+    void sendRes();
     void initDownloadDetails(std::string filename);
     void timerExce(u_long ack, std::vector<msg::Package> msg);
     void setErrMsg(std::string errMsg);
+    void setDataWithEvents(DownQueue &queue); //in the non-blocking udp socket sendto mabe EAGAIN or EWOULDBLOCK
     int _threadNum;
     UdpClientPtr _client;
-    EventPtr _even;
+    EventPtr _recvEvent;
+    EventPtr _sendEvent;
     WriteMapPtr _writeMapPtr;
     AckSetPtr _ackSetPtr;
     ThreadPoolPtr _threadPool;
@@ -91,6 +94,7 @@ class DownloaderEvents {
     std::mutex _seterrLock;
     bool _err = false;
     std::string _errMsg;
+    std::atomic_bool _sendDataFinish = false;
 };
 }  // namespace downfile
 #endif

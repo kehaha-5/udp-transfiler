@@ -1,6 +1,7 @@
 #include <rapidjson/document.h>
 #include <sys/types.h>
 
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <sstream>
@@ -143,7 +144,9 @@ void Client::timerExce(u_long ack, std::vector<msg::Package> msg) {
     std::string sendMsg;
     for (auto& it : msg) {
         it.serialized(&sendMsg, protobufMsg);
-        _client->sendMsg(sendMsg);
+         while (!_client->sendMsg(sendMsg)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        };
         protobufMsg.Clear();
     }
 }
@@ -159,7 +162,9 @@ void Client::sendto(std::string& msg, msg::proto::MsgType type) {
     PackageMsg protobufMsg;
     for (auto& it : resMsg) {
         it.serialized(&sendMsg, protobufMsg);
-        _client->sendMsg(sendMsg);
+        while (!_client->sendMsg(sendMsg)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        };
         protobufMsg.Clear();
     }
     _ackSet->setCbByAck(ack, std::bind(&Client::timerExce, this, ack, resMsg));

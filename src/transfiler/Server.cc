@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include <cstring>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -24,7 +25,7 @@ Server::Server(EventLoop* loop, const char* host, uint16_t port, u_short threadN
 
 void Server::readBack() {
     std::string data(MAX_MSG_LENGTH, '\0');
-    struct sockaddr_in clientAddr;
+    struct sockaddr_in clientAddr = {};
     int clientLen = sizeof(clientAddr);
     int len = recvfrom(_udpPtr->getSocketfd(), &data[0], MAX_MSG_LENGTH, 0, (struct sockaddr*)&clientAddr, (socklen_t*)&clientLen);
     std::string host(IP_V4_LEN, '\0');
@@ -32,6 +33,10 @@ void Server::readBack() {
     auto prot = ntohs(clientAddr.sin_port);
     if (len == 0) {
         warn_log("get data len is 0");
+        return;
+    }
+    if (len == -1) {
+        warn_log("len is -1 error is %s", strerror(errno));
         return;
     }
     // make sure parse data success
