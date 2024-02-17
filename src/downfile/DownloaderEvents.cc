@@ -7,7 +7,6 @@
 #include <memory>
 #include <mutex>
 
-#include "Constant.h"
 #include "DownloaderEvents.h"
 #include "Logging.h"
 #include "downfile/Downloader.h"
@@ -40,7 +39,7 @@ bool DownloaderEvents::start(DownQueue &queue, u_long size) {
                 fileDownMsg.set_startpos(queue.front().startPos);
                 sendMsg(fileDownMsg);
                 fileDownMsg.Clear();
-                _totalSendPackages++;
+                _totalSendPackets++;
                 queue.pop();
             } else {
                 break;
@@ -87,15 +86,16 @@ void DownloaderEvents::timerExce(u_long ack, std::vector<msg::Package> msg) {
             _client->sendMsg(sendMsg);
             protobufMsg.Clear();
         }
+        _hasResendPackets++;
     }));
 }
 
 void DownloaderEvents::handlerRecv() {
     _threadPool->sendMsg(std::bind([this]() {
         auto data = _client->rev();
-        if(data.empty()){
+        if (data.empty()) {
             // warn_log("recv data is emtpy");
-            return ;
+            return;
         }
         msg::Buffer msgBuffer;
         msgBuffer.setData(data);
@@ -144,13 +144,13 @@ void DownloaderEvents::handlerRecv() {
             return;
         }
 
-        _hasDownlaodSzie += msgBuffer.getSize();
+        _hasDownlaodSzie += msg.size();
         _ackSetPtr->delMsgByAck(msgBuffer.getAck());
-        _hasRecvPackages++;
+        _hasRecvPackets++;
 
-        if (_hasRecvPackages >= _totalSendPackages) {
-            // debug_log("eventLoop will be set false and _hasRecvPackages is %lu , _totalSendPackages is %lu", _hasRecvPackages.load(),
-            //   _totalSendPackages);
+        if (_hasRecvPackets >= _totalSendPackets) {
+            // debug_log("eventLoop will be set false and _hasRecvPackets is %lu , _totalSendPackets is %lu", _hasRecvPackets.load(),
+            //   _totalSendPackets);
             _even->setRunning(false);
         }
     }));
@@ -160,8 +160,9 @@ downloadDetails &DownloaderEvents::getDownloadDetail(bool getSpeed) {
     std::lock_guard<std::mutex> lock_guard(_detailsLock);
     _downloadDetails.percentage = std::round(((_hasDownlaodSzie * 100 / _totalSzie)));
     _downloadDetails.hasDownlaodSzie = _hasDownlaodSzie;
-    _downloadDetails.hasRecvPackages = _hasRecvPackages.load();
-    _downloadDetails.totalSendPackage = _totalSendPackages;
+    _downloadDetails.hasRecvPackets = _hasRecvPackets.load();
+    _downloadDetails.totalSendPackets = _totalSendPackets;
+    _downloadDetails.hasResendPackets = _hasResendPackets;
     if (getSpeed) {
         _downloadDetails.speed = utils::humanReadable((_hasDownlaodSzie - _lastDownloadSzie));
         _lastDownloadSzie = _hasDownlaodSzie;
@@ -173,8 +174,9 @@ void DownloaderEvents::initDownloadDetails(std::string filename) {
     std::lock_guard<std::mutex> lock_guard(_detailsLock);
     _hasDownlaodSzie = 1;
     _lastDownloadSzie = 0;
-    _totalSendPackages = 0;
-    _hasRecvPackages.store(0);
+    _totalSendPackets = 0;
+    _hasResendPackets = 0;
+    _hasRecvPackets.store(0);
     _downloadDetails.clear();
     _downloadDetails.filename = filename;
     _downloadDetails.totalSize = _totalSzie;

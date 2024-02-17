@@ -18,6 +18,8 @@ enum errCode {
     failureInRead,
     fileSzieOut,
     invalidSzie,
+    getfileStatError,
+    fileCanNotBeRead
 };
 
 struct errMsg {
@@ -35,7 +37,8 @@ class File {
     File(std::string path);
     bool hasError() { return _hasErr; }
     errMsg getErrMsg() { return _err; }
-    bool getPosContext(int pos, int size, fileData &data);
+    bool getPosContext(int pos, int size, fileData& data);
+    bool getPosContext2(int pos, int size, fileData& data);
 
    private:
     void setErrMsg(errCode code);

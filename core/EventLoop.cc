@@ -55,9 +55,9 @@ void EventLoop::loop() {
                 auto it = _ioEvents.find(events[i].data.fd);
                 it->second.wb();
             }
-            if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP) {
-                exit_log("epoll event is EPOLLERR or EPOLLHUP");
-            }
+            // if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP) {
+            //     exit_log("epoll event is EPOLLERR or EPOLLHUP");
+            // }
         }
     }
 }

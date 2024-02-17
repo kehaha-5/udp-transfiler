@@ -58,7 +58,7 @@ class Downloader {
     DownloaderEventsPtr _downloaderEventsPtr;
     int _threadNum;
     std::string _lastDetailsFilename;
-    std::uintmax_t _totalSendPackages = 0;
+    std::uintmax_t _totalSendPackets = 0;
     bool _isfinish = false;
     std::chrono::time_point<std::chrono::system_clock> _start;
     std::chrono::time_point<std::chrono::system_clock> _end;

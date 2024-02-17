@@ -1,7 +1,11 @@
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <cstring>
 #include <filesystem>
-#include <fstream>
-#include <ios>
-#include <iostream>
 #include <string>
 
 #include "File.h"
@@ -19,7 +23,6 @@ File::File(std::string path) {
         return;
     }
 }
-
 
 bool File::getPosContext(int pos, int size, fileData &data) {
     try {
@@ -49,11 +52,64 @@ bool File::getPosContext(int pos, int size, fileData &data) {
     }
 }
 
-
 void File::setErrMsg(errCode code) {
     _hasErr = true;
     _err.code = code;
     _err.errMsg = getErrMsgByErrCode(code);
+}
+
+bool File::getPosContext2(int pos, int size, fileData &data) {
+    if (size == 0) {
+        setErrMsg(errCode::invalidSzie);
+        return false;
+    }
+    int filefd = open(_filepathObj.c_str(), O_RDONLY);
+    if (filefd == -1) {
+        setErrMsg(errCode::fileCanNotBeOpened);
+        return false;
+    }
+    struct stat filesb;
+
+    if (fstat(filefd, &filesb) == -1) {
+        setErrMsg(errCode::getfileStatError);
+        return false;
+    }
+
+    uint readLenght;
+
+    if (pos > filesb.st_size) {
+        setErrMsg(errCode::fileSzieOut);
+        return false;
+    }
+
+    if ((pos + size) > filesb.st_size) {
+        readLenght = filesb.st_size - pos;
+    } else {
+        readLenght = size;
+    }
+
+    /* offset for mmap() must be page aligned */
+    /* https://www.man7.org/linux/man-pages/man2/mmap.2.html offset must be a multiple of the page size as returned by
+     * sysconf(_SC_PAGE_SIZE).*/
+    auto pa_offset = pos & ~(sysconf(_SC_PAGE_SIZE) - 1);
+    auto realReadLenght = readLenght + pos - pa_offset;
+
+    auto addr = mmap(NULL, realReadLenght, PROT_READ, MAP_PRIVATE, filefd, pa_offset);
+
+    if (addr == MAP_FAILED) {
+        setErrMsg(errCode::failureInRead);
+        warn_log("mmap error %s", strerror(errno));
+        return false;
+    }
+    data.data.resize(readLenght, '\0');
+
+    std::memcpy(&data.data[0], static_cast<char *>(addr) + (pos - pa_offset), readLenght);
+    data.realSize = readLenght;
+
+    munmap(addr, readLenght + pos - pa_offset);
+    close(filefd);
+
+    return true;
 }
 
 std::string File::getErrMsgByErrCode(errCode code) {
@@ -70,6 +126,8 @@ std::string File::getErrMsgByErrCode(errCode code) {
             return "file size over limit ";
         case file::server::errCode::invalidSzie:
             return "invail file size";
+        case file::server::errCode::getfileStatError:
+            return "get file stat error";
         default:
             return "unkonw error";
     }

@@ -36,7 +36,7 @@ void Downloader::start() {
         auto size = queue.size();
         if (_downloaderEventsPtr->start(queue, it.size)) {
             _successfulDownlaodfileNum++;
-            _totalSendPackages += size;
+            _totalSendPackets += size;
         } else {
             downloaderErrorInfo errMsg = {it.name, _downloaderEventsPtr->getDownloadDetail(false).errMsg};
             _downloaderErrorInfos.push_back(errMsg);
@@ -147,9 +147,11 @@ std::string Downloader::getDownloadStrDetails(bool getSpeed) {
     details.append("  ");
     details.append(std::to_string(data.percentage) + "%");
     details.append(" ");
-    details.append("sizeDetails:[hasDownSzie:" + std::to_string(data.hasDownlaodSzie) + "/totalSzie:" + std::to_string(data.totalSize) + "]");
+    details.append("sizeDetails:[hasDownSzie:" + std::to_string(data.hasDownlaodSzie) + "/totalSzie:" + std::to_string(data.totalSize) +
+                   "]");
     details.append(" ");
-    details.append("packetsDetails:[hasRecv:" + std::to_string(data.hasRecvPackages) + "/totalSend:" + std::to_string(data.totalSendPackage) + "]");
+    details.append("packetsDetails:[totalSend:" + std::to_string(data.totalSendPackets) +
+                   "/hasRecv:" + std::to_string(data.hasRecvPackets) + "/hasResend:" + std::to_string(data.hasResendPackets) + "]");
     details.append(" ");
     details.append(data.speed);
     if (data.iserr) {
@@ -173,10 +175,10 @@ std::string Downloader::getDownloadStatistics() {
                     << " error msg is:" << _downloaderErrorInfos[i].errMsg << "\n";
         }
     }
-    details << "successfully download size " << utils::humanReadable(_totalSendPackages * MAX_FILE_DATA_SIZE) << "\n";
-    details << "total package should be sent " << _totalSendPackages << "\n";
+    details << "successfully download size " << utils::humanReadable(_totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
+    details << "total packets should be sent " << _totalSendPackets << "\n";
     details << "time-consuming " << duration.count() / 1000 << " s\n";
-    details << "speeds " << utils::humanReadable(std::ceil((_totalSendPackages * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
+    details << "speeds " << utils::humanReadable(std::ceil((_totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
             << " peer second \n";
     details << "download finsih \n";
     return details.str();
