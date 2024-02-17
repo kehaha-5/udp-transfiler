@@ -1,5 +1,6 @@
 #include <sys/eventfd.h>
 
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -25,7 +26,8 @@ void ThreadPool::queueHandle(int index) {
 };
 
 void ThreadPool::threadRun(int index) {
-    EventLoopPtr loop = std::make_unique<EventLoop>();
+    EventLoopPtr loop = std::make_shared<EventLoop>();
+    _eventMap.insert({_msgQueues[index].evenfd, loop});
     loop->addIo(_msgQueues[index].evenfd, std::bind(&ThreadPool::queueHandle, this, index), EPOLLIN);
     loop->loop();
 }
@@ -65,4 +67,16 @@ void ThreadPool::sendMsg(queueMsgCb cb) {
     int len = write(queueItem->second.evenfd, &number, sizeof(unsigned long long));
 
     exit_if(len == -1, "add task to queue error");
+}
+
+void ThreadPool::closeThreadPool() {
+    for (auto &it : _msgQueues) {
+        {
+            std::lock_guard<std::mutex> lock_guard(it.second.mutex);
+            while (!it.second.queue.empty()) {
+            };
+            auto itt = _eventMap.find(it.second.evenfd);
+            itt->second->setRunning(false);
+        }
+    }
 }

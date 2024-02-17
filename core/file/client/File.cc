@@ -1,6 +1,6 @@
 #include <sys/types.h>
 
-#include <cmath>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <mutex>
@@ -24,15 +24,13 @@ File::File(std::string fileName, u_long size) {
 
 bool File::init() {
     if (_init) {
-        auto wirteNum = std::ceil(_fileSize / SINGLE_WRITE_SIZE);
         char buff[SINGLE_WRITE_SIZE] = {0};
-        for (int i = 0; i < wirteNum; i++) {
-            if (i == (wirteNum - 1)) {
-                _file.write(buff, _fileSize - (SINGLE_WRITE_SIZE * i));
-            } else {
-                _file.write(buff, SINGLE_WRITE_SIZE);
-            }
+        std::memset(buff, 0, SINGLE_WRITE_SIZE);
+        auto i = SINGLE_WRITE_SIZE;
+        for (; i < _fileSize; i += SINGLE_WRITE_SIZE) {
+            _file.write(buff, SINGLE_WRITE_SIZE);
         }
+        _file.write(buff, (i += SINGLE_WRITE_SIZE) - _fileSize);
     }
     _init = true;
     return true;

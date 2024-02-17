@@ -2,11 +2,14 @@
 #include <sys/types.h>
 
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <thread>
 
+#include "Constant.h"
 #include "DownloaderEvents.h"
 #include "Logging.h"
 #include "downfile/Downloader.h"
@@ -24,6 +27,8 @@ DownloaderEvents::DownloaderEvents(EventPtr even, UdpClientPtr client, WriteMapP
     _threadPool = std::make_unique<pool::ThreadPool>(threadNum);
     _threadNum = threadNum;
     _even->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::handlerRecv, this), EPOLLIN);
+    std::thread eventThread = std::thread(std::bind(&DownloaderEvents::listenResq, this));
+    eventThread.detach();
 }
 
 bool DownloaderEvents::start(DownQueue &queue, u_long size) {
@@ -31,9 +36,9 @@ bool DownloaderEvents::start(DownQueue &queue, u_long size) {
     initDownloadDetails(queue.front().name);
     std::string msg;
     FileDownMsg fileDownMsg;
-
-    while (!queue.empty()) {
-        for (int i = 0; i < 5; i++) {
+    while (!queue.empty() && _even->isRunning()) {
+        auto start = std::chrono::system_clock::now();
+        for (int i = 0; i < MAX_SEND_PACKETS; i++) {
             if (!queue.empty()) {
                 fileDownMsg.set_name(queue.front().name);
                 fileDownMsg.set_startpos(queue.front().startPos);
@@ -45,7 +50,11 @@ bool DownloaderEvents::start(DownQueue &queue, u_long size) {
                 break;
             }
         }
-        listenResq();
+        auto end = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(start - end);
+        if (duration.count() < 1000 && !queue.empty()) {  //小于1秒
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000 - duration.count()));
+        }
         {
             std::lock_guard<std::mutex> lock_guard(_seterrLock);
             if (_err) {
@@ -56,7 +65,9 @@ bool DownloaderEvents::start(DownQueue &queue, u_long size) {
         }
     }
 
-    _even->setRunning(false);
+    while (!(_hasRecvPackets >= _totalSendPackets)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
     return true;
 }
 
@@ -67,12 +78,12 @@ void DownloaderEvents::sendMsg(FileDownMsg &msg) {
     auto resMsg = msg::getsubcontractInfo(out, ack, msg::proto::FileDownloadRes);
     std::string sendMsg;
     PackageMsg protobufMsg;
+    // debug_log("send data ack is %lu", ack);
+    _ackSetPtr->setCbByAck(ack, std::bind(&DownloaderEvents::timerExce, this, ack, resMsg));
     for (auto &it : resMsg) {
         it.serialized(&sendMsg, protobufMsg);
         _client->sendMsg(sendMsg);
     }
-    // debug_log("send data ack is %lu", ack);
-    _ackSetPtr->setCbByAck(ack, std::bind(&DownloaderEvents::timerExce, this, ack, resMsg));
 }
 
 void DownloaderEvents::timerExce(u_long ack, std::vector<msg::Package> msg) {
@@ -148,11 +159,6 @@ void DownloaderEvents::handlerRecv() {
         _ackSetPtr->delMsgByAck(msgBuffer.getAck());
         _hasRecvPackets++;
 
-        if (_hasRecvPackets >= _totalSendPackets) {
-            // debug_log("eventLoop will be set false and _hasRecvPackets is %lu , _totalSendPackets is %lu", _hasRecvPackets.load(),
-            //   _totalSendPackets);
-            _even->setRunning(false);
-        }
     }));
 }
 

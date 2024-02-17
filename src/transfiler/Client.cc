@@ -93,7 +93,7 @@ void Client::downfile(std::string& args) {
                     int num = 0;
                     bool getSpeed = false;
                     while (!downloader.hasFinish()) {
-                        if (num == 500) {
+                        if (num == 1000) {
                             getSpeed = true;
                             num = 0;
                         } else {

@@ -8,6 +8,7 @@
 #include <memory>
 #include <queue>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 #include "EventLoop.h"
@@ -15,9 +16,10 @@ namespace pool {
 struct QueueItem;
 typedef std::vector<std::thread> Threads;
 typedef std::unordered_map<int, QueueItem> Queues;
-typedef std::unique_ptr<EventLoop> EventLoopPtr;
 typedef std::function<void()> queueMsgCb;
 typedef std::queue<queueMsgCb> Queue;
+typedef std::shared_ptr<EventLoop> EventLoopPtr;
+typedef std::unordered_map<int, EventLoopPtr> EventMap;
 
 struct QueueItem {
     int evenfd = 0;
@@ -29,6 +31,7 @@ class ThreadPool {
    public:
     ThreadPool(int threadNum);
     void sendMsg(queueMsgCb cb);
+    void closeThreadPool();
 
    private:
     void queueHandle(int index);
@@ -37,6 +40,7 @@ class ThreadPool {
     std::atomic_uint _currThread = 0;
     int _threadNum;
     Queues _msgQueues;
+    EventMap _eventMap;
 };
 }  // namespace pool
 

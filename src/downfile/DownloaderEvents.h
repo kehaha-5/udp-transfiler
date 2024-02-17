@@ -60,6 +60,10 @@ class DownloaderEvents {
     DownloaderEvents(EventPtr even, UdpClientPtr client, WriteMapPtr writeMapPtr, int threadNum, AckSetPtr ackSetPtr);
     bool start(DownQueue& queue, u_long size);
     downloadDetails& getDownloadDetail(bool getSpeed);
+    ~DownloaderEvents() {
+        _threadPool->closeThreadPool();
+        _even->setRunning(false);
+    }
 
    private:
     std::string& getErrMsg() { return _errMsg; };

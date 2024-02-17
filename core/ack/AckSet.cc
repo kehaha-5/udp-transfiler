@@ -20,7 +20,7 @@ void AckSet::setCbByAck(u_long& ack, Cb cb) {
     std::lock_guard<std::mutex> lock_guard(_ackMsgMapLock);
     auto it = _ackMsgMap.find(ack);
     // debug_log("ack will be add timer %lu", ack);
-    if (it == _ackMsgMap.end()) {  
+    if (it == _ackMsgMap.end()) {
         warn_log(" setCbByAck ack %lu not be found ackMap size is %i", ack, _ackMsgMap.size());
         return;
     }
