@@ -1,6 +1,5 @@
 #include <sys/types.h>
 
-#include <cassert>
 #include <mutex>
 
 #include "AckSet.h"
@@ -20,8 +19,9 @@ u_long AckSet::getAck() {
 void AckSet::setCbByAck(u_long& ack, Cb cb) {
     std::lock_guard<std::mutex> lock_guard(_ackMsgMapLock);
     auto it = _ackMsgMap.find(ack);
-    if (it == _ackMsgMap.end()) {
-        warn_log("ack %lu not be found ackMap size is %i", ack, _ackMsgMap.size());
+    // debug_log("ack will be add timer %lu", ack);
+    if (it == _ackMsgMap.end()) {  
+        warn_log(" setCbByAck ack %lu not be found ackMap size is %i", ack, _ackMsgMap.size());
         return;
     }
     it->second = _timerPtr->runEvery(SEND_PACKAGE_TIMEOUT, cb);
@@ -29,8 +29,12 @@ void AckSet::setCbByAck(u_long& ack, Cb cb) {
 
 void AckSet::delMsgByAck(const u_long& ack) {
     std::lock_guard<std::mutex> lock_guard(_ackMsgMapLock);
+    // debug_log("ack will be del %lu", ack);
     auto it = _ackMsgMap.find(ack);
-    assert(it != _ackMsgMap.end());
+    if (it == _ackMsgMap.end()) {  // ack可能被重发了有其它线程处理了
+        warn_log(" delMsgByAck ack %lu not be found ackMap size is %i", ack, _ackMsgMap.size());
+        return;
+    }
     _timerPtr->cancelTimerEven(it->second);
     _ackMsgMap.erase(ack);
     AckRandom::releasesAck(ack);

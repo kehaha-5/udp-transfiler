@@ -28,8 +28,6 @@ inline void LOG(logType::type type, const char* fileName, const char* func, int 
     std::vsprintf(msg + strlen(msg), format, args);
     va_end(args);
     std::fprintf(stdout, "%s\n", msg);
-    time.clear();
-    time.shrink_to_fit();
 }
 
 inline void IFEXIT(bool condition, const char* fileName, const char* func, int line, const char* format, ...) {

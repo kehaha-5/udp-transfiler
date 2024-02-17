@@ -28,8 +28,7 @@ bool Log::canAppend(logType::type type) {
 
 std::string Log::getCurrTime() {
     std::time_t t = std::time(NULL);
-    std::string mbstr;
-    mbstr.resize(20);
+    std::string mbstr(50, 0);
     std::strftime(&mbstr[0], mbstr.size(), "%F-%T", std::localtime(&t));
     return mbstr;
 }

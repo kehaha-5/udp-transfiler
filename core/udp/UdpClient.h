@@ -18,6 +18,7 @@ class UdpClient {
     int getSocketfd() { return _socketfd; }
 
    private:
+    void setNonBlocking();
     int _socketfd;
     struct sockaddr_in _serveraddr;
 };

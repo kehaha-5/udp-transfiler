@@ -69,7 +69,7 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_command_5fmsg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\021command_msg.proto\022\tmsg.proto\"P\n\nComman"
   "dMsg\022\'\n\007command\030\001 \002(\0162\026.msg.proto.Comman"
-  "dType\022\014\n\004args\030\002 \001(\t\022\013\n\003msg\030\003 \001(\t*I\n\013Comm"
+  "dType\022\014\n\004args\030\002 \001(\014\022\013\n\003msg\030\003 \001(\014*I\n\013Comm"
   "andType\022\016\n\nCOMMAND_LS\020\000\022\024\n\020COMMAND_DOWNF"
   "ILE\020\001\022\024\n\020COMMAND_ERRORMSG\020\002B\002H\002"
   ;

@@ -31,11 +31,13 @@ class Log {
     static void setConfig(logConfig conf);
     static bool canAppend(logType::type type);
     static std::string getCurrTime();
+    void outLog(const char* msg);
     ~Log();
 
    private:
     Log() = default;
     static Log* _log;
+    static std::ofstream _logfile;
     static logLever::type _lever;
     static logAppender::type _appender;
 };

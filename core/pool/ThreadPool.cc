@@ -2,7 +2,9 @@
 
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <thread>
+#include <utility>
 
 #include "Logging.h"
 #include "pool/ThreadPool.h"
@@ -15,14 +17,16 @@ void ThreadPool::queueHandle(int index) {
         read(queueItemIt->second.evenfd, &number, sizeof(unsigned long long));
         queueMsgCb cd = queueItemIt->second.queue.front();
         cd();
-        queueItemIt->second.queue.pop();
+        {
+            std::lock_guard<std::mutex> lock_guard(queueItemIt->second.mutex);
+            queueItemIt->second.queue.pop();
+        }
     }
 };
 
 void ThreadPool::threadRun(int index) {
     EventLoopPtr loop = std::make_unique<EventLoop>();
-    QueueItem selfQueue = _msgQueues[index];
-    loop->addIo(selfQueue.evenfd, std::bind(&ThreadPool::queueHandle, this, index), EPOLLIN);
+    loop->addIo(_msgQueues[index].evenfd, std::bind(&ThreadPool::queueHandle, this, index), EPOLLIN);
     loop->loop();
 }
 
@@ -30,9 +34,9 @@ ThreadPool::ThreadPool(int threadNum) {
     _threadNum = threadNum;
     for (int i = 0; i < threadNum; i++) {
         int evenfd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
-        Queue queue;
-        QueueItem itemQueue = {evenfd, queue};
-        _msgQueues.insert({i, itemQueue});
+        _msgQueues[i].evenfd = evenfd;
+        _msgQueues[i].queue = {};
+        // _msgQueues.emplace(i, QueueItem{evenfd, {}});
 
         _threadPool.push_back(std::thread(std::bind(&ThreadPool::threadRun, this, i)));
     }
@@ -48,7 +52,10 @@ void ThreadPool::sendMsg(queueMsgCb cb) {
     if (_currThread == _threadNum) {
         _currThread = 0;
     }
-    queueItem->second.queue.push(cb);
+    {
+        std::lock_guard<std::mutex> lock_guard(queueItem->second.mutex);
+        queueItem->second.queue.push(cb);
+    }
     unsigned long long number = 1;
     /* https://man7.org/linux/man-pages/man2/eventfd.2.html
        A write(2) fails with the error EINVAL if the size of the
@@ -56,5 +63,6 @@ void ThreadPool::sendMsg(queueMsgCb cb) {
        made to write the value 0xffffffffffffffff.
     */
     int len = write(queueItem->second.evenfd, &number, sizeof(unsigned long long));
+
     exit_if(len == -1, "add task to queue error");
 }

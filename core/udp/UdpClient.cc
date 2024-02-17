@@ -1,7 +1,10 @@
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <strings.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
+#include <cassert>
 #include <string>
 
 #include "Constant.h"
@@ -26,6 +29,8 @@ UdpClient::UdpClient(evenPtr even, std::string &host, __uint16_t port) {
     _serveraddr = servaddr;
 
     debug_log("connect ip %s port %d", host.c_str(), port);
+
+    setNonBlocking();
 }
 
 void UdpClient::sendMsg(std::string &msg) {
@@ -37,10 +42,25 @@ std::string UdpClient::rev() {
     std::string data(MAX_MSG_LENGTH, '\0');
     struct sockaddr_in serveraddr = {};
     socklen_t serverLen = sizeof(serveraddr);
-    long res = recvfrom(_socketfd, &data[0], MAX_MSG_LENGTH, MSG_WAITALL, (struct sockaddr *)&serveraddr, &serverLen);
+    long res = recvfrom(_socketfd, &data[0], MAX_MSG_LENGTH, 0, (struct sockaddr *)&serveraddr, &serverLen);
+    if (res == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            return std::string();
+        }
+        exit_log("recvfrom");
+    }
     if (res == 0) {
         return std::string();
     }
+    assert(res <= MAX_MSG_LENGTH);
     data.resize(res);
     return data;
+}
+
+void UdpClient::setNonBlocking() {
+    int flags = fcntl(_socketfd, F_GETFL);
+    exit_if(flags == -1, "set non-blocking F_GETFL");
+
+    int res = fcntl(_socketfd, F_SETFL, flags | O_NONBLOCK);
+    exit_if(res == -1, "set non-blocking F_GETFL");
 }

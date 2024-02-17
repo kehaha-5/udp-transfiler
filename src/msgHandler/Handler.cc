@@ -3,6 +3,7 @@
 #include "Constant.h"
 #include "Handler.h"
 #include "Interaction.h"
+#include "Logging.h"
 #include "config/ServerConfig.h"
 #include "file/server/Directory.h"
 #include "file/server/File.h"
@@ -95,6 +96,7 @@ bool Handler::downfileRes(msg::proto::FileDownMsg& resqMsg, std::string* out) {
     file::server::fileData data = {};
     if (!file.getPosContext(resqMsg.startpos(), MAX_FILE_DATA_SIZE, data)) {
         _errMsg = file.getErrMsg().errMsg;
+        warn_log("downfileRes error %s", _errMsg.c_str());
         return false;
     };
     resqMsg.set_data(data.data);

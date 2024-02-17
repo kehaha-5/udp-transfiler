@@ -197,7 +197,7 @@ class CommandMsg final :
     kMsgFieldNumber = 3,
     kCommandFieldNumber = 1,
   };
-  // optional string args = 2;
+  // optional bytes args = 2;
   bool has_args() const;
   private:
   bool _internal_has_args() const;
@@ -215,7 +215,7 @@ class CommandMsg final :
   std::string* _internal_mutable_args();
   public:
 
-  // optional string msg = 3;
+  // optional bytes msg = 3;
   bool has_msg() const;
   private:
   bool _internal_has_msg() const;
@@ -303,7 +303,7 @@ inline void CommandMsg::set_command(::msg::proto::CommandType value) {
   // @@protoc_insertion_point(field_set:msg.proto.CommandMsg.command)
 }
 
-// optional string args = 2;
+// optional bytes args = 2;
 inline bool CommandMsg::_internal_has_args() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
@@ -323,7 +323,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void CommandMsg::set_args(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.args_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.args_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:msg.proto.CommandMsg.args)
 }
 inline std::string* CommandMsg::mutable_args() {
@@ -371,7 +371,7 @@ inline void CommandMsg::set_allocated_args(std::string* args) {
   // @@protoc_insertion_point(field_set_allocated:msg.proto.CommandMsg.args)
 }
 
-// optional string msg = 3;
+// optional bytes msg = 3;
 inline bool CommandMsg::_internal_has_msg() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
@@ -391,7 +391,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void CommandMsg::set_msg(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000002u;
- _impl_.msg_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.msg_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:msg.proto.CommandMsg.msg)
 }
 inline std::string* CommandMsg::mutable_msg() {

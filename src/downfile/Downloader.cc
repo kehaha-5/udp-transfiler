@@ -6,12 +6,10 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <functional>
 #include <ios>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <thread>
 
 #include "Constant.h"
 #include "Downloader.h"
@@ -27,22 +25,25 @@ using namespace downfile;
 Downloader::Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client, AckSetPtr ackSetPtr)
     : _info(info), _even(even), _client(client), _threadNum(threadNum) {
     initDownloadInfo();
-    _downloaderEventsPtr = std::make_shared<DownloaderEvents>(_even, _client, _writeMapPtr, _threadNum,ackSetPtr);
+    _downloaderEventsPtr = std::make_shared<DownloaderEvents>(_even, _client, _writeMapPtr, _threadNum, ackSetPtr);
 }
 
 void Downloader::start() {
-    auto downMainThread = std::thread(std::bind([this]() {
-        _start = std::chrono::system_clock::now();
-        // 发送数据和接收数据并把数据处理分发到线程池
-        for (auto &it : _info) {
-            auto queue = buildDownQueueByInterruptionData(it.hash);
-            _totalSendPackages += queue.size();
-            _downloaderEventsPtr->start(queue, it.size);
+    _start = std::chrono::system_clock::now();
+    // 发送数据和接收数据并把数据处理分发到线程池
+    for (auto &it : _info) {
+        auto queue = buildDownQueueByInterruptionData(it.hash);
+        auto size = queue.size();
+        if (_downloaderEventsPtr->start(queue, it.size)) {
+            _successfulDownlaodfileNum++;
+            _totalSendPackages += size;
+        } else {
+            downloaderErrorInfo errMsg = {it.name, _downloaderEventsPtr->getDownloadDetail(false).errMsg};
+            _downloaderErrorInfos.push_back(errMsg);
         }
-        _isfinish = true;
-        _end = std::chrono::system_clock::now();
-    }));
-    downMainThread.detach();
+    }
+    _isfinish = true;
+    _end = std::chrono::system_clock::now();
 }
 
 void Downloader::initDownloadInfo() {
@@ -137,20 +138,24 @@ std::string Downloader::getDownloadStrDetails(bool getSpeed) {
     details.append("  ");
 
     for (int i = 0; i < 20; i++) {
-        if (i < (data.percentage * 2)) {
+        if (i < ((data.percentage / 10) * 2)) {
             details.append("#");
         } else {
             details.append(".");
         }
     }
     details.append("  ");
-    details.append(std::to_string(data.percentage * 10) + "%");
+    details.append(std::to_string(data.percentage) + "%");
     details.append(" ");
-    details.append("[hasDown:" + std::to_string(data.hasDownlaodSzie) + "/totalSzie:" + std::to_string(data.totalSize) + "]");
+    details.append("sizeDetails:[hasDownSzie:" + std::to_string(data.hasDownlaodSzie) + "/totalSzie:" + std::to_string(data.totalSize) + "]");
     details.append(" ");
-    details.append("[hasRecv:" + std::to_string(data.hasRecvPackages) + "/totalSend:" + std::to_string(data.totalSendPackage) + "]");
+    details.append("packetsDetails:[hasRecv:" + std::to_string(data.hasRecvPackages) + "/totalSend:" + std::to_string(data.totalSendPackage) + "]");
     details.append(" ");
     details.append(data.speed);
+    if (data.iserr) {
+        details.append(" ");
+        details.append(data.errMsg + "downlaod error the file download will be cancel !!!!");
+    }
     details.append("      ");
     return details;
 }
@@ -160,7 +165,15 @@ std::string Downloader::getDownloadStatistics() {
     std::stringstream details;
     details << "\n";
     details << "total download file " << _info.size() << "\n";
-    details << "total download size " << utils::humanReadable(_totalSendPackages * MAX_FILE_DATA_SIZE) << "\n";
+    details << "download successfully file " << _successfulDownlaodfileNum << "\n";
+    details << "download error file " << _downloaderErrorInfos.size() << "\n";
+    if (!_downloaderErrorInfos.empty()) {
+        for (int i = 0; i < _downloaderErrorInfos.size(); i++) {
+            details << "\t #" << i << " download error file name " << _downloaderErrorInfos[i].filename
+                    << " error msg is:" << _downloaderErrorInfos[i].errMsg << "\n";
+        }
+    }
+    details << "successfully download size " << utils::humanReadable(_totalSendPackages * MAX_FILE_DATA_SIZE) << "\n";
     details << "total package should be sent " << _totalSendPackages << "\n";
     details << "time-consuming " << duration.count() / 1000 << " s\n";
     details << "speeds " << utils::humanReadable(std::ceil((_totalSendPackages * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))

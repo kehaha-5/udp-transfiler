@@ -78,6 +78,10 @@ void Server::readBack() {
             _udpPtr->sendMsg(packageMsg, clientAddr);
             protobufMsg.Clear();
         }
+        {
+            std::lock_guard<std::mutex> lock_guard(_msgBuffMapLock);
+            _msgBuffMap.erase(msgBuff->getAck());
+        }
         info_log("udp send data to ip %s prot %d ack is %lu", host.data(), prot, msgBuff->getAck());
     }
 };

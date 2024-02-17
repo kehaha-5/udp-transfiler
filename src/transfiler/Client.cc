@@ -89,18 +89,24 @@ void Client::downfile(std::string& args) {
                 debug_log("will be down file !!!");
                 downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client,
                                                 _ackSet);
-                downloader.start();
-                int num = 0;
-                bool getSpeed = false;
-                while (!downloader.hasFinish()) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                    if (num == 500) {
-                        getSpeed = true;
-                        num = 0;
+                std::thread osThread = std::thread(std::bind([&downloader, this]() {
+                    int num = 0;
+                    bool getSpeed = false;
+                    while (!downloader.hasFinish()) {
+                        if (num == 500) {
+                            getSpeed = true;
+                            num = 0;
+                        } else {
+                            getSpeed = false;
+                        }
+                        _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
+                        num++;
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
                     }
-                    _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
-                    num++;
-                }
+                }));
+                osThread.detach();
+
+                downloader.start();
                 _os.showMsg(downloader.getDownloadStatistics());
                 setMsgIoCb();
             }

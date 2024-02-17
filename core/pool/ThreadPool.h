@@ -20,15 +20,16 @@ typedef std::function<void()> queueMsgCb;
 typedef std::queue<queueMsgCb> Queue;
 
 struct QueueItem {
-    int evenfd;
-    Queue queue;
+    int evenfd = 0;
+    Queue queue = {};
+    std::mutex mutex;  // Mutex for this Queue
 };
 
 class ThreadPool {
    public:
     ThreadPool(int threadNum);
     void sendMsg(queueMsgCb cb);
-    
+
    private:
     void queueHandle(int index);
     void threadRun(int index);

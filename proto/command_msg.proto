@@ -13,6 +13,6 @@ enum CommandType {
 
 message CommandMsg{
     required CommandType command = 1;
-    optional string args = 2;
-    optional string msg = 3;
+    optional bytes args = 2;
+    optional bytes msg = 3;
 }

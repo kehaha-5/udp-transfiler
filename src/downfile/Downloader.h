@@ -5,7 +5,9 @@
 
 #include <chrono>
 #include <memory>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "downfile/DownloaderEvents.h"
 #include "downfile/interruptionInfo/downfile_interruption_info.pb.h"
@@ -17,6 +19,11 @@ namespace downfile {
 
 using namespace interruption;
 
+struct downloaderErrorInfo {
+    std::string filename;
+    std::string errMsg;
+};
+
 typedef std::shared_ptr<udp::UdpClient> UdpClientPtr;
 typedef std::shared_ptr<EventLoop> EventPtr;
 typedef std::unordered_map<std::string, DownfileInterruptionInfo> DownfileInterruptionInfos;
@@ -25,6 +32,7 @@ typedef std::unordered_map<std::string, ClientFilePtr> WriteMap;
 typedef std::shared_ptr<WriteMap> WriteMapPtr;
 typedef std::shared_ptr<DownloaderEvents> DownloaderEventsPtr;
 typedef std::shared_ptr<ack::AckSet> AckSetPtr;
+typedef std::vector<downloaderErrorInfo> DownloaderErrorInfos;
 
 class Downloader {
    public:
@@ -33,6 +41,7 @@ class Downloader {
     bool hasFinish() { return _isfinish; }
     std::string getDownloadStrDetails(bool getSpeed);
     std::string getDownloadStatistics();
+    std::string getErrMsg();
 
    private:
     void initDownloadInfo();
@@ -53,6 +62,8 @@ class Downloader {
     bool _isfinish = false;
     std::chrono::time_point<std::chrono::system_clock> _start;
     std::chrono::time_point<std::chrono::system_clock> _end;
+    u_long _successfulDownlaodfileNum = 0;
+    DownloaderErrorInfos _downloaderErrorInfos;
 };
 }  // namespace downfile
 
