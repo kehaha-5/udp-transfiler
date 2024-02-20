@@ -6,6 +6,7 @@
 #include <mutex>
 #include <sstream>
 #include <string_view>
+#include "utils.h"
 
 #include "FileHash.h"
 
@@ -22,7 +23,7 @@ std::string_view FileHash::getHashByFsPath(const fs::path& path) {
     }
     std::stringstream strStream;
     strStream << std::hex << std::setw(16) << std::hash<fs::path>{}(path);
-    _pathToHash.insert({path, strStream.str()});
+    _pathToHash.insert({path, utils::trim(strStream.str())});
     it = _pathToHash.find(path);
     assert(it != _pathToHash.end());
     return it->second;

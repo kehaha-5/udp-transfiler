@@ -1,0 +1,132 @@
+#include <bits/ranges_base.h>
+#include <sys/types.h>
+
+#include <cmath>
+#include <cstring>
+#include <memory>
+#include <sstream>
+
+#include "Constant.h"
+#include "DownloaderStatistics.h"
+#include "utils.h"
+
+using namespace downfile;
+
+void DownloaderStatistics::addDetails(std::string filename, bool isDownloaded, interruption::DownfileInterruptionInfo &downloadQueue) {
+    DownloadDetailsPtr details = std::make_shared<downloadDetails>();
+    details->filename = filename;
+    details->isDownloaded = isDownloaded;
+    details->totalSize = downloadQueue.totalsize();
+    if (isDownloaded) {
+        details->hasDownlaodSize = downloadQueue.hasdownloadedsize();
+        for (auto &it : downloadQueue.info()) {
+            if (it.isdownload()) {
+                details->hasRecvPackets++;
+                details->totalSendPackets++;
+            }
+        }
+    }
+    _downloaderDetails.insert({filename, details});
+}
+
+void DownloaderStatistics::fetchDownloadSize(const u_long &msgSize) { _downloaderDetails[_currFilename]->hasDownlaodSize += msgSize; }
+
+void DownloaderStatistics::fetchHasRecvPackets() { _downloaderDetails[_currFilename]->hasRecvPackets++; }
+
+void DownloaderStatistics::fetchHasResendPackets() { _downloaderDetails[_currFilename]->hasResendPackets++; }
+
+void DownloaderStatistics::fetchTotalSendPackets() { _downloaderDetails[_currFilename]->totalSendPackets++; }
+
+void DownloaderStatistics::fetchSuccessfullyNum() { _successfullyDownloadfileNum++; }
+
+bool DownloaderStatistics::currTaskHasDownloadFinish() {
+    return _downloaderDetails[_currFilename]->hasDownlaodSize >= _downloaderDetails[_currFilename]->totalSize;
+}
+
+std::string DownloaderStatistics::getDownloadStrStatistics() {
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start);
+    std::stringstream details;
+    auto downloaderErrorNum = 0;
+    std::stringstream downloadErrorMsg;
+    for (auto &it : _downloaderDetails) {
+        if (it.second->iserr) {
+            downloadErrorMsg << "\t #" << (downloaderErrorNum + 1) << " download error file name " << it.second->filename
+                             << " error msg is:" << it.second->errMsg << "\n";
+            downloaderErrorNum++;
+        }
+    }
+
+    details << "\n";
+    details << "total download file " << _totalDownloadfileNum << "\n";
+    details << "download successfully file " << _successfullyDownloadfileNum << "\n";
+    details << "download error file " << downloaderErrorNum << "\n";
+    details << downloadErrorMsg.str();
+
+    u_long totalSendPackets = 0;
+    for (auto &it : _downloaderDetails) {
+        totalSendPackets += it.second->totalSendPackets;
+    }
+
+    if (totalSendPackets != 0) {
+        details << "total download size " << utils::humanReadable(totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
+        details << "total packets should be sent " << totalSendPackets << "\n";
+        details << "time-consuming " << duration.count() / 1000 << " s\n";
+        details << "speeds " << utils::humanReadable(std::ceil((totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
+                << " peer second \n";
+    }
+    details << "download finsih \n";
+    return details.str();
+}
+
+std::string DownloaderStatistics::getDownloadDetailStr(bool getSpeed) {
+    {
+        std::lock_guard<std::mutex> lock_guard(_detailsLock);
+        if(_currFilename.empty()){
+            return "\r";
+        }
+        _downloaderDetails[_currFilename]->percentage =
+            std::round(((_downloaderDetails[_currFilename]->hasDownlaodSize * 100 / _downloaderDetails[_currFilename]->totalSize)));
+        if (getSpeed) {
+            _downloaderDetails[_currFilename]->speed =
+                utils::humanReadable((_downloaderDetails[_currFilename]->hasDownlaodSize - _lastDownloadSize));
+            _lastDownloadSize = _downloaderDetails[_currFilename]->hasDownlaodSize;
+        }
+    }
+
+    std::stringstream details;
+    if (std::strcmp(_currFilename.c_str(), _currDetailsFilename.c_str()) == 0) {
+        // Move the cursor to the beginning of the current line
+        details << '\r';
+    } else {
+        _currDetailsFilename = _currFilename;
+        details << '\n';
+    }
+    auto data = _downloaderDetails[_currFilename];
+    // if (data->isDownloaded) {
+    //     details << "file has downloaded but not finish , restart download from breakpoint \n";
+    // }
+
+    details << (data->filename) << "  ";
+
+    for (int i = 0; i < 20; i++) {
+        if (i < ((data->percentage / 10) * 2)) {
+            details << "#";
+        } else {
+            details << ".";
+        }
+    }
+    details << "  " << std::to_string(data->percentage) << "%";
+    details << "  "
+            << "sizeDetails:[hasDownSzie:" << std::to_string(data->hasDownlaodSize) << "/totalSzie:" << std::to_string(data->totalSize)
+            << "]";
+    details << "  "
+            << "packetsDetails:[totalSend:" << std::to_string(data->totalSendPackets) << "/hasRecv:" << std::to_string(data->hasRecvPackets)
+            << "/hasResend:" << std::to_string(data->hasResendPackets) << "]";
+    details << "  " << data->speed;
+    if (data->iserr) {
+        details << "  " << data->errMsg + "downlaod error the file download will be cancel !!!!";
+    }
+    details << "      ";
+
+    return details.str();
+}

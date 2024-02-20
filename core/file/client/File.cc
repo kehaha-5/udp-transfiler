@@ -5,24 +5,24 @@
 #include <fstream>
 #include <mutex>
 
+#include "Constant.h"
 #include "File.h"
 
 using namespace file::client;
 
 File::File(std::string fileName, u_long size) {
     _fileName = fileName;
-    if (fs::exists(_fileName)) {
-        if (fs::file_size(_fileName) == size) {
+    _fileDownloadingName = fileName.append(DOWNLOAD_ING_FILE_SUFFIX);
+    if (fs::exists(_fileDownloadingName)) {
+        if (fs::file_size(_fileDownloadingName) == size) {
             _init = true;
-        } else {
-            fs::remove(_fileName);
         }
     }
     _fileSize = size;
-    _file.open(_fileName, std::ios_base::binary | std::ios_base::out);
+    _file.open(_fileDownloadingName, std::ios_base::binary | std::ios_base::out);
 }
 
-bool File::init() {
+void File::init() {
     if (_init) {
         char buff[SINGLE_WRITE_SIZE] = {0};
         std::memset(buff, 0, SINGLE_WRITE_SIZE);
@@ -33,7 +33,6 @@ bool File::init() {
         _file.write(buff, (i += SINGLE_WRITE_SIZE) - _fileSize);
     }
     _init = true;
-    return true;
 }
 
 bool File::write(int pos, const std::string& data, int size) {
@@ -50,5 +49,13 @@ bool File::write(int pos, const std::string& data, int size) {
         }
         _file.write(data.c_str(), size);
     }
+    return true;
+}
+
+bool File::flush() {
+    _file.flush();
+     std::error_code errCode;
+    fs::rename(_fileDownloadingName, _fileName, errCode);
+    _errMsg = errCode.message();
     return true;
 }

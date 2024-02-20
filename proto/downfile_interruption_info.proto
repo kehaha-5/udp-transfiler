@@ -13,5 +13,7 @@ message SingleBlockInfo {
 message DownfileInterruptionInfo{
     repeated SingleBlockInfo info = 1;
     required string name =2;
-    required uint64 hasDownloadedSzie=3 [default=0];
+    required uint64 hasDownloadedSize=3 [default=0];
+    required uint64 totalSize=4 [default=0];
+    required bool isfinish=5 [default=false];
 }

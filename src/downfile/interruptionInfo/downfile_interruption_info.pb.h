@@ -330,7 +330,9 @@ class DownfileInterruptionInfo final :
   enum : int {
     kInfoFieldNumber = 1,
     kNameFieldNumber = 2,
-    kHasDownloadedSzieFieldNumber = 3,
+    kHasDownloadedSizeFieldNumber = 3,
+    kTotalSizeFieldNumber = 4,
+    kIsfinishFieldNumber = 5,
   };
   // repeated .downfile.interruption.SingleBlockInfo info = 1;
   int info_size() const;
@@ -368,17 +370,43 @@ class DownfileInterruptionInfo final :
   std::string* _internal_mutable_name();
   public:
 
-  // required uint64 hasDownloadedSzie = 3 [default = 0];
-  bool has_hasdownloadedszie() const;
+  // required uint64 hasDownloadedSize = 3 [default = 0];
+  bool has_hasdownloadedsize() const;
   private:
-  bool _internal_has_hasdownloadedszie() const;
+  bool _internal_has_hasdownloadedsize() const;
   public:
-  void clear_hasdownloadedszie();
-  uint64_t hasdownloadedszie() const;
-  void set_hasdownloadedszie(uint64_t value);
+  void clear_hasdownloadedsize();
+  uint64_t hasdownloadedsize() const;
+  void set_hasdownloadedsize(uint64_t value);
   private:
-  uint64_t _internal_hasdownloadedszie() const;
-  void _internal_set_hasdownloadedszie(uint64_t value);
+  uint64_t _internal_hasdownloadedsize() const;
+  void _internal_set_hasdownloadedsize(uint64_t value);
+  public:
+
+  // required uint64 totalSize = 4 [default = 0];
+  bool has_totalsize() const;
+  private:
+  bool _internal_has_totalsize() const;
+  public:
+  void clear_totalsize();
+  uint64_t totalsize() const;
+  void set_totalsize(uint64_t value);
+  private:
+  uint64_t _internal_totalsize() const;
+  void _internal_set_totalsize(uint64_t value);
+  public:
+
+  // required bool isfinish = 5 [default = false];
+  bool has_isfinish() const;
+  private:
+  bool _internal_has_isfinish() const;
+  public:
+  void clear_isfinish();
+  bool isfinish() const;
+  void set_isfinish(bool value);
+  private:
+  bool _internal_isfinish() const;
+  void _internal_set_isfinish(bool value);
   public:
 
   // @@protoc_insertion_point(class_scope:downfile.interruption.DownfileInterruptionInfo)
@@ -393,7 +421,9 @@ class DownfileInterruptionInfo final :
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::downfile::interruption::SingleBlockInfo > info_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
-    uint64_t hasdownloadedszie_;
+    uint64_t hasdownloadedsize_;
+    uint64_t totalsize_;
+    bool isfinish_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_downfile_5finterruption_5finfo_2eproto;
@@ -577,32 +607,88 @@ inline void DownfileInterruptionInfo::set_allocated_name(std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:downfile.interruption.DownfileInterruptionInfo.name)
 }
 
-// required uint64 hasDownloadedSzie = 3 [default = 0];
-inline bool DownfileInterruptionInfo::_internal_has_hasdownloadedszie() const {
+// required uint64 hasDownloadedSize = 3 [default = 0];
+inline bool DownfileInterruptionInfo::_internal_has_hasdownloadedsize() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
 }
-inline bool DownfileInterruptionInfo::has_hasdownloadedszie() const {
-  return _internal_has_hasdownloadedszie();
+inline bool DownfileInterruptionInfo::has_hasdownloadedsize() const {
+  return _internal_has_hasdownloadedsize();
 }
-inline void DownfileInterruptionInfo::clear_hasdownloadedszie() {
-  _impl_.hasdownloadedszie_ = uint64_t{0u};
+inline void DownfileInterruptionInfo::clear_hasdownloadedsize() {
+  _impl_.hasdownloadedsize_ = uint64_t{0u};
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-inline uint64_t DownfileInterruptionInfo::_internal_hasdownloadedszie() const {
-  return _impl_.hasdownloadedszie_;
+inline uint64_t DownfileInterruptionInfo::_internal_hasdownloadedsize() const {
+  return _impl_.hasdownloadedsize_;
 }
-inline uint64_t DownfileInterruptionInfo::hasdownloadedszie() const {
-  // @@protoc_insertion_point(field_get:downfile.interruption.DownfileInterruptionInfo.hasDownloadedSzie)
-  return _internal_hasdownloadedszie();
+inline uint64_t DownfileInterruptionInfo::hasdownloadedsize() const {
+  // @@protoc_insertion_point(field_get:downfile.interruption.DownfileInterruptionInfo.hasDownloadedSize)
+  return _internal_hasdownloadedsize();
 }
-inline void DownfileInterruptionInfo::_internal_set_hasdownloadedszie(uint64_t value) {
+inline void DownfileInterruptionInfo::_internal_set_hasdownloadedsize(uint64_t value) {
   _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.hasdownloadedszie_ = value;
+  _impl_.hasdownloadedsize_ = value;
 }
-inline void DownfileInterruptionInfo::set_hasdownloadedszie(uint64_t value) {
-  _internal_set_hasdownloadedszie(value);
-  // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.hasDownloadedSzie)
+inline void DownfileInterruptionInfo::set_hasdownloadedsize(uint64_t value) {
+  _internal_set_hasdownloadedsize(value);
+  // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.hasDownloadedSize)
+}
+
+// required uint64 totalSize = 4 [default = 0];
+inline bool DownfileInterruptionInfo::_internal_has_totalsize() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline bool DownfileInterruptionInfo::has_totalsize() const {
+  return _internal_has_totalsize();
+}
+inline void DownfileInterruptionInfo::clear_totalsize() {
+  _impl_.totalsize_ = uint64_t{0u};
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline uint64_t DownfileInterruptionInfo::_internal_totalsize() const {
+  return _impl_.totalsize_;
+}
+inline uint64_t DownfileInterruptionInfo::totalsize() const {
+  // @@protoc_insertion_point(field_get:downfile.interruption.DownfileInterruptionInfo.totalSize)
+  return _internal_totalsize();
+}
+inline void DownfileInterruptionInfo::_internal_set_totalsize(uint64_t value) {
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.totalsize_ = value;
+}
+inline void DownfileInterruptionInfo::set_totalsize(uint64_t value) {
+  _internal_set_totalsize(value);
+  // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.totalSize)
+}
+
+// required bool isfinish = 5 [default = false];
+inline bool DownfileInterruptionInfo::_internal_has_isfinish() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline bool DownfileInterruptionInfo::has_isfinish() const {
+  return _internal_has_isfinish();
+}
+inline void DownfileInterruptionInfo::clear_isfinish() {
+  _impl_.isfinish_ = false;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline bool DownfileInterruptionInfo::_internal_isfinish() const {
+  return _impl_.isfinish_;
+}
+inline bool DownfileInterruptionInfo::isfinish() const {
+  // @@protoc_insertion_point(field_get:downfile.interruption.DownfileInterruptionInfo.isfinish)
+  return _internal_isfinish();
+}
+inline void DownfileInterruptionInfo::_internal_set_isfinish(bool value) {
+  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_.isfinish_ = value;
+}
+inline void DownfileInterruptionInfo::set_isfinish(bool value) {
+  _internal_set_isfinish(value);
+  // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.isfinish)
 }
 
 #ifdef __GNUC__

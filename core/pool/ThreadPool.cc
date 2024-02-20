@@ -26,7 +26,10 @@ void ThreadPool::queueHandle(int index) {
 
 void ThreadPool::threadRun(int index) {
     EventLoopPtr loop = std::make_shared<EventLoop>();
-    _eventMap.insert({_msgQueues[index].evenfd, loop});
+    {
+        std::lock_guard<std::mutex> lock_guard(_eventMapLock);
+        _eventMap.insert({_msgQueues[index].evenfd, loop});
+    }
     loop->addIo(_msgQueues[index].evenfd, std::bind(&ThreadPool::queueHandle, this, index), EPOLLIN);
     loop->loop();
 }
@@ -75,7 +78,7 @@ void ThreadPool::closeThreadPool() {
             while (!it.second.queue.empty()) {
             };
             auto itt = _eventMap.find(it.second.evenfd);
-            if (itt == _eventMap.end()){
+            if (itt == _eventMap.end()) {
                 continue;
             }
             itt->second->setRunning(false);

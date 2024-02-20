@@ -3,13 +3,13 @@
 #include <rapidjson/rapidjson.h>
 #include <sys/types.h>
 
-#include <chrono>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "downfile/DownloaderEvents.h"
+#include "downfile/DownloaderStatistics.h"
 #include "downfile/interruptionInfo/downfile_interruption_info.pb.h"
 #include "file/client/File.h"
 #include "file/server/Directory.h"
@@ -26,13 +26,15 @@ struct downloaderErrorInfo {
 
 typedef std::shared_ptr<udp::UdpClient> UdpClientPtr;
 typedef std::shared_ptr<EventLoop> EventPtr;
-typedef std::unordered_map<std::string, DownfileInterruptionInfo> DownfileInterruptionInfos;
+typedef std::unordered_map<std::string, DownfileInterruptionInfo> DownfileInterruptionInfos;  //[filename => DownfileInterruptionInfo]
 typedef std::shared_ptr<file::client::File> ClientFilePtr;
-typedef std::unordered_map<std::string, ClientFilePtr> WriteMap;
+typedef std::unordered_map<std::string, ClientFilePtr> WriteMap;            //[filename => clientFilePtr]
+typedef std::unordered_map<std::string, std::string> InterruptionWriteMap;  // [filename => interruptionfilename]
 typedef std::shared_ptr<WriteMap> WriteMapPtr;
 typedef std::shared_ptr<DownloaderEvents> DownloaderEventsPtr;
 typedef std::shared_ptr<ack::AckSet> AckSetPtr;
-typedef std::vector<downloaderErrorInfo> DownloaderErrorInfos;
+typedef std::shared_ptr<DownloaderStatistics> DownloaderStatisticsPtr;
+typedef std::vector<std::string> FilenameIsExist;
 
 class Downloader {
    public:
@@ -42,28 +44,32 @@ class Downloader {
     std::string getDownloadStrDetails(bool getSpeed);
     std::string getDownloadStatistics();
     std::string getErrMsg();
+    FilenameIsExist &getfilenameExistInfo() { return _filenameIsExist; };
+    ~Downloader() { flushAllInterruptionData(); }
 
    private:
     void initDownloadInfo();
-    void buildInterruptionInfoFile(const file::server::fileDownInfo &info);
+    void buildInterruptionInfo(const file::server::fileDownInfo &info);
     std::string getInterruptionFileName(const std::string &fileHash);
-    void flushInterruptionData(std::string &fileHash);
-    DownQueue buildDownQueueByInterruptionData(std::string &fileHash);
+    void flushInterruptionData(const std::string &filename);
+    void delFlushInterruptionFile(const std::string &filename);
+    void flushAllInterruptionData();
 
     DownfileInterruptionInfos _downfileInterruptionInfos;
     UdpClientPtr _client;
     EventPtr _even;
     file::server::filesDownInfo _info;
     WriteMapPtr _writeMapPtr;
+    InterruptionWriteMap _interruptionWriteMap;
     DownloaderEventsPtr _downloaderEventsPtr;
+    FilenameIsExist _filenameIsExist;
     int _threadNum;
     std::string _lastDetailsFilename;
     std::uintmax_t _totalSendPackets = 0;
     bool _isfinish = false;
-    std::chrono::time_point<std::chrono::system_clock> _start;
-    std::chrono::time_point<std::chrono::system_clock> _end;
     u_long _successfulDownlaodfileNum = 0;
-    DownloaderErrorInfos _downloaderErrorInfos;
+    DownloaderStatisticsPtr _downloaderStatisticsPtr;
+    AckSetPtr _ackSetPtr;
 };
 }  // namespace downfile
 

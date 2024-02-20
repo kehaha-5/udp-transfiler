@@ -6,6 +6,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <thread>
 #include <unordered_map>
@@ -41,6 +42,7 @@ class ThreadPool {
     int _threadNum;
     Queues _msgQueues;
     EventMap _eventMap;
+    std::mutex _eventMapLock;
 };
 }  // namespace pool
 

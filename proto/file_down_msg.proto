@@ -9,4 +9,5 @@ message FileDownMsg{
     required int64 startPos =2;
     optional int64 size = 3;
     optional bytes data = 4;
+    required int64 dataIndex = 5;
 }

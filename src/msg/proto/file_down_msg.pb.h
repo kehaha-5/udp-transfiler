@@ -172,6 +172,7 @@ class FileDownMsg final :
     kDataFieldNumber = 4,
     kStartPosFieldNumber = 2,
     kSizeFieldNumber = 3,
+    kDataIndexFieldNumber = 5,
   };
   // required string name = 1;
   bool has_name() const;
@@ -235,6 +236,19 @@ class FileDownMsg final :
   void _internal_set_size(int64_t value);
   public:
 
+  // required int64 dataIndex = 5;
+  bool has_dataindex() const;
+  private:
+  bool _internal_has_dataindex() const;
+  public:
+  void clear_dataindex();
+  int64_t dataindex() const;
+  void set_dataindex(int64_t value);
+  private:
+  int64_t _internal_dataindex() const;
+  void _internal_set_dataindex(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:msg.proto.FileDownMsg)
  private:
   class _Internal;
@@ -249,6 +263,7 @@ class FileDownMsg final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
     int64_t startpos_;
     int64_t size_;
+    int64_t dataindex_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_file_5fdown_5fmsg_2eproto;
@@ -454,6 +469,34 @@ inline void FileDownMsg::set_allocated_data(std::string* data) {
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:msg.proto.FileDownMsg.data)
+}
+
+// required int64 dataIndex = 5;
+inline bool FileDownMsg::_internal_has_dataindex() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000010u) != 0;
+  return value;
+}
+inline bool FileDownMsg::has_dataindex() const {
+  return _internal_has_dataindex();
+}
+inline void FileDownMsg::clear_dataindex() {
+  _impl_.dataindex_ = int64_t{0};
+  _impl_._has_bits_[0] &= ~0x00000010u;
+}
+inline int64_t FileDownMsg::_internal_dataindex() const {
+  return _impl_.dataindex_;
+}
+inline int64_t FileDownMsg::dataindex() const {
+  // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.dataIndex)
+  return _internal_dataindex();
+}
+inline void FileDownMsg::_internal_set_dataindex(int64_t value) {
+  _impl_._has_bits_[0] |= 0x00000010u;
+  _impl_.dataindex_ = value;
+}
+inline void FileDownMsg::set_dataindex(int64_t value) {
+  _internal_set_dataindex(value);
+  // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.dataIndex)
 }
 
 #ifdef __GNUC__

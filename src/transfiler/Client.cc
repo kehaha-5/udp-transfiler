@@ -90,6 +90,20 @@ void Client::downfile(std::string& args) {
                 debug_log("will be down file !!!");
                 downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client,
                                                 _ackSet);
+                if (!downloader.getfilenameExistInfo().empty()) {
+                    auto filenameExist = downloader.getfilenameExistInfo();
+                    std::stringstream msg;
+                    msg << "\nfilename is exist can not be download !!!";
+                    for (auto& it : filenameExist) {
+                        msg << "\n\t" << it << "\n";
+                    }
+                    _os.showError(msg.str());
+                    if (filenameExist.size() == downloadInfos.size()) {
+                        _os.showError("all download filename is exist !!! \n not file will be download !!!");
+                        setMsgIoCb();
+                        return;
+                    }
+                }
                 std::thread osThread = std::thread(std::bind([&downloader, this]() {
                     int num = 0;
                     bool getSpeed = false;
@@ -144,7 +158,7 @@ void Client::timerExce(u_long ack, std::vector<msg::Package> msg) {
     std::string sendMsg;
     for (auto& it : msg) {
         it.serialized(&sendMsg, protobufMsg);
-         while (!_client->sendMsg(sendMsg)) {
+        while (!_client->sendMsg(sendMsg)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         };
         protobufMsg.Clear();
