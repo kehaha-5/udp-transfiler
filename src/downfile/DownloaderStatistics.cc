@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <iomanip>
 #include <memory>
 #include <sstream>
 
@@ -75,7 +76,7 @@ std::string DownloaderStatistics::getDownloadStrStatistics() {
         details << "  total download size " << utils::humanReadable(totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
         details << "  total packets should be send:" << totalSendPackets << " real packets send:" << (resnedPackets + totalSendPackets)
                 << " all resnedPackets:" << resnedPackets << "\n";
-        details << "  time-consuming " << duration.count() / 1000 << " s\n";
+        details << "  time-consum "  << std::fixed << std::setprecision(2) << static_cast<double>(duration.count()) / 1000 << " s\n";
         details << "  speeds " << utils::humanReadable(std::ceil((totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
                 << " peer second \n";
     }

@@ -42,8 +42,10 @@ class DownloaderEvents {
                      DownloaderStatisticsPtr& dfstatisticsPtr);
     void start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size);
     ~DownloaderEvents() {
-        _threadPool->closeThreadPool();
+        _threadPool->closeThreadPool(true);
         _recvEvent->setRunning(false);
+        _recvEvent->delIo(_client->getSocketfd());
+        _sendEvent->setRunning(false);
     }
 
    private:

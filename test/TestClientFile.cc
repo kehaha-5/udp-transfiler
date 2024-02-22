@@ -49,13 +49,28 @@ class TestClientFile : public ::testing::Test {
 TEST_F(TestClientFile, functionalTest) {
     std::string fileName = "test.bin";
     file::client::File file(_currfile / fileName, 2048);
-    file.init();
     std::string data;
     getLetterTableByBytesNum(1024, data);
     file.write(1024, data, 1024);
     file.flush();
     ASSERT_EQ(getFileSzie(fileName), 2048);
     ASSERT_STREQ(data.c_str(), getFileContext(fileName, 1024, 1024).c_str());
+}
+
+TEST_F(TestClientFile, appendTest) {
+    std::string fileName = "test.bin.app";
+    auto currFile = _currfile;
+    auto file = new file::client::File(currFile / fileName, 4096);
+    std::string data;
+    getLetterTableByBytesNum(4096, data);
+    file->write(0, data, 2048);
+    delete file;
+    currFile = _currfile;
+    file::client::File file2(currFile / fileName, 4096);
+    file2.write(2048, data.substr(2048), 2048);
+    file2.flush();
+    ASSERT_EQ(getFileSzie(fileName), 4096);
+    ASSERT_STREQ(data.c_str(), getFileContext(fileName, 0, 4096).c_str());
 }
 
 int main(int argc, char** argv) {

@@ -12,6 +12,7 @@
 #include "EventLoop.h"
 #include "Interaction.h"
 #include "ack/AckSet.h"
+#include "downfile/Downloader.h"
 #include "msg/Buffer.h"
 #include "msg/Msg.h"
 #include "msg/proto/package_msg.pb.h"
@@ -23,12 +24,14 @@ typedef std::function<std::string()> msgCb;
 typedef std::shared_ptr<udp::UdpClient> udpClientPtr;
 typedef std::function<void()> HandlerRecvCb;
 typedef std::shared_ptr<ack::AckSet> AckSetPtr;
+typedef std::shared_ptr<downfile::Downloader> DownloaderPtr;
 
 class Client {
    public:
     Client(std::string host, __uint16_t port);
     void execCommand(interaction::inputCommand command);
     void setHandlerRecvCb(HandlerRecvCb cb) { _handlerRecvCd = cb; }
+    void clearUp();
 
    private:
     void ls();
@@ -48,6 +51,7 @@ class Client {
     std::thread _timerThread;
     HandlerRecvCb _handlerRecvCd;
     msg::Buffer _msgBuffer;
+    DownloaderPtr _downloaderPtr;
 };
 }  // namespace transfiler
 #endif

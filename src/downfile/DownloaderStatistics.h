@@ -49,6 +49,7 @@ class DownloaderStatistics {
     void setCurrFilename(const std::string &filename) {
         std::lock_guard<std::mutex> lock_guard(_detailsLock);
         _currFilename = filename;
+        _lastDownloadSize = 0;
     };
     void setDownloadError(std::string &errmsg) {
         _downloaderDetails[_currFilename]->iserr = true;

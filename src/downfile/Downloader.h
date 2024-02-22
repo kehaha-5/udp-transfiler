@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Logging.h"
 #include "downfile/DownloaderEvents.h"
 #include "downfile/DownloaderStatistics.h"
 #include "downfile/interruptionInfo/downfile_interruption_info.pb.h"
@@ -47,9 +46,9 @@ class Downloader {
     std::string getErrMsg();
     FilenameIsExist &getfilenameExistInfo() { return _filenameIsExist; };
     ~Downloader() {
-        debug_log("exit1 !!!!");
         flushAllInterruptionData();
     }
+    void flushAllInterruptionData();  //在接受到ctrl+c时不一定能够执行构型函数，因此要把该函数暴露出去
 
    private:
     void initDownloadInfo();
@@ -57,7 +56,6 @@ class Downloader {
     std::string getInterruptionFileName(const std::string &fileHash);
     void flushInterruptionData(const std::string &filename);
     void delFlushInterruptionFile(const std::string &filename);
-    void flushAllInterruptionData();
     void singalHandler(int signal);
 
     DownfileInterruptionInfos _downfileInterruptionInfos;

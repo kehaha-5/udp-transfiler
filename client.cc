@@ -16,11 +16,11 @@ unique_ptr<Interaction> clientInteraction;
 
 // Signal handler function
 void signalHandler(int signum) {
-    std::cout << "Received signal: " << signum << std::endl;
-
     // No need to manually call saveInterruptionData here,
     // the destructor of interruptionSaver will be called when the program exits
-
+    std::cout << "\nclear up ....." << std::endl;
+    client->clearUp();
+    std::cout << "clear up finish exit !!!!" << std::endl;
     std::exit(0);
 }
 

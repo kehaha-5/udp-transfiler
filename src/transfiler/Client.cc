@@ -88,10 +88,10 @@ void Client::downfile(std::string& args) {
             }
             if (_os.confirm(confirmMsg.str())) {
                 debug_log("will be down file !!!");
-                downfile::Downloader downloader(downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client,
-                                                _ackSet);
-                if (!downloader.getfilenameExistInfo().empty()) {
-                    auto filenameExist = downloader.getfilenameExistInfo();
+                _downloaderPtr = std::make_shared<downfile::Downloader>(
+                    downloadInfos, config::ClientConfig::getInstance().getDownloadThreadNum(), _even, _client, _ackSet);
+                if (!_downloaderPtr->getfilenameExistInfo().empty()) {
+                    auto filenameExist = _downloaderPtr->getfilenameExistInfo();
                     std::stringstream msg;
                     msg << "\nfilename is exist can not be download !!!";
                     for (auto& it : filenameExist) {
@@ -105,25 +105,25 @@ void Client::downfile(std::string& args) {
                         return;
                     }
                 }
-                std::thread osThread = std::thread(std::bind([&downloader, this]() {
+                std::thread osThread = std::thread(std::bind([this]() {
                     int num = 0;
                     bool getSpeed = false;
-                    while (!downloader.hasFinish()) {
-                        if (num == 1000 ) {
+                    while (!_downloaderPtr->hasFinish()) {
+                        if (num == 1000) {
                             getSpeed = true;
                             num = 0;
                         } else {
                             getSpeed = false;
                         }
-                        _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
+                        _os.showMsg(_downloaderPtr->getDownloadStrDetails(getSpeed));
                         num++;
                         std::this_thread::sleep_for(std::chrono::milliseconds(1));
                     }
                 }));
                 osThread.detach();
 
-                downloader.start();
-                _os.showMsg(downloader.getDownloadStatistics());
+                _downloaderPtr->start();
+                _os.showMsg(_downloaderPtr->getDownloadStatistics());
                 setMsgIoCb();
             }
             return;
@@ -207,4 +207,10 @@ void Client::listenResq() {
         return;
     }
     debug_log("msg not component finsih !!");
+}
+
+void Client::clearUp() {
+    if (_downloaderPtr != nullptr) {
+        _downloaderPtr->flushAllInterruptionData();
+    }
 }

@@ -17,7 +17,6 @@ namespace fs = std::filesystem;
 class File {
    public:
     File(std::string fileName, u_long size);
-    void init();
     bool write(int pos, const std::string& data, int size);
     ~File() {
         _file.flush();
@@ -30,10 +29,9 @@ class File {
     fs::path _fileName;
     fs::path _fileDownloadingName;
     std::string _errMsg;
-    std::ofstream _file;
+    std::fstream _file;
     std::mutex _fileLock;
     u_long _fileSize;
-    bool _init = false;
 };
 }  // namespace file::client
 #endif

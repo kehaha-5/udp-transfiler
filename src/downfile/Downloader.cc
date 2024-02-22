@@ -65,9 +65,6 @@ void Downloader::initDownloadInfo() {
             }
             // 初始化文件数据
             ClientFilePtr file = std::make_unique<file::client::File>(filename, it.size);
-            if (!isDownloaded) {
-                file->init();
-            }
             wp.insert({it.name, file});
         } else {
             _filenameIsExist.push_back(it.name);
@@ -117,17 +114,15 @@ void Downloader::delFlushInterruptionFile(const std::string &filename) {
 }
 
 void Downloader::flushAllInterruptionData() {
-    debug_log("_downfileInterruptionInfos size %i", _downfileInterruptionInfos.size());
+    _isfinish = true;
+    _downloaderEventsPtr.reset();
     for (auto &it : _downfileInterruptionInfos) {
         if (!it.second.isfinish()) {
-            debug_log("isfinish not one !!!");
             flushInterruptionData(it.first);
         } else {
-            debug_log("isfinish one !!!");
             delFlushInterruptionFile(it.first);
         }
     }
-    debug_log("exit !!!!");
 }
 
 std::string Downloader::getDownloadStrDetails(bool getSpeed) { return _downloaderStatisticsPtr->getDownloadDetailStr(getSpeed); }

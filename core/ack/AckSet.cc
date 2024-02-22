@@ -26,13 +26,13 @@ void AckSet::setCbByAck(u_long& ack, Cb cb) {
     it->second = _timerPtr->runEvery(SEND_PACKAGE_TIMEOUT, cb);
 }
 
-void AckSet::delMsgByAck(const u_long& ack) {
+bool AckSet::delMsgByAck(const u_long& ack) {
     std::lock_guard<std::mutex> lock_guard(_ackMsgMapLock);
     // debug_log("ack will be del %lu", ack);
     auto it = _ackMsgMap.find(ack);
     if (it == _ackMsgMap.end()) {  // ack可能被重发了有其它线程处理了
         // warn_log(" delMsgByAck ack %lu not be found ackMap size is %i", ack, _ackMsgMap.size());
-        return;
+        return false;
     }
     _timerPtr->cancelTimerEven(it->second);
     _ackMsgMap.erase(ack);
@@ -42,4 +42,5 @@ void AckSet::delMsgByAck(const u_long& ack) {
         _ackLimitCv.notify_one();
         _waittingforCv = false;
     }
+    return true;
 }

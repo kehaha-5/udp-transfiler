@@ -23,7 +23,7 @@ class AckSet {
     AckSet(TimerPrt timerPtr) : _timerPtr(timerPtr) {}
     u_long getAck();
     void setCbByAck(u_long &ack, Cb cb);
-    void delMsgByAck(const u_long &ack);
+    bool delMsgByAck(const u_long &ack);
     const u_long getAckSetSzie() { return _ackMsgMap.size(); }
     ~AckSet() { _ackMsgMap.clear(); }
     std::condition_variable _ackLimitCv;

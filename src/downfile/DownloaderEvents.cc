@@ -1,7 +1,10 @@
 #include <sys/epoll.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include <cassert>
+#include <chrono>
+#include <cstring>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -68,12 +71,12 @@ void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQue
     }
     _downloadSpeedsLimiterPtr->Clear();
     _currInterruptionData->set_isfinish(true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3));
 }
 
 void DownloaderEvents::setDataWithEvents() {
     std::string msg;
     FileDownMsg fileDownMsg;
-    u_long index = 0;
     while (!_sendDataQueue.empty()) {
         _downloadSpeedsLimiterPtr->start();
         while (_downloadSpeedsLimiterPtr->allowSend()) {
@@ -85,10 +88,9 @@ void DownloaderEvents::setDataWithEvents() {
                     _sendEvent->setRunning(false);
                     _downloadSpeedsLimiterPtr->interruption();
                     return;
-                } else {
-                    _downloadSpeedsLimiterPtr->hasSend();
-                    _downloaderStatisticsPtr->fetchTotalSendPackets();
                 }
+                _downloadSpeedsLimiterPtr->hasSend();
+                _downloaderStatisticsPtr->fetchTotalSendPackets();
                 fileDownMsg.Clear();
                 _sendDataQueue.pop();
             } else {
@@ -187,14 +189,18 @@ void DownloaderEvents::handlerRecv() {
             return;
         }
         _downloaderStatisticsPtr->fetchHasRecvPackets();
+        if (!_ackSetPtr->delMsgByAck(msgBuffer.getAck())) {  //数据已经处理过了
+            return;
+        }
         _downloaderStatisticsPtr->fetchDownloadSize(msg.size());
-        _ackSetPtr->delMsgByAck(msgBuffer.getAck());
         {
             std::lock_guard<std::mutex> lock_guard(_updateInterruptionDataLock);
             _currInterruptionData->set_hasdownloadedsize(_currInterruptionData->hasdownloadedsize() + msg.size());
+            if (std::strcmp(msg.name().c_str(), _currInterruptionData->name().c_str()) == 0) {
+                auto _currQueueData = _currInterruptionData->mutable_info(msg.dataindex());
+                _currQueueData->set_isdownload(true);
+            }
         }
-        auto _currQueueIt = _currInterruptionData->info(msg.dataindex());
-        _currQueueIt.set_isdownload(true);
     }));
 }
 
