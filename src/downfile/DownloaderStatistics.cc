@@ -51,31 +51,35 @@ std::string DownloaderStatistics::getDownloadStrStatistics() {
     std::stringstream downloadErrorMsg;
     for (auto &it : _downloaderDetails) {
         if (it.second->iserr) {
-            downloadErrorMsg << "\t #" << (downloaderErrorNum + 1) << " download error file name " << it.second->filename
+            downloadErrorMsg << "\t#" << (downloaderErrorNum + 1) << " download error file name " << it.second->filename
                              << " error msg is:" << it.second->errMsg << "\n";
             downloaderErrorNum++;
         }
     }
 
     details << "\n";
-    details << "total download file " << _totalDownloadfileNum << "\n";
-    details << "download successfully file " << _successfullyDownloadfileNum << "\n";
-    details << "download error file " << downloaderErrorNum << "\n";
+    details << "DOWNLOAD STATISTICS:\n";
+    details << "  total download file " << _totalDownloadfileNum << "\n";
+    details << "  download successfully file " << _successfullyDownloadfileNum << "\n";
+    details << "  download error file " << downloaderErrorNum << "\n";
     details << downloadErrorMsg.str();
 
     u_long totalSendPackets = 0;
+    u_long resnedPackets = 0;
     for (auto &it : _downloaderDetails) {
         totalSendPackets += it.second->totalSendPackets;
+        resnedPackets += it.second->hasResendPackets + it.second->totalSendPackets;
     }
 
     if (totalSendPackets != 0) {
-        details << "total download size " << utils::humanReadable(totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
-        details << "total packets should be sent " << totalSendPackets << "\n";
-        details << "time-consuming " << duration.count() / 1000 << " s\n";
-        details << "speeds " << utils::humanReadable(std::ceil((totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
+        details << "  total download size " << utils::humanReadable(totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
+        details << "  total packets should be send:" << totalSendPackets << " real packets send:" << (resnedPackets + totalSendPackets)
+                << " all resnedPackets:" << resnedPackets << "\n";
+        details << "  time-consuming " << duration.count() / 1000 << " s\n";
+        details << "  speeds " << utils::humanReadable(std::ceil((totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
                 << " peer second \n";
     }
-    details << "download finsih \n";
+    details << "  download finsih \n";
     return details.str();
 }
 
@@ -88,6 +92,9 @@ std::string DownloaderStatistics::getDownloadDetailStr(bool getSpeed) {
         if (_downloaderDetails[_currFilename]->hasDownlaodSize != 0) {
             _downloaderDetails[_currFilename]->percentage =
                 std::round(((_downloaderDetails[_currFilename]->hasDownlaodSize * 100 / _downloaderDetails[_currFilename]->totalSize)));
+        }
+        if (_downloaderDetails[_currFilename]->totalPackets == _downloaderDetails[_currFilename]->hasRecvPackets) {
+            _downloaderDetails[_currFilename]->percentage = 100;
         }
         if (getSpeed) {
             _downloaderDetails[_currFilename]->speed =

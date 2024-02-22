@@ -2,16 +2,15 @@
 #include <sys/types.h>
 
 #include <cassert>
-#include <chrono>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <thread>
 
-#include "Constant.h"
 #include "DownloaderEvents.h"
 #include "EventLoop.h"
 #include "Logging.h"
+#include "downfile/DownloadSpeedsLimiter.h"
 #include "downfile/Downloader.h"
 #include "msg/Buffer.h"
 #include "msg/Msg.h"
@@ -30,6 +29,7 @@ DownloaderEvents::DownloaderEvents(EventPtr& even, UdpClientPtr& client, WriteMa
     std::thread eventThread = std::thread(std::bind(&DownloaderEvents::listenResq, this));
     eventThread.detach();
     _sendEvent = std::make_shared<EventLoop>();
+    _downloadSpeedsLimiterPtr = std::make_unique<DownloadSpeedsLimiter>();
 }
 
 void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size) {
@@ -66,6 +66,7 @@ void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQue
     if (!it->second->flush()) {
         _downloaderStatisticsPtr->setDownloadError(it->second->getErrorMsg());
     }
+    _downloadSpeedsLimiterPtr->Clear();
     _currInterruptionData->set_isfinish(true);
 }
 
@@ -74,16 +75,18 @@ void DownloaderEvents::setDataWithEvents() {
     FileDownMsg fileDownMsg;
     u_long index = 0;
     while (!_sendDataQueue.empty()) {
-        auto start = std::chrono::system_clock::now();
-        for (int i = 0; i < MAX_SEND_PACKETS; i++) {
+        _downloadSpeedsLimiterPtr->start();
+        while (_downloadSpeedsLimiterPtr->allowSend()) {
             if (!_sendDataQueue.empty()) {
                 fileDownMsg.set_name(_sendDataQueue.front().filename);
                 fileDownMsg.set_startpos(_sendDataQueue.front().startPos);
                 fileDownMsg.set_dataindex(_sendDataQueue.front().index);
                 if (!sendMsg(fileDownMsg)) {
                     _sendEvent->setRunning(false);
+                    _downloadSpeedsLimiterPtr->interruption();
                     return;
                 } else {
+                    _downloadSpeedsLimiterPtr->hasSend();
                     _downloaderStatisticsPtr->fetchTotalSendPackets();
                 }
                 fileDownMsg.Clear();
@@ -92,11 +95,7 @@ void DownloaderEvents::setDataWithEvents() {
                 return;
             }
         }
-        auto end = std::chrono::system_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        if ((duration.count() < 1000)) {  //小于1秒
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000 - duration.count()));
-        }
+        _downloadSpeedsLimiterPtr->waiting();
     }
     _sendEvent->setRunning(false);
 }
@@ -187,7 +186,8 @@ void DownloaderEvents::handlerRecv() {
             warn_log("the file can not be write !!!");
             return;
         }
-
+        _downloaderStatisticsPtr->fetchHasRecvPackets();
+        _downloaderStatisticsPtr->fetchDownloadSize(msg.size());
         _ackSetPtr->delMsgByAck(msgBuffer.getAck());
         {
             std::lock_guard<std::mutex> lock_guard(_updateInterruptionDataLock);
@@ -195,8 +195,6 @@ void DownloaderEvents::handlerRecv() {
         }
         auto _currQueueIt = _currInterruptionData->info(msg.dataindex());
         _currQueueIt.set_isdownload(true);
-        _downloaderStatisticsPtr->fetchHasRecvPackets();
-        _downloaderStatisticsPtr->fetchDownloadSize(msg.size());
     }));
 }
 

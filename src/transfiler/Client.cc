@@ -109,7 +109,7 @@ void Client::downfile(std::string& args) {
                     int num = 0;
                     bool getSpeed = false;
                     while (!downloader.hasFinish()) {
-                        if (num == 1000 * 3) {
+                        if (num == 1000 ) {
                             getSpeed = true;
                             num = 0;
                         } else {
@@ -117,7 +117,7 @@ void Client::downfile(std::string& args) {
                         }
                         _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
                         num++;
-                        std::this_thread::sleep_for(std::chrono::nanoseconds(500));
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
                     }
                 }));
                 osThread.detach();

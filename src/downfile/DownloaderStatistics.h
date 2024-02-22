@@ -20,7 +20,7 @@ struct downloadDetails {
     std::string speed = "-/-";               //下载速度
     u_long totalSize = 0;                    //下载总大小
     std::atomic_ulong hasDownlaodSize = 0;   //已经下载大小
-    u_long totalPackets;                    //总包数量
+    u_long totalPackets;                     //总包数量
     std::atomic_ulong hasRecvPackets = 0;    //已经接受数据包大小
     std::atomic_ulong totalSendPackets = 0;  //所有发送的数据包数量
     std::atomic_ulong hasResendPackets = 0;  //所有重发的数据包数量

@@ -9,6 +9,7 @@
 
 #include "EventLoop.h"
 #include "ack/AckSet.h"
+#include "downfile/DownloadSpeedsLimiter.h"
 #include "downfile/DownloaderStatistics.h"
 #include "downfile/interruptionInfo/downfile_interruption_info.pb.h"
 #include "file/client/File.h"
@@ -33,6 +34,7 @@ typedef std::shared_ptr<ack::AckSet> AckSetPtr;
 typedef std::shared_ptr<std::unordered_map<std::string, ClientFilePtr>> WriteMapPtr;
 typedef std::queue<sendQueueItem> SendDataQueue;
 typedef std::shared_ptr<DownloaderStatistics> DownloaderStatisticsPtr;
+typedef std::unique_ptr<DownloadSpeedsLimiter> DownloadSpeedsLimiterPtr;
 
 class DownloaderEvents {
    public:
@@ -70,6 +72,7 @@ class DownloaderEvents {
     std::string _errMsg;
     interruption::DownfileInterruptionInfo* _currInterruptionData;
     SendDataQueue _sendDataQueue;
+    DownloadSpeedsLimiterPtr _downloadSpeedsLimiterPtr;
 };
 }  // namespace downfile
 #endif
