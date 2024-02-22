@@ -110,3 +110,8 @@ bool Interaction::confirm(std::string confirmMsg) {
 }
 
 void Interaction::showMsg(std::string msg) { std::cout << msg << std::flush; }
+
+void Interaction::showInLine(std::string& msg) {
+    std::cout.seekp(0);
+    std::cout << msg << std::flush;
+}

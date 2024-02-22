@@ -3,9 +3,9 @@
 
 #include <sys/types.h>
 
-#include <atomic>
 #include <memory>
 #include <mutex>
+#include <queue>
 
 #include "EventLoop.h"
 #include "ack/AckSet.h"
@@ -19,19 +19,25 @@
 
 namespace downfile {
 
+struct sendQueueItem {
+    std::string filename;
+    u_long startPos;
+    u_long index;
+};
+
 typedef std::unique_ptr<pool::ThreadPool> ThreadPoolPtr;
 typedef std::shared_ptr<udp::UdpClient> UdpClientPtr;
 typedef std::shared_ptr<EventLoop> EventPtr;
 typedef std::shared_ptr<file::client::File> ClientFilePtr;
 typedef std::shared_ptr<ack::AckSet> AckSetPtr;
 typedef std::shared_ptr<std::unordered_map<std::string, ClientFilePtr>> WriteMapPtr;
-
+typedef std::queue<sendQueueItem> SendDataQueue;
 typedef std::shared_ptr<DownloaderStatistics> DownloaderStatisticsPtr;
 
 class DownloaderEvents {
    public:
-    DownloaderEvents(EventPtr& even, UdpClientPtr& client, WriteMapPtr& writeMapPtr, int threadNum, AckSetPtr &ackSetPtr,
-                     DownloaderStatisticsPtr &dfstatisticsPtr);
+    DownloaderEvents(EventPtr& even, UdpClientPtr& client, WriteMapPtr& writeMapPtr, int threadNum, AckSetPtr& ackSetPtr,
+                     DownloaderStatisticsPtr& dfstatisticsPtr);
     void start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size);
     ~DownloaderEvents() {
         _threadPool->closeThreadPool();
@@ -62,8 +68,8 @@ class DownloaderEvents {
     std::mutex _updateInterruptionDataLock;
     bool _err = false;
     std::string _errMsg;
-    std::atomic_bool _sendDataFinish = false;
-    interruption::DownfileInterruptionInfo* _currDownloadQueue;
+    interruption::DownfileInterruptionInfo* _currInterruptionData;
+    SendDataQueue _sendDataQueue;
 };
 }  // namespace downfile
 #endif

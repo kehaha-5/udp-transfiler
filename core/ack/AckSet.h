@@ -3,11 +3,13 @@
 
 #include <sys/types.h>
 
+#include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
 
+#include "Constant.h"
 #include "timer/Timer.h"
 
 namespace ack {
@@ -22,7 +24,12 @@ class AckSet {
     u_long getAck();
     void setCbByAck(u_long &ack, Cb cb);
     void delMsgByAck(const u_long &ack);
+    const u_long getAckSetSzie() { return _ackMsgMap.size(); }
     ~AckSet() { _ackMsgMap.clear(); }
+    std::condition_variable _ackLimitCv;
+    std::mutex _limitCvLock;
+    bool _waittingforCv;
+    bool ackSizeFull() { return _ackMsgMap.size() >= MAX_ACK_SET_SIZE; };
 
    private:
     TimerPrt _timerPtr;

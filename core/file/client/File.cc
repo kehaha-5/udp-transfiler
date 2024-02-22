@@ -23,14 +23,15 @@ File::File(std::string fileName, u_long size) {
 }
 
 void File::init() {
-    if (_init) {
+    if (!_init) {
         char buff[SINGLE_WRITE_SIZE] = {0};
         std::memset(buff, 0, SINGLE_WRITE_SIZE);
         auto i = SINGLE_WRITE_SIZE;
         for (; i < _fileSize; i += SINGLE_WRITE_SIZE) {
             _file.write(buff, SINGLE_WRITE_SIZE);
         }
-        _file.write(buff, (i += SINGLE_WRITE_SIZE) - _fileSize);
+        _file.write(buff, _fileSize - (i - SINGLE_WRITE_SIZE));
+        _file.flush();
     }
     _init = true;
 }
@@ -54,7 +55,7 @@ bool File::write(int pos, const std::string& data, int size) {
 
 bool File::flush() {
     _file.flush();
-     std::error_code errCode;
+    std::error_code errCode;
     fs::rename(_fileDownloadingName, _fileName, errCode);
     _errMsg = errCode.message();
     return true;

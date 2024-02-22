@@ -95,11 +95,12 @@ void Client::downfile(std::string& args) {
                     std::stringstream msg;
                     msg << "\nfilename is exist can not be download !!!";
                     for (auto& it : filenameExist) {
-                        msg << "\n\t" << it << "\n";
+                        msg << "\n\t" << it;
                     }
+                    msg << "\n";
                     _os.showError(msg.str());
                     if (filenameExist.size() == downloadInfos.size()) {
-                        _os.showError("all download filename is exist !!! \n not file will be download !!!");
+                        _os.showError("all download filename is exist !!! not file will be download !!!");
                         setMsgIoCb();
                         return;
                     }
@@ -108,7 +109,7 @@ void Client::downfile(std::string& args) {
                     int num = 0;
                     bool getSpeed = false;
                     while (!downloader.hasFinish()) {
-                        if (num == 1000) {
+                        if (num == 1000 * 3) {
                             getSpeed = true;
                             num = 0;
                         } else {
@@ -116,7 +117,7 @@ void Client::downfile(std::string& args) {
                         }
                         _os.showMsg(downloader.getDownloadStrDetails(getSpeed));
                         num++;
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                        std::this_thread::sleep_for(std::chrono::nanoseconds(500));
                     }
                 }));
                 osThread.detach();

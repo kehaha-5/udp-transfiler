@@ -18,12 +18,11 @@
 
 using namespace downfile;
 
-Downloader::Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client, AckSetPtr ackSetPtr)
+Downloader::Downloader(file::server::filesDownInfo &info, int threadNum, EventPtr &even, UdpClientPtr &client, AckSetPtr &ackSetPtr)
     : _info(info), _even(even), _client(client), _threadNum(threadNum), _ackSetPtr(ackSetPtr) {
-    _downloaderStatisticsPtr = std::make_shared<DownloaderStatistics>();
+    _downloaderStatisticsPtr = std::make_shared<DownloaderStatistics>(ackSetPtr);
     initDownloadInfo();
     _downloaderStatisticsPtr->setDownloadfileNum(info.size() - _filenameIsExist.size());
-
 }
 
 void Downloader::start() {
@@ -118,13 +117,17 @@ void Downloader::delFlushInterruptionFile(const std::string &filename) {
 }
 
 void Downloader::flushAllInterruptionData() {
+    debug_log("_downfileInterruptionInfos size %i", _downfileInterruptionInfos.size());
     for (auto &it : _downfileInterruptionInfos) {
         if (!it.second.isfinish()) {
+            debug_log("isfinish not one !!!");
             flushInterruptionData(it.first);
         } else {
+            debug_log("isfinish one !!!");
             delFlushInterruptionFile(it.first);
         }
     }
+    debug_log("exit !!!!");
 }
 
 std::string Downloader::getDownloadStrDetails(bool getSpeed) { return _downloaderStatisticsPtr->getDownloadDetailStr(getSpeed); }

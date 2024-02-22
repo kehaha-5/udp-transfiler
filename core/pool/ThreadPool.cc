@@ -12,13 +12,13 @@ using namespace pool;
 
 void ThreadPool::queueHandle(int index) {
     auto queueItemIt = _msgQueues.find(index);
-    while (!queueItemIt->second.queue.empty()) {
-        unsigned long long number;
-        read(queueItemIt->second.evenfd, &number, sizeof(unsigned long long));
-        queueMsgCb cd = queueItemIt->second.queue.front();
-        cd();
-        {
-            std::lock_guard<std::mutex> lock_guard(queueItemIt->second.mutex);
+    {
+        std::lock_guard<std::mutex> lock_guard(queueItemIt->second.mutex);
+        while (!queueItemIt->second.queue.empty()) {
+            unsigned long long number;
+            read(queueItemIt->second.evenfd, &number, sizeof(unsigned long long));
+            queueMsgCb cd = queueItemIt->second.queue.front();
+            cd();
             queueItemIt->second.queue.pop();
         }
     }
@@ -71,12 +71,20 @@ void ThreadPool::sendMsg(queueMsgCb cb) {
     exit_if(len == -1, "add task to queue error");
 }
 
-void ThreadPool::closeThreadPool() {
+void ThreadPool::closeThreadPool(bool force) {
     for (auto &it : _msgQueues) {
+        while (!it.second.queue.empty()) {
+            if (force) {
+                {
+                    std::lock_guard<std::mutex> lock_guard(it.second.mutex);
+                    while (!it.second.queue.empty()) {
+                        it.second.queue.pop();
+                    }
+                }
+            }
+        };
         {
             std::lock_guard<std::mutex> lock_guard(it.second.mutex);
-            while (!it.second.queue.empty()) {
-            };
             auto itt = _eventMap.find(it.second.evenfd);
             if (itt == _eventMap.end()) {
                 continue;

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Logging.h"
 #include "downfile/DownloaderEvents.h"
 #include "downfile/DownloaderStatistics.h"
 #include "downfile/interruptionInfo/downfile_interruption_info.pb.h"
@@ -38,14 +39,17 @@ typedef std::vector<std::string> FilenameIsExist;
 
 class Downloader {
    public:
-    Downloader(file::server::filesDownInfo info, int threadNum, EventPtr even, UdpClientPtr client, AckSetPtr ackSetPtr);
+    Downloader(file::server::filesDownInfo &info, int threadNum, EventPtr &even, UdpClientPtr &client, AckSetPtr &ackSetPtr);
     void start();
     bool hasFinish() { return _isfinish; }
     std::string getDownloadStrDetails(bool getSpeed);
     std::string getDownloadStatistics();
     std::string getErrMsg();
     FilenameIsExist &getfilenameExistInfo() { return _filenameIsExist; };
-    ~Downloader() { flushAllInterruptionData(); }
+    ~Downloader() {
+        debug_log("exit1 !!!!");
+        flushAllInterruptionData();
+    }
 
    private:
     void initDownloadInfo();
@@ -54,6 +58,7 @@ class Downloader {
     void flushInterruptionData(const std::string &filename);
     void delFlushInterruptionFile(const std::string &filename);
     void flushAllInterruptionData();
+    void singalHandler(int signal);
 
     DownfileInterruptionInfos _downfileInterruptionInfos;
     UdpClientPtr _client;

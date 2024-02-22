@@ -16,6 +16,7 @@ void DownloaderStatistics::addDetails(std::string filename, bool isDownloaded, i
     DownloadDetailsPtr details = std::make_shared<downloadDetails>();
     details->filename = filename;
     details->isDownloaded = isDownloaded;
+    details->totalPackets = static_cast<u_long>(downloadQueue.info_size());
     details->totalSize = downloadQueue.totalsize();
     if (isDownloaded) {
         details->hasDownlaodSize = downloadQueue.hasdownloadedsize();
@@ -81,11 +82,13 @@ std::string DownloaderStatistics::getDownloadStrStatistics() {
 std::string DownloaderStatistics::getDownloadDetailStr(bool getSpeed) {
     {
         std::lock_guard<std::mutex> lock_guard(_detailsLock);
-        if(_currFilename.empty()){
+        if (_currFilename.empty()) {
             return "\r";
         }
-        _downloaderDetails[_currFilename]->percentage =
-            std::round(((_downloaderDetails[_currFilename]->hasDownlaodSize * 100 / _downloaderDetails[_currFilename]->totalSize)));
+        if (_downloaderDetails[_currFilename]->hasDownlaodSize != 0) {
+            _downloaderDetails[_currFilename]->percentage =
+                std::round(((_downloaderDetails[_currFilename]->hasDownlaodSize * 100 / _downloaderDetails[_currFilename]->totalSize)));
+        }
         if (getSpeed) {
             _downloaderDetails[_currFilename]->speed =
                 utils::humanReadable((_downloaderDetails[_currFilename]->hasDownlaodSize - _lastDownloadSize));
@@ -115,16 +118,16 @@ std::string DownloaderStatistics::getDownloadDetailStr(bool getSpeed) {
             details << ".";
         }
     }
-    details << "  " << std::to_string(data->percentage) << "%";
-    details << "  "
-            << "sizeDetails:[hasDownSzie:" << std::to_string(data->hasDownlaodSize) << "/totalSzie:" << std::to_string(data->totalSize)
-            << "]";
-    details << "  "
-            << "packetsDetails:[totalSend:" << std::to_string(data->totalSendPackets) << "/hasRecv:" << std::to_string(data->hasRecvPackets)
-            << "/hasResend:" << std::to_string(data->hasResendPackets) << "]";
-    details << "  " << data->speed;
+    details << " " << std::to_string(data->percentage) << "%";
+    details << " "
+            << "size:[down:" << std::to_string(data->hasDownlaodSize) << "/total:" << std::to_string(data->totalSize) << "]";
+    details << " "
+            << "packets:[total:" << data->totalPackets << "/send:" << std::to_string(data->totalSendPackets)
+            << "/recv:" << std::to_string(data->hasRecvPackets) << "/resend:" << std::to_string(data->hasResendPackets)
+            << "/ackSet:" << _ackSetPrt->getAckSetSzie() << "]";
+    details << " " << data->speed;
     if (data->iserr) {
-        details << "  " << data->errMsg + "downlaod error the file download will be cancel !!!!";
+        details << " err:" << data->errMsg;
     }
     details << "      ";
 

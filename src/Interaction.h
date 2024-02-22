@@ -26,6 +26,7 @@ class Interaction {
    public:
     inputCommand input(std::string cliName);
     void showMsg(std::string msg);
+    void showInLine(std::string &msg);
     void ls(file::server::filesInfo &fileinfos);
     void showError(std::string msg);
     bool confirm(std::string confirmMsg);

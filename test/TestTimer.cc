@@ -80,7 +80,7 @@ TEST_F(TimerTest, cancelTimerTest) {
     _loop->cancelTimerEven(resRunAt);
     _loop->cancelTimerEven(resRunEvery);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     ASSERT_EQ(counterRunAt, 22);    // 运行22次后取消
     ASSERT_EQ(counterRunAfter, 2);  // 运行3个 取消1个

@@ -4,7 +4,6 @@
 
 #include "AckSet.h"
 #include "Constant.h"
-#include "Logging.h"
 #include "ack/AckRandom.h"
 
 using namespace ack;
@@ -38,4 +37,9 @@ void AckSet::delMsgByAck(const u_long& ack) {
     _timerPtr->cancelTimerEven(it->second);
     _ackMsgMap.erase(ack);
     AckRandom::releasesAck(ack);
+    std::unique_lock lk(_limitCvLock);
+    if (_waittingforCv) {
+        _ackLimitCv.notify_one();
+        _waittingforCv = false;
+    }
 }

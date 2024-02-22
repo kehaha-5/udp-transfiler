@@ -53,6 +53,7 @@ TEST_F(TestClientFile, functionalTest) {
     std::string data;
     getLetterTableByBytesNum(1024, data);
     file.write(1024, data, 1024);
+    file.flush();
     ASSERT_EQ(getFileSzie(fileName), 2048);
     ASSERT_STREQ(data.c_str(), getFileContext(fileName, 1024, 1024).c_str());
 }
