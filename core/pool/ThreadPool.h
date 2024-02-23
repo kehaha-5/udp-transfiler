@@ -43,6 +43,7 @@ class ThreadPool {
     Queues _msgQueues;
     EventMap _eventMap;
     std::mutex _eventMapLock;
+    bool _isRunning = true;
 };
 }  // namespace pool
 

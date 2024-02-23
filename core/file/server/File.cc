@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <string>
 
+#include "Constant.h"
 #include "File.h"
 #include "Logging.h"
 using namespace file::server;
@@ -22,9 +23,17 @@ File::File(std::string path) {
         setErrMsg(errCode::fileTypeNotSupported);
         return;
     }
+    _fileSize = fs::file_size(_filepathObj);
 }
 
-bool File::getPosContext(int pos, int size, fileData &data) {
+bool File::getPosContext(u_long pos, uint size, fileData &data) {
+    if (_fileSize > LARGE_FILE_SIZE) {
+        return getLargeFilePosContext(pos, size, data);
+    }
+    return getMinFilePosContext(pos, size, data);
+}
+
+bool File::getMinFilePosContext(u_long pos, uint size, fileData &data) {
     try {
         if (size == 0) {
             setErrMsg(errCode::invalidSzie);
@@ -58,7 +67,7 @@ void File::setErrMsg(errCode code) {
     _err.errMsg = getErrMsgByErrCode(code);
 }
 
-bool File::getPosContext2(int pos, int size, fileData &data) {
+bool File::getLargeFilePosContext(u_long pos, uint size, fileData &data) {
     if (size == 0) {
         setErrMsg(errCode::invalidSzie);
         return false;
@@ -78,6 +87,7 @@ bool File::getPosContext2(int pos, int size, fileData &data) {
     uint readLenght;
 
     if (pos > filesb.st_size) {
+        debug_log("pos is %lu filesb.st_size is %lu", pos, filesb.st_size);
         setErrMsg(errCode::fileSzieOut);
         return false;
     }
@@ -91,8 +101,8 @@ bool File::getPosContext2(int pos, int size, fileData &data) {
     /* offset for mmap() must be page aligned */
     /* https://www.man7.org/linux/man-pages/man2/mmap.2.html offset must be a multiple of the page size as returned by
      * sysconf(_SC_PAGE_SIZE).*/
-    auto pa_offset = pos & ~(sysconf(_SC_PAGE_SIZE) - 1);
-    auto realReadLenght = readLenght + pos - pa_offset;
+    std::uintmax_t pa_offset = pos & ~(sysconf(_SC_PAGE_SIZE) - 1);
+    std::uintmax_t realReadLenght = readLenght + pos - pa_offset;
 
     auto addr = mmap(NULL, realReadLenght, PROT_READ, MAP_PRIVATE, filefd, pa_offset);
 
@@ -101,6 +111,7 @@ bool File::getPosContext2(int pos, int size, fileData &data) {
         warn_log("mmap error %s", strerror(errno));
         return false;
     }
+
     data.data.resize(readLenght, '\0');
 
     std::memcpy(&data.data[0], static_cast<char *>(addr) + (pos - pa_offset), readLenght);

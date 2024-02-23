@@ -108,7 +108,8 @@ void Client::downfile(std::string& args) {
                 std::thread osThread = std::thread(std::bind([this]() {
                     int num = 0;
                     bool getSpeed = false;
-                    while (!_downloaderPtr->hasFinish()) {
+                    std::weak_ptr<downfile::Downloader> weakPtr = _downloaderPtr;
+                    while ((weakPtr.lock() != nullptr) && !_downloaderPtr->hasFinish()) {
                         if (num == 1000) {
                             getSpeed = true;
                             num = 0;
@@ -124,6 +125,7 @@ void Client::downfile(std::string& args) {
 
                 _downloaderPtr->start();
                 _os.showMsg(_downloaderPtr->getDownloadStatistics());
+                _downloaderPtr.reset();
                 setMsgIoCb();
             }
             return;

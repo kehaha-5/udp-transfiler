@@ -10,6 +10,7 @@
 #include <mutex>
 #include <thread>
 
+#include "Constant.h"
 #include "DownloaderEvents.h"
 #include "EventLoop.h"
 #include "Logging.h"
@@ -39,13 +40,13 @@ void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQue
     _currInterruptionData = downloadQueue;
     for (u_long i = 0; i < _currInterruptionData->info_size(); i++) {
         if (!_currInterruptionData->info(i).isdownload()) {
-            sendQueueItem sd = {_currInterruptionData->name(), _currInterruptionData->info(i).startpos(), i};
+            sendQueueItem sd = {_currInterruptionData->hash(), _currInterruptionData->info(i).startpos(), i};
             _sendDataQueue.push(sd);
         }
     }
     _sendEvent->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::setDataWithEvents, this), EPOLLOUT | EPOLLET);
     while (!(_downloaderStatisticsPtr->currTaskHasDownloadFinish())) {
-        if (!_sendDataQueue.empty()) {
+        if (!_sendDataQueue.empty() && !_err) {
             sendRes();
         }
         {
@@ -59,13 +60,18 @@ void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQue
             {
                 std::unique_lock lk(_ackSetPtr->_limitCvLock);
                 _ackSetPtr->_waittingforCv = true;
-                _ackSetPtr->_ackLimitCv.wait(lk, [this]() { return !_ackSetPtr->ackSizeFull(); });
+                auto now = std::chrono::system_clock::now();
+                std::chrono::milliseconds duration(SEND_THREAD_WAIT_FOR_ACK_SET_MS);
+                if (!_ackSetPtr->_ackLimitCv.wait_until(lk, (now + duration), [this]() { return !_ackSetPtr->ackSizeFull(); })) {
+                    continue;
+                    ;
+                }
                 _ackSetPtr->_waittingforCv = false;
             }
         }
     }
 
-    auto it = _writeMapPtr->find(downloadQueue->name());
+    auto it = _writeMapPtr->find(downloadQueue->hash());
     if (!it->second->flush()) {
         _downloaderStatisticsPtr->setDownloadError(it->second->getErrorMsg());
     }
@@ -81,7 +87,7 @@ void DownloaderEvents::setDataWithEvents() {
         _downloadSpeedsLimiterPtr->start();
         while (_downloadSpeedsLimiterPtr->allowSend()) {
             if (!_sendDataQueue.empty()) {
-                fileDownMsg.set_name(_sendDataQueue.front().filename);
+                fileDownMsg.set_hash(_sendDataQueue.front().filehash);
                 fileDownMsg.set_startpos(_sendDataQueue.front().startPos);
                 fileDownMsg.set_dataindex(_sendDataQueue.front().index);
                 if (!sendMsg(fileDownMsg)) {
@@ -157,20 +163,16 @@ void DownloaderEvents::handlerRecv() {
                 if (commandMsg.command != msg::proto::COMMAND_ERRORMSG) {
                     setErrMsg("commadMsg error type not COMMAND_ERRORMSG !!! ");
                 }
-                setErrMsg("download error " + commandMsg.msg);
+                setErrMsg("download server error " + commandMsg.msg);
             }
             warn_log("recv data error!!! ");
-            return;
-        }
-
-        if (data.empty()) {
-            warn_log("recv data is empty()");
             return;
         }
 
         FileDownMsg msg;
         msg.ParseFromString(msgBuffer.getData());
         if (!msg.IsInitialized()) {
+            debug_log("data Initialized debug str %s", msg.DebugString().c_str());
             warn_log("data Initialized error %s", msg.InitializationErrorString().c_str());
             return;
         }
@@ -183,9 +185,14 @@ void DownloaderEvents::handlerRecv() {
             return;
         }
 
-        auto file = _writeMapPtr->find(msg.name());
+        if (data.empty()) {  // some context mabe empty
+            warn_log("data is empty");
+            return;
+        }
+
+        auto file = _writeMapPtr->find(msg.hash());
         if (!file->second->write(msg.startpos(), msg.data(), msg.size())) {
-            warn_log("the file can not be write !!!");
+            warn_log("the file can not be write %s", file->second->getErrorMsg().c_str());
             return;
         }
         _downloaderStatisticsPtr->fetchHasRecvPackets();
@@ -196,7 +203,7 @@ void DownloaderEvents::handlerRecv() {
         {
             std::lock_guard<std::mutex> lock_guard(_updateInterruptionDataLock);
             _currInterruptionData->set_hasdownloadedsize(_currInterruptionData->hasdownloadedsize() + msg.size());
-            if (std::strcmp(msg.name().c_str(), _currInterruptionData->name().c_str()) == 0) {
+            if (std::strcmp(msg.hash().c_str(), _currInterruptionData->hash().c_str()) == 0) {
                 auto _currQueueData = _currInterruptionData->mutable_info(msg.dataindex());
                 _currQueueData->set_isdownload(true);
             }

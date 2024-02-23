@@ -44,7 +44,6 @@ inputCommand Interaction::input(std::string cliName) {
             return inputCommand(exceCommand::LS, "");
         } else if (command.find("downfile") != std::string::npos) {
             std::string arg;
-            std::cout << "downfile" << std::endl;
             unsigned long pos;
             if ((pos = command.find(DWONLOADFILE_FILE_ARG)), pos != std::string::npos) {
                 arg = command.substr(pos);

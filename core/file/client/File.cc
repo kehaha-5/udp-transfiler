@@ -4,6 +4,7 @@
 #include <fstream>
 #include <ios>
 #include <mutex>
+#include <string>
 
 #include "Constant.h"
 #include "File.h"
@@ -21,7 +22,7 @@ File::File(std::string fileName, u_long size) {
     _fileSize = size;
 }
 
-bool File::write(int pos, const std::string& data, int size) {
+bool File::write(u_long pos, const std::string& data, int size) {
     if (!_file.good()) {
         _errMsg = "file is not good ";
         return false;
@@ -30,7 +31,7 @@ bool File::write(int pos, const std::string& data, int size) {
         std::lock_guard<std::mutex> lock_guard(_fileLock);
         _file.seekp(pos);
         if (!_file.good()) {
-            _errMsg = "file seekp error";
+            _errMsg = "file seekp error seekp is " + std::to_string(pos);
             return false;
         }
         _file.write(data.c_str(), size);

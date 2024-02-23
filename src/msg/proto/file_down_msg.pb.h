@@ -168,31 +168,31 @@ class FileDownMsg final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNameFieldNumber = 1,
-    kDataFieldNumber = 4,
+    kHashFieldNumber = 1,
+    kDataFieldNumber = 5,
     kStartPosFieldNumber = 2,
-    kSizeFieldNumber = 3,
-    kDataIndexFieldNumber = 5,
+    kDataIndexFieldNumber = 3,
+    kSizeFieldNumber = 4,
   };
-  // required string name = 1;
-  bool has_name() const;
+  // required string hash = 1;
+  bool has_hash() const;
   private:
-  bool _internal_has_name() const;
+  bool _internal_has_hash() const;
   public:
-  void clear_name();
-  const std::string& name() const;
+  void clear_hash();
+  const std::string& hash() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_name(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_name();
-  PROTOBUF_NODISCARD std::string* release_name();
-  void set_allocated_name(std::string* name);
+  void set_hash(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_hash();
+  PROTOBUF_NODISCARD std::string* release_hash();
+  void set_allocated_hash(std::string* hash);
   private:
-  const std::string& _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
-  std::string* _internal_mutable_name();
+  const std::string& _internal_hash() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_hash(const std::string& value);
+  std::string* _internal_mutable_hash();
   public:
 
-  // optional bytes data = 4;
+  // optional bytes data = 5;
   bool has_data() const;
   private:
   bool _internal_has_data() const;
@@ -210,20 +210,33 @@ class FileDownMsg final :
   std::string* _internal_mutable_data();
   public:
 
-  // required int64 startPos = 2;
+  // required uint64 startPos = 2;
   bool has_startpos() const;
   private:
   bool _internal_has_startpos() const;
   public:
   void clear_startpos();
-  int64_t startpos() const;
-  void set_startpos(int64_t value);
+  uint64_t startpos() const;
+  void set_startpos(uint64_t value);
   private:
-  int64_t _internal_startpos() const;
-  void _internal_set_startpos(int64_t value);
+  uint64_t _internal_startpos() const;
+  void _internal_set_startpos(uint64_t value);
   public:
 
-  // optional int64 size = 3;
+  // required uint64 dataIndex = 3;
+  bool has_dataindex() const;
+  private:
+  bool _internal_has_dataindex() const;
+  public:
+  void clear_dataindex();
+  uint64_t dataindex() const;
+  void set_dataindex(uint64_t value);
+  private:
+  uint64_t _internal_dataindex() const;
+  void _internal_set_dataindex(uint64_t value);
+  public:
+
+  // optional int64 size = 4;
   bool has_size() const;
   private:
   bool _internal_has_size() const;
@@ -236,19 +249,6 @@ class FileDownMsg final :
   void _internal_set_size(int64_t value);
   public:
 
-  // required int64 dataIndex = 5;
-  bool has_dataindex() const;
-  private:
-  bool _internal_has_dataindex() const;
-  public:
-  void clear_dataindex();
-  int64_t dataindex() const;
-  void set_dataindex(int64_t value);
-  private:
-  int64_t _internal_dataindex() const;
-  void _internal_set_dataindex(int64_t value);
-  public:
-
   // @@protoc_insertion_point(class_scope:msg.proto.FileDownMsg)
  private:
   class _Internal;
@@ -259,11 +259,11 @@ class FileDownMsg final :
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr hash_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
-    int64_t startpos_;
+    uint64_t startpos_;
+    uint64_t dataindex_;
     int64_t size_;
-    int64_t dataindex_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_file_5fdown_5fmsg_2eproto;
@@ -279,75 +279,75 @@ class FileDownMsg final :
 #endif  // __GNUC__
 // FileDownMsg
 
-// required string name = 1;
-inline bool FileDownMsg::_internal_has_name() const {
+// required string hash = 1;
+inline bool FileDownMsg::_internal_has_hash() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
 }
-inline bool FileDownMsg::has_name() const {
-  return _internal_has_name();
+inline bool FileDownMsg::has_hash() const {
+  return _internal_has_hash();
 }
-inline void FileDownMsg::clear_name() {
-  _impl_.name_.ClearToEmpty();
+inline void FileDownMsg::clear_hash() {
+  _impl_.hash_.ClearToEmpty();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string& FileDownMsg::name() const {
-  // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.name)
-  return _internal_name();
+inline const std::string& FileDownMsg::hash() const {
+  // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.hash)
+  return _internal_hash();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
-void FileDownMsg::set_name(ArgT0&& arg0, ArgT... args) {
+void FileDownMsg::set_hash(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.name)
+ _impl_.hash_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.hash)
 }
-inline std::string* FileDownMsg::mutable_name() {
-  std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:msg.proto.FileDownMsg.name)
+inline std::string* FileDownMsg::mutable_hash() {
+  std::string* _s = _internal_mutable_hash();
+  // @@protoc_insertion_point(field_mutable:msg.proto.FileDownMsg.hash)
   return _s;
 }
-inline const std::string& FileDownMsg::_internal_name() const {
-  return _impl_.name_.Get();
+inline const std::string& FileDownMsg::_internal_hash() const {
+  return _impl_.hash_.Get();
 }
-inline void FileDownMsg::_internal_set_name(const std::string& value) {
+inline void FileDownMsg::_internal_set_hash(const std::string& value) {
   _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.name_.Set(value, GetArenaForAllocation());
+  _impl_.hash_.Set(value, GetArenaForAllocation());
 }
-inline std::string* FileDownMsg::_internal_mutable_name() {
+inline std::string* FileDownMsg::_internal_mutable_hash() {
   _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.name_.Mutable(GetArenaForAllocation());
+  return _impl_.hash_.Mutable(GetArenaForAllocation());
 }
-inline std::string* FileDownMsg::release_name() {
-  // @@protoc_insertion_point(field_release:msg.proto.FileDownMsg.name)
-  if (!_internal_has_name()) {
+inline std::string* FileDownMsg::release_hash() {
+  // @@protoc_insertion_point(field_release:msg.proto.FileDownMsg.hash)
+  if (!_internal_has_hash()) {
     return nullptr;
   }
   _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* p = _impl_.name_.Release();
+  auto* p = _impl_.hash_.Release();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.name_.IsDefault()) {
-    _impl_.name_.Set("", GetArenaForAllocation());
+  if (_impl_.hash_.IsDefault()) {
+    _impl_.hash_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
-inline void FileDownMsg::set_allocated_name(std::string* name) {
-  if (name != nullptr) {
+inline void FileDownMsg::set_allocated_hash(std::string* hash) {
+  if (hash != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
-  _impl_.name_.SetAllocated(name, GetArenaForAllocation());
+  _impl_.hash_.SetAllocated(hash, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.name_.IsDefault()) {
-    _impl_.name_.Set("", GetArenaForAllocation());
+  if (_impl_.hash_.IsDefault()) {
+    _impl_.hash_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:msg.proto.FileDownMsg.name)
+  // @@protoc_insertion_point(field_set_allocated:msg.proto.FileDownMsg.hash)
 }
 
-// required int64 startPos = 2;
+// required uint64 startPos = 2;
 inline bool FileDownMsg::_internal_has_startpos() const {
   bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;
@@ -356,28 +356,56 @@ inline bool FileDownMsg::has_startpos() const {
   return _internal_has_startpos();
 }
 inline void FileDownMsg::clear_startpos() {
-  _impl_.startpos_ = int64_t{0};
+  _impl_.startpos_ = uint64_t{0u};
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
-inline int64_t FileDownMsg::_internal_startpos() const {
+inline uint64_t FileDownMsg::_internal_startpos() const {
   return _impl_.startpos_;
 }
-inline int64_t FileDownMsg::startpos() const {
+inline uint64_t FileDownMsg::startpos() const {
   // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.startPos)
   return _internal_startpos();
 }
-inline void FileDownMsg::_internal_set_startpos(int64_t value) {
+inline void FileDownMsg::_internal_set_startpos(uint64_t value) {
   _impl_._has_bits_[0] |= 0x00000004u;
   _impl_.startpos_ = value;
 }
-inline void FileDownMsg::set_startpos(int64_t value) {
+inline void FileDownMsg::set_startpos(uint64_t value) {
   _internal_set_startpos(value);
   // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.startPos)
 }
 
-// optional int64 size = 3;
-inline bool FileDownMsg::_internal_has_size() const {
+// required uint64 dataIndex = 3;
+inline bool FileDownMsg::_internal_has_dataindex() const {
   bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline bool FileDownMsg::has_dataindex() const {
+  return _internal_has_dataindex();
+}
+inline void FileDownMsg::clear_dataindex() {
+  _impl_.dataindex_ = uint64_t{0u};
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline uint64_t FileDownMsg::_internal_dataindex() const {
+  return _impl_.dataindex_;
+}
+inline uint64_t FileDownMsg::dataindex() const {
+  // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.dataIndex)
+  return _internal_dataindex();
+}
+inline void FileDownMsg::_internal_set_dataindex(uint64_t value) {
+  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_.dataindex_ = value;
+}
+inline void FileDownMsg::set_dataindex(uint64_t value) {
+  _internal_set_dataindex(value);
+  // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.dataIndex)
+}
+
+// optional int64 size = 4;
+inline bool FileDownMsg::_internal_has_size() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000010u) != 0;
   return value;
 }
 inline bool FileDownMsg::has_size() const {
@@ -385,7 +413,7 @@ inline bool FileDownMsg::has_size() const {
 }
 inline void FileDownMsg::clear_size() {
   _impl_.size_ = int64_t{0};
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline int64_t FileDownMsg::_internal_size() const {
   return _impl_.size_;
@@ -395,7 +423,7 @@ inline int64_t FileDownMsg::size() const {
   return _internal_size();
 }
 inline void FileDownMsg::_internal_set_size(int64_t value) {
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   _impl_.size_ = value;
 }
 inline void FileDownMsg::set_size(int64_t value) {
@@ -403,7 +431,7 @@ inline void FileDownMsg::set_size(int64_t value) {
   // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.size)
 }
 
-// optional bytes data = 4;
+// optional bytes data = 5;
 inline bool FileDownMsg::_internal_has_data() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
@@ -469,34 +497,6 @@ inline void FileDownMsg::set_allocated_data(std::string* data) {
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:msg.proto.FileDownMsg.data)
-}
-
-// required int64 dataIndex = 5;
-inline bool FileDownMsg::_internal_has_dataindex() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000010u) != 0;
-  return value;
-}
-inline bool FileDownMsg::has_dataindex() const {
-  return _internal_has_dataindex();
-}
-inline void FileDownMsg::clear_dataindex() {
-  _impl_.dataindex_ = int64_t{0};
-  _impl_._has_bits_[0] &= ~0x00000010u;
-}
-inline int64_t FileDownMsg::_internal_dataindex() const {
-  return _impl_.dataindex_;
-}
-inline int64_t FileDownMsg::dataindex() const {
-  // @@protoc_insertion_point(field_get:msg.proto.FileDownMsg.dataIndex)
-  return _internal_dataindex();
-}
-inline void FileDownMsg::_internal_set_dataindex(int64_t value) {
-  _impl_._has_bits_[0] |= 0x00000010u;
-  _impl_.dataindex_ = value;
-}
-inline void FileDownMsg::set_dataindex(int64_t value) {
-  _internal_set_dataindex(value);
-  // @@protoc_insertion_point(field_set:msg.proto.FileDownMsg.dataIndex)
 }
 
 #ifdef __GNUC__

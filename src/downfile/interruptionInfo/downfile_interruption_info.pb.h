@@ -330,9 +330,10 @@ class DownfileInterruptionInfo final :
   enum : int {
     kInfoFieldNumber = 1,
     kNameFieldNumber = 2,
-    kHasDownloadedSizeFieldNumber = 3,
-    kTotalSizeFieldNumber = 4,
-    kIsfinishFieldNumber = 5,
+    kHashFieldNumber = 3,
+    kHasDownloadedSizeFieldNumber = 4,
+    kTotalSizeFieldNumber = 5,
+    kIsfinishFieldNumber = 6,
   };
   // repeated .downfile.interruption.SingleBlockInfo info = 1;
   int info_size() const;
@@ -352,7 +353,7 @@ class DownfileInterruptionInfo final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::downfile::interruption::SingleBlockInfo >&
       info() const;
 
-  // required string name = 2;
+  // required bytes name = 2;
   bool has_name() const;
   private:
   bool _internal_has_name() const;
@@ -370,7 +371,25 @@ class DownfileInterruptionInfo final :
   std::string* _internal_mutable_name();
   public:
 
-  // required uint64 hasDownloadedSize = 3 [default = 0];
+  // required bytes hash = 3;
+  bool has_hash() const;
+  private:
+  bool _internal_has_hash() const;
+  public:
+  void clear_hash();
+  const std::string& hash() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_hash(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_hash();
+  PROTOBUF_NODISCARD std::string* release_hash();
+  void set_allocated_hash(std::string* hash);
+  private:
+  const std::string& _internal_hash() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_hash(const std::string& value);
+  std::string* _internal_mutable_hash();
+  public:
+
+  // required uint64 hasDownloadedSize = 4 [default = 0];
   bool has_hasdownloadedsize() const;
   private:
   bool _internal_has_hasdownloadedsize() const;
@@ -383,7 +402,7 @@ class DownfileInterruptionInfo final :
   void _internal_set_hasdownloadedsize(uint64_t value);
   public:
 
-  // required uint64 totalSize = 4 [default = 0];
+  // required uint64 totalSize = 5 [default = 0];
   bool has_totalsize() const;
   private:
   bool _internal_has_totalsize() const;
@@ -396,7 +415,7 @@ class DownfileInterruptionInfo final :
   void _internal_set_totalsize(uint64_t value);
   public:
 
-  // required bool isfinish = 5 [default = false];
+  // required bool isfinish = 6 [default = false];
   bool has_isfinish() const;
   private:
   bool _internal_has_isfinish() const;
@@ -421,6 +440,7 @@ class DownfileInterruptionInfo final :
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::downfile::interruption::SingleBlockInfo > info_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr hash_;
     uint64_t hasdownloadedsize_;
     uint64_t totalsize_;
     bool isfinish_;
@@ -539,7 +559,7 @@ DownfileInterruptionInfo::info() const {
   return _impl_.info_;
 }
 
-// required string name = 2;
+// required bytes name = 2;
 inline bool DownfileInterruptionInfo::_internal_has_name() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
@@ -559,7 +579,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void DownfileInterruptionInfo::set_name(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.name_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.name)
 }
 inline std::string* DownfileInterruptionInfo::mutable_name() {
@@ -607,9 +627,77 @@ inline void DownfileInterruptionInfo::set_allocated_name(std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:downfile.interruption.DownfileInterruptionInfo.name)
 }
 
-// required uint64 hasDownloadedSize = 3 [default = 0];
-inline bool DownfileInterruptionInfo::_internal_has_hasdownloadedsize() const {
+// required bytes hash = 3;
+inline bool DownfileInterruptionInfo::_internal_has_hash() const {
   bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline bool DownfileInterruptionInfo::has_hash() const {
+  return _internal_has_hash();
+}
+inline void DownfileInterruptionInfo::clear_hash() {
+  _impl_.hash_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline const std::string& DownfileInterruptionInfo::hash() const {
+  // @@protoc_insertion_point(field_get:downfile.interruption.DownfileInterruptionInfo.hash)
+  return _internal_hash();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void DownfileInterruptionInfo::set_hash(ArgT0&& arg0, ArgT... args) {
+ _impl_._has_bits_[0] |= 0x00000002u;
+ _impl_.hash_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.hash)
+}
+inline std::string* DownfileInterruptionInfo::mutable_hash() {
+  std::string* _s = _internal_mutable_hash();
+  // @@protoc_insertion_point(field_mutable:downfile.interruption.DownfileInterruptionInfo.hash)
+  return _s;
+}
+inline const std::string& DownfileInterruptionInfo::_internal_hash() const {
+  return _impl_.hash_.Get();
+}
+inline void DownfileInterruptionInfo::_internal_set_hash(const std::string& value) {
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.hash_.Set(value, GetArenaForAllocation());
+}
+inline std::string* DownfileInterruptionInfo::_internal_mutable_hash() {
+  _impl_._has_bits_[0] |= 0x00000002u;
+  return _impl_.hash_.Mutable(GetArenaForAllocation());
+}
+inline std::string* DownfileInterruptionInfo::release_hash() {
+  // @@protoc_insertion_point(field_release:downfile.interruption.DownfileInterruptionInfo.hash)
+  if (!_internal_has_hash()) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000002u;
+  auto* p = _impl_.hash_.Release();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.hash_.IsDefault()) {
+    _impl_.hash_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  return p;
+}
+inline void DownfileInterruptionInfo::set_allocated_hash(std::string* hash) {
+  if (hash != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000002u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000002u;
+  }
+  _impl_.hash_.SetAllocated(hash, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.hash_.IsDefault()) {
+    _impl_.hash_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:downfile.interruption.DownfileInterruptionInfo.hash)
+}
+
+// required uint64 hasDownloadedSize = 4 [default = 0];
+inline bool DownfileInterruptionInfo::_internal_has_hasdownloadedsize() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;
 }
 inline bool DownfileInterruptionInfo::has_hasdownloadedsize() const {
@@ -617,7 +705,7 @@ inline bool DownfileInterruptionInfo::has_hasdownloadedsize() const {
 }
 inline void DownfileInterruptionInfo::clear_hasdownloadedsize() {
   _impl_.hasdownloadedsize_ = uint64_t{0u};
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline uint64_t DownfileInterruptionInfo::_internal_hasdownloadedsize() const {
   return _impl_.hasdownloadedsize_;
@@ -627,7 +715,7 @@ inline uint64_t DownfileInterruptionInfo::hasdownloadedsize() const {
   return _internal_hasdownloadedsize();
 }
 inline void DownfileInterruptionInfo::_internal_set_hasdownloadedsize(uint64_t value) {
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   _impl_.hasdownloadedsize_ = value;
 }
 inline void DownfileInterruptionInfo::set_hasdownloadedsize(uint64_t value) {
@@ -635,9 +723,9 @@ inline void DownfileInterruptionInfo::set_hasdownloadedsize(uint64_t value) {
   // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.hasDownloadedSize)
 }
 
-// required uint64 totalSize = 4 [default = 0];
+// required uint64 totalSize = 5 [default = 0];
 inline bool DownfileInterruptionInfo::_internal_has_totalsize() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
   return value;
 }
 inline bool DownfileInterruptionInfo::has_totalsize() const {
@@ -645,7 +733,7 @@ inline bool DownfileInterruptionInfo::has_totalsize() const {
 }
 inline void DownfileInterruptionInfo::clear_totalsize() {
   _impl_.totalsize_ = uint64_t{0u};
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline uint64_t DownfileInterruptionInfo::_internal_totalsize() const {
   return _impl_.totalsize_;
@@ -655,7 +743,7 @@ inline uint64_t DownfileInterruptionInfo::totalsize() const {
   return _internal_totalsize();
 }
 inline void DownfileInterruptionInfo::_internal_set_totalsize(uint64_t value) {
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000008u;
   _impl_.totalsize_ = value;
 }
 inline void DownfileInterruptionInfo::set_totalsize(uint64_t value) {
@@ -663,9 +751,9 @@ inline void DownfileInterruptionInfo::set_totalsize(uint64_t value) {
   // @@protoc_insertion_point(field_set:downfile.interruption.DownfileInterruptionInfo.totalSize)
 }
 
-// required bool isfinish = 5 [default = false];
+// required bool isfinish = 6 [default = false];
 inline bool DownfileInterruptionInfo::_internal_has_isfinish() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000010u) != 0;
   return value;
 }
 inline bool DownfileInterruptionInfo::has_isfinish() const {
@@ -673,7 +761,7 @@ inline bool DownfileInterruptionInfo::has_isfinish() const {
 }
 inline void DownfileInterruptionInfo::clear_isfinish() {
   _impl_.isfinish_ = false;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline bool DownfileInterruptionInfo::_internal_isfinish() const {
   return _impl_.isfinish_;
@@ -683,7 +771,7 @@ inline bool DownfileInterruptionInfo::isfinish() const {
   return _internal_isfinish();
 }
 inline void DownfileInterruptionInfo::_internal_set_isfinish(bool value) {
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   _impl_.isfinish_ = value;
 }
 inline void DownfileInterruptionInfo::set_isfinish(bool value) {

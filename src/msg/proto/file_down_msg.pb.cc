@@ -26,11 +26,11 @@ PROTOBUF_CONSTEXPR FileDownMsg::FileDownMsg(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_._has_bits_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
-  , /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.hash_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.data_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.startpos_)*/int64_t{0}
-  , /*decltype(_impl_.size_)*/int64_t{0}
-  , /*decltype(_impl_.dataindex_)*/int64_t{0}} {}
+  , /*decltype(_impl_.startpos_)*/uint64_t{0u}
+  , /*decltype(_impl_.dataindex_)*/uint64_t{0u}
+  , /*decltype(_impl_.size_)*/int64_t{0}} {}
 struct FileDownMsgDefaultTypeInternal {
   PROTOBUF_CONSTEXPR FileDownMsgDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -53,16 +53,16 @@ const uint32_t TableStruct_file_5fdown_5fmsg_2eproto::offsets[] PROTOBUF_SECTION
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.name_),
+  PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.hash_),
   PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.startpos_),
+  PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.dataindex_),
   PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.size_),
   PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.data_),
-  PROTOBUF_FIELD_OFFSET(::msg::proto::FileDownMsg, _impl_.dataindex_),
   0,
   2,
   3,
-  1,
   4,
+  1,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 11, -1, sizeof(::msg::proto::FileDownMsg)},
@@ -74,9 +74,9 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_file_5fdown_5fmsg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\023file_down_msg.proto\022\tmsg.proto\"\\\n\013File"
-  "DownMsg\022\014\n\004name\030\001 \002(\t\022\020\n\010startPos\030\002 \002(\003\022"
-  "\014\n\004size\030\003 \001(\003\022\014\n\004data\030\004 \001(\014\022\021\n\tdataIndex"
-  "\030\005 \002(\003B\002H\002"
+  "DownMsg\022\014\n\004hash\030\001 \002(\t\022\020\n\010startPos\030\002 \002(\004\022"
+  "\021\n\tdataIndex\030\003 \002(\004\022\014\n\004size\030\004 \001(\003\022\014\n\004data"
+  "\030\005 \001(\014B\002H\002"
   ;
 static ::_pbi::once_flag descriptor_table_file_5fdown_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_file_5fdown_5fmsg_2eproto = {
@@ -101,23 +101,23 @@ namespace proto {
 class FileDownMsg::_Internal {
  public:
   using HasBits = decltype(std::declval<FileDownMsg>()._impl_._has_bits_);
-  static void set_has_name(HasBits* has_bits) {
+  static void set_has_hash(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
   static void set_has_startpos(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
   }
-  static void set_has_size(HasBits* has_bits) {
+  static void set_has_dataindex(HasBits* has_bits) {
     (*has_bits)[0] |= 8u;
+  }
+  static void set_has_size(HasBits* has_bits) {
+    (*has_bits)[0] |= 16u;
   }
   static void set_has_data(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
-  static void set_has_dataindex(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
   static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000015) ^ 0x00000015) != 0;
+    return ((has_bits[0] & 0x0000000d) ^ 0x0000000d) != 0;
   }
 };
 
@@ -133,19 +133,19 @@ FileDownMsg::FileDownMsg(const FileDownMsg& from)
   new (&_impl_) Impl_{
       decltype(_impl_._has_bits_){from._impl_._has_bits_}
     , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.name_){}
+    , decltype(_impl_.hash_){}
     , decltype(_impl_.data_){}
     , decltype(_impl_.startpos_){}
-    , decltype(_impl_.size_){}
-    , decltype(_impl_.dataindex_){}};
+    , decltype(_impl_.dataindex_){}
+    , decltype(_impl_.size_){}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  _impl_.name_.InitDefault();
+  _impl_.hash_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.name_.Set("", GetArenaForAllocation());
+    _impl_.hash_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_name()) {
-    _this->_impl_.name_.Set(from._internal_name(), 
+  if (from._internal_has_hash()) {
+    _this->_impl_.hash_.Set(from._internal_hash(), 
       _this->GetArenaForAllocation());
   }
   _impl_.data_.InitDefault();
@@ -157,8 +157,8 @@ FileDownMsg::FileDownMsg(const FileDownMsg& from)
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.startpos_, &from._impl_.startpos_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.dataindex_) -
-    reinterpret_cast<char*>(&_impl_.startpos_)) + sizeof(_impl_.dataindex_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.size_) -
+    reinterpret_cast<char*>(&_impl_.startpos_)) + sizeof(_impl_.size_));
   // @@protoc_insertion_point(copy_constructor:msg.proto.FileDownMsg)
 }
 
@@ -169,15 +169,15 @@ inline void FileDownMsg::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_._has_bits_){}
     , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.name_){}
+    , decltype(_impl_.hash_){}
     , decltype(_impl_.data_){}
-    , decltype(_impl_.startpos_){int64_t{0}}
+    , decltype(_impl_.startpos_){uint64_t{0u}}
+    , decltype(_impl_.dataindex_){uint64_t{0u}}
     , decltype(_impl_.size_){int64_t{0}}
-    , decltype(_impl_.dataindex_){int64_t{0}}
   };
-  _impl_.name_.InitDefault();
+  _impl_.hash_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.name_.Set("", GetArenaForAllocation());
+    _impl_.hash_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.data_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -196,7 +196,7 @@ FileDownMsg::~FileDownMsg() {
 
 inline void FileDownMsg::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.name_.Destroy();
+  _impl_.hash_.Destroy();
   _impl_.data_.Destroy();
 }
 

@@ -28,7 +28,7 @@ class AckSet {
     ~AckSet() { _ackMsgMap.clear(); }
     std::condition_variable _ackLimitCv;
     std::mutex _limitCvLock;
-    bool _waittingforCv;
+    bool _waittingforCv = false;
     bool ackSizeFull() { return _ackMsgMap.size() >= MAX_ACK_SET_SIZE; };
 
    private:

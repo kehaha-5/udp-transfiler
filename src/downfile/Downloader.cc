@@ -51,21 +51,21 @@ void Downloader::initDownloadInfo() {
                 DownfileInterruptionInfo interruptionData;
                 if (interruptionData.ParseFromIstream(&file)) {
                     info_log("The file %s has been downloaded, start downloading at breakpoint", it.name.c_str());
-                    _downfileInterruptionInfos.insert({it.name, interruptionData});
+                    _downfileInterruptionInfos.insert({it.hash, interruptionData});
                     isDownloaded = true;
-                    _interruptionWriteMap.insert({it.name, interruptionFilename});
+                    _interruptionWriteMap.insert({it.hash, interruptionFilename});
                 } else {
                     buildInterruptionInfo(it);
                 }
             } else {
                 buildInterruptionInfo(it);
             }
-            if (_downfileInterruptionInfos.find(it.name) != _downfileInterruptionInfos.end()) {
-                _downloaderStatisticsPtr->addDetails(it.name, isDownloaded, _downfileInterruptionInfos.find(it.name)->second);
+            if (_downfileInterruptionInfos.find(it.hash) != _downfileInterruptionInfos.end()) {
+                _downloaderStatisticsPtr->addDetails(it.name, isDownloaded, _downfileInterruptionInfos.find(it.hash)->second);
             }
             // 初始化文件数据
             ClientFilePtr file = std::make_unique<file::client::File>(filename, it.size);
-            wp.insert({it.name, file});
+            wp.insert({it.hash, file});
         } else {
             _filenameIsExist.push_back(it.name);
         }
@@ -77,25 +77,24 @@ void Downloader::buildInterruptionInfo(const file::server::fileDownInfo &info) {
     auto interruptionFilename = getInterruptionFileName(info.hash);
     // u_long filePackges = std::ceil(info.size / MAX_FILE_DATA_SIZE);
     DownfileInterruptionInfo interruptionData;
-    int size = 0;
     for (u_long i = 0; i < info.size; i += MAX_FILE_DATA_SIZE) {
         auto data = interruptionData.add_info();
         data->set_isdownload(false);
-        data->set_startpos(size * MAX_FILE_DATA_SIZE);
-        size++;
+        data->set_startpos(i);
     }
     interruptionData.set_hasdownloadedsize(0);
     interruptionData.set_totalsize(info.size);
     interruptionData.set_name(info.name);
     interruptionData.set_isfinish(false);
-    _downfileInterruptionInfos.insert({info.name, interruptionData});
-    _interruptionWriteMap.insert({info.name, interruptionFilename});
+    interruptionData.set_hash(info.hash);
+    _downfileInterruptionInfos.insert({info.hash, interruptionData});
+    _interruptionWriteMap.insert({info.hash, interruptionFilename});
 }
 
-void Downloader::flushInterruptionData(const std::string &filename) {
-    auto it = _downfileInterruptionInfos.find(filename);
+void Downloader::flushInterruptionData(const std::string &filehash) {
+    auto it = _downfileInterruptionInfos.find(filehash);
     assert(it != _downfileInterruptionInfos.end());
-    auto itt = _interruptionWriteMap.find(filename);
+    auto itt = _interruptionWriteMap.find(filehash);
     assert(itt != _interruptionWriteMap.end());
     std::ofstream interruptionFile(itt->second, std::ios_base::binary | std::ios_base::out);
     if (!interruptionFile.good()) {
@@ -103,10 +102,12 @@ void Downloader::flushInterruptionData(const std::string &filename) {
         return;
     }
     it->second.SerializeToOstream(&interruptionFile);
+    interruptionFile.flush();
+    interruptionFile.close();
 }
 
-void Downloader::delFlushInterruptionFile(const std::string &filename) {
-    auto it = _interruptionWriteMap.find(filename);
+void Downloader::delFlushInterruptionFile(const std::string &filehash) {
+    auto it = _interruptionWriteMap.find(filehash);
     assert(it != _interruptionWriteMap.end());
     if (std::filesystem::exists(it->second)) {
         std::filesystem::remove(it->second);

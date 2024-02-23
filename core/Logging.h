@@ -9,7 +9,7 @@
 
 inline void LOG(logType::type type, const char* fileName, const char* func, int line, const char* format, ...) {
     if (!Log::canAppend(type)) return;
-    char msg[4096] = {0};
+    char msg[8192] = {0};
     std::string logType;
     switch (type) {
         case logType::warn:

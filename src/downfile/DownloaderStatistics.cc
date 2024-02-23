@@ -66,19 +66,25 @@ std::string DownloaderStatistics::getDownloadStrStatistics() {
     details << downloadErrorMsg.str();
 
     u_long totalSendPackets = 0;
+    u_long realSendPackets = 0;
     u_long resnedPackets = 0;
+    u_long recvPackets = 0;
     for (auto &it : _downloaderDetails) {
-        totalSendPackets += it.second->totalSendPackets;
-        resnedPackets += it.second->hasResendPackets + it.second->totalSendPackets;
+        totalSendPackets += it.second->totalPackets;
+        realSendPackets += it.second->hasResendPackets + it.second->totalSendPackets;
+        resnedPackets += it.second->hasResendPackets;
+        recvPackets += it.second->hasRecvPackets;
     }
 
-    if (totalSendPackets != 0) {
-        details << "  total download size " << utils::humanReadable(totalSendPackets * MAX_FILE_DATA_SIZE) << "\n";
-        details << "  total packets should be send:" << totalSendPackets << " real packets send:" << (resnedPackets + totalSendPackets)
+    if (totalSendPackets > 0) {
+        details << "  total download size " << utils::humanReadable(recvPackets * MAX_FILE_DATA_SIZE) << "\n";
+        details << "  total packets should be send:" << totalSendPackets << " real packets send:" << (realSendPackets)
                 << " all resnedPackets:" << resnedPackets << "\n";
-        details << "  time-consum "  << std::fixed << std::setprecision(2) << static_cast<double>(duration.count()) / 1000 << " s\n";
-        details << "  speeds " << utils::humanReadable(std::ceil((totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
-                << " peer second \n";
+        details << "  time-consum " << std::fixed << std::setprecision(2) << static_cast<double>(duration.count()) / 1000 << " s\n";
+        if (duration.count() > 1000) {
+            details << "  speeds " << utils::humanReadable(std::ceil((totalSendPackets * MAX_FILE_DATA_SIZE) / (duration.count() / 1000)))
+                    << " peer second \n";
+        }
     }
     details << "  download finsih \n";
     return details.str();
@@ -90,7 +96,7 @@ std::string DownloaderStatistics::getDownloadDetailStr(bool getSpeed) {
         if (_currFilename.empty()) {
             return "\r";
         }
-        if (_downloaderDetails[_currFilename]->hasDownlaodSize != 0) {
+        if (_downloaderDetails[_currFilename]->hasDownlaodSize > 0) {
             _downloaderDetails[_currFilename]->percentage =
                 std::round(((_downloaderDetails[_currFilename]->hasDownlaodSize * 100 / _downloaderDetails[_currFilename]->totalSize)));
         }
@@ -117,10 +123,14 @@ std::string DownloaderStatistics::getDownloadDetailStr(bool getSpeed) {
     //     details << "file has downloaded but not finish , restart download from breakpoint \n";
     // }
 
-    details << (data->filename) << "  ";
+    if (data->filename.size() > 25) {
+        details << (data->filename.substr(0, 25)) << "....  ";
+    }else{
+        details << (data->filename) << "  ";
+    }
 
     for (int i = 0; i < 20; i++) {
-        if (i < ((data->percentage / 10) * 2)) {
+        if (data->percentage > 0 && i < ((data->percentage / 10) * 2)) {
             details << "#";
         } else {
             details << ".";

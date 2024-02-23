@@ -84,7 +84,7 @@ bool Directory::getFileDownInfo(fileDownInfo &data, const std::string &name, std
     }
     data.name = name;
     data.size = fs::file_size(file);
-    data.hash = FileHash::getInstance().getHashByFsPath(file);
+    data.hash = file::FileHash::getInstance().getHashByFsPath(file);
     data.humanReadableSize = utils::humanReadable(fs::file_size(file));
 
     return true;

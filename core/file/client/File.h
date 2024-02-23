@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 class File {
    public:
     File(std::string fileName, u_long size);
-    bool write(int pos, const std::string& data, int size);
+    bool write(u_long pos, const std::string& data, int size);
     ~File() {
         _file.flush();
         _file.close();

@@ -26,10 +26,10 @@ struct downloaderErrorInfo {
 
 typedef std::shared_ptr<udp::UdpClient> UdpClientPtr;
 typedef std::shared_ptr<EventLoop> EventPtr;
-typedef std::unordered_map<std::string, DownfileInterruptionInfo> DownfileInterruptionInfos;  //[filename => DownfileInterruptionInfo]
+typedef std::unordered_map<std::string, DownfileInterruptionInfo> DownfileInterruptionInfos;  //[filehash => DownfileInterruptionInfo]
 typedef std::shared_ptr<file::client::File> ClientFilePtr;
-typedef std::unordered_map<std::string, ClientFilePtr> WriteMap;            //[filename => clientFilePtr]
-typedef std::unordered_map<std::string, std::string> InterruptionWriteMap;  // [filename => interruptionfilename]
+typedef std::unordered_map<std::string, ClientFilePtr> WriteMap;            //[filehash => clientFilePtr]
+typedef std::unordered_map<std::string, std::string> InterruptionWriteMap;  // [filehash => interruptionfilename]
 typedef std::shared_ptr<WriteMap> WriteMapPtr;
 typedef std::shared_ptr<DownloaderEvents> DownloaderEventsPtr;
 typedef std::shared_ptr<ack::AckSet> AckSetPtr;

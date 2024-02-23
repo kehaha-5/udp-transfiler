@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -21,7 +22,7 @@
 namespace downfile {
 
 struct sendQueueItem {
-    std::string filename;
+    std::string filehash;
     u_long startPos;
     u_long index;
 };
@@ -42,10 +43,10 @@ class DownloaderEvents {
                      DownloaderStatisticsPtr& dfstatisticsPtr);
     void start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size);
     ~DownloaderEvents() {
-        _threadPool->closeThreadPool(true);
         _recvEvent->setRunning(false);
         _recvEvent->delIo(_client->getSocketfd());
         _sendEvent->setRunning(false);
+        _threadPool->closeThreadPool(true);
     }
 
    private:
@@ -70,7 +71,7 @@ class DownloaderEvents {
     std::mutex _recvLock;
     std::mutex _seterrLock;
     std::mutex _updateInterruptionDataLock;
-    bool _err = false;
+    std::atomic_bool _err = false;
     std::string _errMsg;
     interruption::DownfileInterruptionInfo* _currInterruptionData;
     SendDataQueue _sendDataQueue;
