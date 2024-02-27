@@ -39,8 +39,10 @@ DownloaderEvents::DownloaderEvents(EventPtr& even, UdpClientPtr& client, WriteMa
 void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size) {
     _currInterruptionData = downloadQueue;
     for (u_long i = 0; i < _currInterruptionData->info_size(); i++) {
-        sendQueueItem sd = {_currInterruptionData->hash(), _currInterruptionData->info(i).startpos(), i};
-        _sendDataQueue.push(sd);
+        if (!_currInterruptionData->info(i).isdownload()) {
+            sendQueueItem sd = {_currInterruptionData->hash(), _currInterruptionData->info(i).posindex()};
+            _sendDataQueue.push(sd);
+        }
     }
     _sendEvent->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::setDataWithEvents, this), EPOLLOUT | EPOLLET);
     while (!(_downloaderStatisticsPtr->currTaskHasDownloadFinish())) {
@@ -86,7 +88,7 @@ void DownloaderEvents::setDataWithEvents() {
         while (_downloadSpeedsLimiterPtr->allowSend()) {
             if (!_sendDataQueue.empty()) {
                 fileDownMsg.set_hash(_sendDataQueue.front().filehash);
-                fileDownMsg.set_startpos(_sendDataQueue.front().startPos);
+                fileDownMsg.set_startpos(_sendDataQueue.front().index * MAX_FILE_DATA_SIZE);
                 fileDownMsg.set_dataindex(_sendDataQueue.front().index);
                 if (!sendMsg(fileDownMsg)) {
                     _sendEvent->setRunning(false);
@@ -202,7 +204,8 @@ void DownloaderEvents::handlerRecv() {
             std::lock_guard<std::mutex> lock_guard(_updateInterruptionDataLock);
             _currInterruptionData->set_hasdownloadedsize(_currInterruptionData->hasdownloadedsize() + msg.size());
             if (std::strcmp(msg.hash().c_str(), _currInterruptionData->hash().c_str()) == 0) {
-                _currInterruptionData->mutable_info()->DeleteSubrange(msg.dataindex(), 1);
+                auto data = _currInterruptionData->mutable_info(msg.dataindex());
+                data->set_isdownload(true);
             }
         }
     }));

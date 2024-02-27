@@ -77,9 +77,12 @@ void Downloader::buildInterruptionInfo(const file::server::fileDownInfo &info) {
     auto interruptionFilename = getInterruptionFileName(info.hash);
     // u_long filePackges = std::ceil(info.size / MAX_FILE_DATA_SIZE);
     DownfileInterruptionInfo interruptionData;
+    u_long index = 0;
     for (u_long i = 0; i < info.size; i += MAX_FILE_DATA_SIZE) {
         auto data = interruptionData.add_info();
-        data->set_startpos(i);
+        data->set_posindex(index);
+        data->set_isdownload(false);
+        index++;
     }
     interruptionData.set_hasdownloadedsize(0);
     interruptionData.set_totalsize(info.size);

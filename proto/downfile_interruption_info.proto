@@ -6,7 +6,8 @@ package downfile.interruption;
 option optimize_for = CODE_SIZE; 
 
 message SingleBlockInfo {
-    required uint64 startPos= 1;
+    required uint64 posIndex=1;
+    required bool isdownload=2[default=false];
 }
 
 message DownfileInterruptionInfo{

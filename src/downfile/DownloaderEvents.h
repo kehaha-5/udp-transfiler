@@ -23,7 +23,6 @@ namespace downfile {
 
 struct sendQueueItem {
     std::string filehash;
-    u_long startPos;
     u_long index;
 };
 

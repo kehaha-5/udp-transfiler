@@ -22,8 +22,10 @@ void DownloaderStatistics::addDetails(std::string filename, bool isDownloaded, i
     if (isDownloaded) {
         details->hasDownlaodSize = downloadQueue.hasdownloadedsize();
         for (auto &it : downloadQueue.info()) {
-            details->hasRecvPackets++;
-            details->totalSendPackets++;
+            if (it.isdownload()) {
+                details->hasRecvPackets++;
+                details->totalSendPackets++;
+            }
         }
     }
     _downloaderDetails.insert({filename, details});
