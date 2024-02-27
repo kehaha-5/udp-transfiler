@@ -4,7 +4,9 @@
 #include <sys/types.h>
 
 #include <chrono>
+
 #include "Constant.h"
+#include "config/ClientConfig.h"
 
 namespace downfile {
 class DownloadSpeedsLimiter {
@@ -17,7 +19,12 @@ class DownloadSpeedsLimiter {
     void Clear();
 
    private:
-    u_long _canSendPacketsNum = MAX_SEND_PACKETS;
+    u_long getMaxSendPackets() {
+        return (std::ceil(config::ClientConfig::getInstance().getMaxDownloadSpeeds() / MAX_FILE_DATA_SIZE) == 0
+                    ? 1
+                    : std::ceil(config::ClientConfig::getInstance().getMaxDownloadSpeeds() / MAX_FILE_DATA_SIZE));
+    }
+    u_long _canSendPacketsNum = getMaxSendPackets();
     std::chrono::time_point<std::chrono::system_clock> _start;
     long _interruptionDurationMs = 0;
 };

@@ -7,7 +7,6 @@ option optimize_for = CODE_SIZE;
 
 message SingleBlockInfo {
     required uint64 startPos= 1;
-    required bool isDownload = 2 [default=false];
 }
 
 message DownfileInterruptionInfo{

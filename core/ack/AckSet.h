@@ -9,7 +9,7 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "Constant.h"
+#include "config/ClientConfig.h"
 #include "timer/Timer.h"
 
 namespace ack {
@@ -29,7 +29,7 @@ class AckSet {
     std::condition_variable _ackLimitCv;
     std::mutex _limitCvLock;
     bool _waittingforCv = false;
-    bool ackSizeFull() { return _ackMsgMap.size() >= MAX_ACK_SET_SIZE; };
+    bool ackSizeFull() { return _ackMsgMap.size() >= config::ClientConfig::getInstance().getMaxAckSet(); };
 
    private:
     TimerPrt _timerPtr;

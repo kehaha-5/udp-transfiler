@@ -32,7 +32,7 @@ UdpClient::UdpClient(evenPtr even, std::string &host, __uint16_t port) {
 }
 
 bool UdpClient::sendMsg(std::string &msg) {
-    int sendbuf;
+    uint sendbuf;
     socklen_t sendbuf_len = sizeof(sendbuf);
     getsockopt(_socketfd, SOL_SOCKET, SO_SNDBUF, &sendbuf, &sendbuf_len);
     if (sendbuf < MAX_MSG_LENGTH) {

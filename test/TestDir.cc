@@ -143,6 +143,8 @@ TEST_F(TestDir, getFileInfoTest) {
     //  ASSERT_FALSE(file.getSpecialFileDownInfo(data, "testLink"));
     //  ASSERT_EQ(file.getErrMsg().code, errCode::fileTypeNotSupported);
 }
+
+
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

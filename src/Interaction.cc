@@ -1,4 +1,5 @@
 #include <cctype>
+#include <cstring>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -6,6 +7,7 @@
 #include <string>
 
 #include "Interaction.h"
+#include "config/ClientConfig.h"
 #include "utils.h"
 
 using namespace interaction;
@@ -18,6 +20,8 @@ void Interaction::help() {
     std::cout << "\t" << COMMAND_LS << std::endl;
     std::cout << "\t" << COMMAND_DOWNLOADFILE << "\n\t\t" << DWONLOADFILE_FILE_ARG << "," << DWONLOADFILE_ALL_ARG << ","
               << DWONLOADFILE_USAGE << std::endl;
+    std::cout << "\t" << COMMAND_GETCONFIG << std::endl;
+    std::cout << "\n\t\t" << "show client configuration" << std::endl;
     std::cout << "\t"
               << "exit" << std::endl;
 }
@@ -36,11 +40,11 @@ inputCommand Interaction::input(std::string cliName) {
         command = utils::trim(command);
         if (command.empty()) {
             continue;
-        } else if (command == "help") {
+        } else if (strEq(command.c_str(), "help")) {
             help();
-        } else if (command == "exit") {
+        } else if (strEq(command.c_str(), "exit")) {
             exit(EXIT_SUCCESS);
-        } else if (command == "ls") {
+        } else if (strEq(command.c_str(), "ls")) {
             return inputCommand(exceCommand::LS, "");
         } else if (command.find("downfile") != std::string::npos) {
             std::string arg;
@@ -63,6 +67,8 @@ inputCommand Interaction::input(std::string cliName) {
                 ;
             }
             return inputCommand(exceCommand::DOWNLOADFILE, arg);
+        } else if (strEq(command.c_str(), "getConfig")) {
+            showConfig();
         } else {
             std::cout << "invalid command pleas input help for usage" << std::endl;
         }
@@ -110,7 +116,21 @@ bool Interaction::confirm(std::string confirmMsg) {
 
 void Interaction::showMsg(std::string msg) { std::cout << msg << std::flush; }
 
+void Interaction::showConfig() {
+    std::cout << "\033[1;32m";
+    std::cout << "  ip=" << config::ClientConfig::getInstance().getIp() << "\n";
+    std::cout << "  port=" << config::ClientConfig::getInstance().getPort() << "\n";
+    std::cout << "  filePath=" << config::ClientConfig::getInstance().getFilepath() << "\n";
+    std::cout << "  downloadThreadNum=" << config::ClientConfig::getInstance().getDownloadThreadNum() << "\n";
+    std::cout << "  maxResendPacketsNum=" << config::ClientConfig::getInstance().getMaxAckSet() << "\n";
+    std::cout << "  maxDownloadSpeeds=" << utils::humanReadable(config::ClientConfig::getInstance().getMaxDownloadSpeeds()) << "\n";
+    std::cout << "  packetsTimerOut=" << config::ClientConfig::getInstance().getPacketsTimerOut() << "\n";
+    std::cout << "\033[0m";
+}
+
 void Interaction::showInLine(std::string& msg) {
     std::cout.seekp(0);
     std::cout << msg << std::flush;
 }
+
+bool Interaction::strEq(const char* str, const char* eqStr) { return std::strcmp(str, eqStr) == 0; }

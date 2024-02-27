@@ -1,0 +1,14 @@
+FROM ubuntu:22.04
+
+RUN mkdir /app && mkdir /app/upload
+
+
+WORKDIR /app
+
+VOLUME /app/
+
+COPY TRANFILER_SERVER /app/TRANFILER_SERVER
+
+EXPOSE 23111/udp
+
+CMD ["/app/TRANFILER_SERVER"]

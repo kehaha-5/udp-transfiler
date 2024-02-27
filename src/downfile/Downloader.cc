@@ -79,7 +79,6 @@ void Downloader::buildInterruptionInfo(const file::server::fileDownInfo &info) {
     DownfileInterruptionInfo interruptionData;
     for (u_long i = 0; i < info.size; i += MAX_FILE_DATA_SIZE) {
         auto data = interruptionData.add_info();
-        data->set_isdownload(false);
         data->set_startpos(i);
     }
     interruptionData.set_hasdownloadedsize(0);

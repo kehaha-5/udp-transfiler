@@ -21,7 +21,11 @@ class ClientConfig : public Config {
     const fs::path& getFilepath();
     const u_short& getPort() { return _port; }
     const u_short& getDownloadThreadNum() { return _downloadThreadNum; }
+    const u_short& getPacketsTimerOut() { return _packetsTimerOut; }
     const std::string& getIp() { return _ip; }
+    const uint& getMaxDownloadSpeeds() { return _maxDownloadSpeeds; }
+    const uint& getMaxAckSet() { return _maxAckSet; }
+
 
    private:
     void setDefualtConfig();
@@ -30,6 +34,9 @@ class ClientConfig : public Config {
     u_short _port;
     fs::path _filePath;
     u_short _downloadThreadNum;
+    u_short _packetsTimerOut;
+    uint _maxDownloadSpeeds;
+    uint _maxAckSet;
 };
 }  // namespace config
 

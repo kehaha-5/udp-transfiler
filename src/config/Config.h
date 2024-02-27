@@ -13,18 +13,30 @@ class Config {
    protected:
     bool findStrContain(std::string &str, std::string needle) {
         if (auto pos = str.find(needle); pos != std::string::npos) {
+            if (auto annotationPos = str.find("#"); annotationPos != std::string::npos) {
+                if (annotationPos < pos) { //该内容被注释了
+                    return false;
+                }
+            }
             return true;
         }
         return false;
     }
+
     const std::string getConfigData(std::string &line) {
         auto eqPos = line.find("=") + 1;
-        return utils::trim(line.substr(eqPos, std::string::npos));
+        auto endPos = line.find("#");  // #号用来做注释
+        return utils::trim(line.substr(eqPos, endPos));
     }
-    bool getIntConfigData(std::string &line, u_short &res) {
+
+    template <class T>  // T only u_short uint ulong type
+    bool getIntConfigData(std::string &line, T &res) {
+        T data;
         auto eqPos = line.find("=") + 1;
-        std::istringstream iss(utils::trim(line.substr(eqPos, std::string::npos)));
-        if (iss >> res) {
+        auto endPos = line.find("#");  // #号用来做注释
+        std::istringstream iss(utils::trim(line.substr(eqPos, endPos)));
+        if (iss >> data) {
+            res = data;
             return true;
         }
         return false;

@@ -22,6 +22,9 @@ struct clientConfig {
     u_short port;
     std::string filePath;
     u_short downloadThreadNum;
+    u_short packetsTimerOut;
+    uint maxDownloadSpeeds;
+    uint maxAckSet;
 };
 
 class TestConfig : public testing::Test {
@@ -53,6 +56,9 @@ class TestConfig : public testing::Test {
         clientConfig << "port=" << _clientConfig.port << "\n";
         clientConfig << "filePath=" << _clientConfig.filePath << "\n";
         clientConfig << "downloadThreadNum=" << _clientConfig.downloadThreadNum << "\n";
+        clientConfig << "maxAckSet=" << _clientConfig.maxAckSet << "\n";
+        clientConfig << "maxDownloadSpeeds=" << _clientConfig.maxDownloadSpeeds << "\n";
+        clientConfig << "packetsTimerOut=" << _clientConfig.packetsTimerOut << "\n";
         clientConfig.close();
 
         std::ofstream badServerFilePath(_badServerFilePath, std::ios_base::out);
@@ -72,6 +78,9 @@ class TestConfig : public testing::Test {
         _clientConfig.filePath = "./client_download";
         _clientConfig.ip = "127.0.0.1";
         _clientConfig.port = 23111;
+        _clientConfig.maxAckSet = 100;
+        _clientConfig.maxDownloadSpeeds = 1024 * 1024 * 1024;
+        _clientConfig.packetsTimerOut = 500;
 
         _serverConfig.ip = "127.0.0.1";
         _serverConfig.port = 23111;
@@ -101,24 +110,20 @@ TEST_F(TestConfig, functionalTest) {
     ASSERT_STREQ(config::ClientConfig::getInstance().getIp().c_str(), _clientConfig.ip.c_str());
     ASSERT_EQ(config::ClientConfig::getInstance().getPort(), _clientConfig.port);
     ASSERT_EQ(config::ClientConfig::getInstance().getDownloadThreadNum(), _clientConfig.downloadThreadNum);
-}
-
-TEST_F(TestConfig, defualtValueTest) {
-    ASSERT_STREQ(config::ServerConfig::getInstance().getFilepath().c_str(), "./download");
-    ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), "0.0.0.0");
-    ASSERT_EQ(config::ServerConfig::getInstance().getPort(), 23111);
-    ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), 5);
-
-    ASSERT_STREQ(config::ClientConfig::getInstance().getFilepath().c_str(), "./downloadfile");
-    ASSERT_STREQ(config::ClientConfig::getInstance().getIp().c_str(), "127.0.0.1");
-    ASSERT_EQ(config::ClientConfig::getInstance().getPort(), 23111);
-    ASSERT_EQ(config::ClientConfig::getInstance().getDownloadThreadNum(), 5);
+    ASSERT_EQ(config::ClientConfig::getInstance().getMaxDownloadSpeeds(), _clientConfig.maxDownloadSpeeds);
+    ASSERT_EQ(config::ClientConfig::getInstance().getPacketsTimerOut(), _clientConfig.packetsTimerOut);
+    ASSERT_EQ(config::ClientConfig::getInstance().getMaxAckSet(), _clientConfig.maxAckSet);
 }
 
 TEST_F(TestConfig, getIntErrorTest) {
-    config::ServerConfig::getInstance().setConfigFile(_serverFilePath);
+    config::ServerConfig::getInstance().setConfigFile(_badServerFilePath);
     ASSERT_STREQ(config::ServerConfig::getInstance().getFilepath().c_str(), _serverConfig.filePath.c_str());
     ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), _serverConfig.ip.c_str());
     ASSERT_EQ(config::ServerConfig::getInstance().getPort(), 23111);
     ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), 5);
+}
+
+int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

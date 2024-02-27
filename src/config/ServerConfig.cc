@@ -20,7 +20,7 @@ ServerConfig::ServerConfig() { setDefualtConfig(); }
 void ServerConfig::setDefualtConfig() {
     _ip = "0.0.0.0";
     _port = 23111;
-    _threadNum = 5;
+    _threadNum = 10;
 }
 
 void ServerConfig::setConfigFilePath(std::string filePath) {
@@ -44,19 +44,23 @@ void ServerConfig::setConfigFile(std::string filePath) {
     while (std::getline(configFile, line)) {
         if (findStrContain(line, "ip")) {
             _ip = getConfigData(line);
+            continue;
         }
         if (findStrContain(line, "filePath")) {
             _filePath = getConfigData(line);
+            continue;
         }
         if (findStrContain(line, "port")) {
-            if (!getIntConfigData(line, _port)) {
+            if (!getIntConfigData<u_short>(line, _port)) {
                 warn_log("port is not a number !!! using defualt Configuration");
             }
+            continue;
         }
         if (findStrContain(line, "threadNum")) {
-            if (!getIntConfigData(line, _threadNum)) {
+            if (!getIntConfigData<u_short>(line, _threadNum)) {
                 warn_log("threadNum is not a number !!! using defualt Configuration");
             }
+            continue;
         }
         line.clear();
     }
@@ -64,7 +68,7 @@ void ServerConfig::setConfigFile(std::string filePath) {
 
 const fs::path& ServerConfig::getFilepath() {
     if (_filePath.string().empty()) {
-        _filePath = "./download";
+        _filePath = "./upload";
     }
     if (!fs::exists(_filePath)) {
         fs::create_directories(_filePath);

@@ -231,7 +231,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/TRANFILER_CLIENT",
-            "args": [],
+            "args": ["--config ./client_config.ini"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

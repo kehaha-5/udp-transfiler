@@ -22,10 +22,8 @@ void DownloaderStatistics::addDetails(std::string filename, bool isDownloaded, i
     if (isDownloaded) {
         details->hasDownlaodSize = downloadQueue.hasdownloadedsize();
         for (auto &it : downloadQueue.info()) {
-            if (it.isdownload()) {
-                details->hasRecvPackets++;
-                details->totalSendPackets++;
-            }
+            details->hasRecvPackets++;
+            details->totalSendPackets++;
         }
     }
     _downloaderDetails.insert({filename, details});
@@ -125,7 +123,7 @@ std::string DownloaderStatistics::getDownloadDetailStr(bool getSpeed) {
 
     if (data->filename.size() > 25) {
         details << (data->filename.substr(0, 25)) << "....  ";
-    }else{
+    } else {
         details << (data->filename) << "  ";
     }
 

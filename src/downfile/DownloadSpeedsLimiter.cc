@@ -1,6 +1,5 @@
 #include <chrono>
 #include <thread>
-#include "Constant.h"
 
 #include "DownloadSpeedsLimiter.h"
 
@@ -22,15 +21,11 @@ void DownloadSpeedsLimiter::interruption() {
     _interruptionDurationMs += duration.count();
 }
 
-bool DownloadSpeedsLimiter::allowSend(){
-    return _canSendPacketsNum > 0;
-}
+bool DownloadSpeedsLimiter::allowSend() { return _canSendPacketsNum > 0; }
 
-void DownloadSpeedsLimiter::hasSend(){
-    _canSendPacketsNum--;
-}
+void DownloadSpeedsLimiter::hasSend() { _canSendPacketsNum--; }
 
-void DownloadSpeedsLimiter::Clear(){
-    _canSendPacketsNum = MAX_SEND_PACKETS;
+void DownloadSpeedsLimiter::Clear() {
+    _canSendPacketsNum = getMaxSendPackets();
     _interruptionDurationMs = 0;
 }

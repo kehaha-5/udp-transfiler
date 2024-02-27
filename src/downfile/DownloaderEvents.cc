@@ -39,10 +39,8 @@ DownloaderEvents::DownloaderEvents(EventPtr& even, UdpClientPtr& client, WriteMa
 void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size) {
     _currInterruptionData = downloadQueue;
     for (u_long i = 0; i < _currInterruptionData->info_size(); i++) {
-        if (!_currInterruptionData->info(i).isdownload()) {
-            sendQueueItem sd = {_currInterruptionData->hash(), _currInterruptionData->info(i).startpos(), i};
-            _sendDataQueue.push(sd);
-        }
+        sendQueueItem sd = {_currInterruptionData->hash(), _currInterruptionData->info(i).startpos(), i};
+        _sendDataQueue.push(sd);
     }
     _sendEvent->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::setDataWithEvents, this), EPOLLOUT | EPOLLET);
     while (!(_downloaderStatisticsPtr->currTaskHasDownloadFinish())) {
@@ -204,8 +202,7 @@ void DownloaderEvents::handlerRecv() {
             std::lock_guard<std::mutex> lock_guard(_updateInterruptionDataLock);
             _currInterruptionData->set_hasdownloadedsize(_currInterruptionData->hasdownloadedsize() + msg.size());
             if (std::strcmp(msg.hash().c_str(), _currInterruptionData->hash().c_str()) == 0) {
-                auto _currQueueData = _currInterruptionData->mutable_info(msg.dataindex());
-                _currQueueData->set_isdownload(true);
+                _currInterruptionData->mutable_info()->DeleteSubrange(msg.dataindex(), 1);
             }
         }
     }));

@@ -173,7 +173,6 @@ class SingleBlockInfo final :
 
   enum : int {
     kStartPosFieldNumber = 1,
-    kIsDownloadFieldNumber = 2,
   };
   // required uint64 startPos = 1;
   bool has_startpos() const;
@@ -188,19 +187,6 @@ class SingleBlockInfo final :
   void _internal_set_startpos(uint64_t value);
   public:
 
-  // required bool isDownload = 2 [default = false];
-  bool has_isdownload() const;
-  private:
-  bool _internal_has_isdownload() const;
-  public:
-  void clear_isdownload();
-  bool isdownload() const;
-  void set_isdownload(bool value);
-  private:
-  bool _internal_isdownload() const;
-  void _internal_set_isdownload(bool value);
-  public:
-
   // @@protoc_insertion_point(class_scope:downfile.interruption.SingleBlockInfo)
  private:
   class _Internal;
@@ -212,7 +198,6 @@ class SingleBlockInfo final :
     ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     uint64_t startpos_;
-    bool isdownload_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_downfile_5finterruption_5finfo_2eproto;
@@ -485,34 +470,6 @@ inline void SingleBlockInfo::_internal_set_startpos(uint64_t value) {
 inline void SingleBlockInfo::set_startpos(uint64_t value) {
   _internal_set_startpos(value);
   // @@protoc_insertion_point(field_set:downfile.interruption.SingleBlockInfo.startPos)
-}
-
-// required bool isDownload = 2 [default = false];
-inline bool SingleBlockInfo::_internal_has_isdownload() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
-  return value;
-}
-inline bool SingleBlockInfo::has_isdownload() const {
-  return _internal_has_isdownload();
-}
-inline void SingleBlockInfo::clear_isdownload() {
-  _impl_.isdownload_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline bool SingleBlockInfo::_internal_isdownload() const {
-  return _impl_.isdownload_;
-}
-inline bool SingleBlockInfo::isdownload() const {
-  // @@protoc_insertion_point(field_get:downfile.interruption.SingleBlockInfo.isDownload)
-  return _internal_isdownload();
-}
-inline void SingleBlockInfo::_internal_set_isdownload(bool value) {
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.isdownload_ = value;
-}
-inline void SingleBlockInfo::set_isdownload(bool value) {
-  _internal_set_isdownload(value);
-  // @@protoc_insertion_point(field_set:downfile.interruption.SingleBlockInfo.isDownload)
 }
 
 // -------------------------------------------------------------------

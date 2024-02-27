@@ -11,6 +11,7 @@ const std::string DWONLOADFILE_ALL_ARG = "--all";
 const std::string DWONLOADFILE_USAGE = "usage --file exist_file_name or --all (download all file)";
 const std::string COMMAND_LS = "ls";
 const std::string COMMAND_DOWNLOADFILE = "downfile";
+const std::string COMMAND_GETCONFIG = "getConfig";
 
 enum exceCommand {
     LS = 0,
@@ -30,9 +31,11 @@ class Interaction {
     void ls(file::server::filesInfo &fileinfos);
     void showError(std::string msg);
     bool confirm(std::string confirmMsg);
+    void showConfig();
 
    private:
     void help();
+    bool strEq(const char *str, const char *eqStr);
 };
 }  // namespace interaction
 

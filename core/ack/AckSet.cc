@@ -3,7 +3,6 @@
 #include <mutex>
 
 #include "AckSet.h"
-#include "Constant.h"
 #include "ack/AckRandom.h"
 
 using namespace ack;
@@ -23,7 +22,7 @@ void AckSet::setCbByAck(u_long& ack, Cb cb) {
         // warn_log(" setCbByAck ack %lu not be found ackMap size is %i", ack, _ackMsgMap.size());
         return;
     }
-    it->second = _timerPtr->runEvery(SEND_PACKAGE_TIMEOUT, cb);
+    it->second = _timerPtr->runEvery(config::ClientConfig::getInstance().getPacketsTimerOut(), cb);
 }
 
 bool AckSet::delMsgByAck(const u_long& ack) {
