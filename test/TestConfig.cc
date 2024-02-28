@@ -56,7 +56,7 @@ class TestConfig : public testing::Test {
         clientConfig << "port=" << _clientConfig.port << "\n";
         clientConfig << "filePath=" << _clientConfig.filePath << "\n";
         clientConfig << "downloadThreadNum=" << _clientConfig.downloadThreadNum << "\n";
-        clientConfig << "maxAckSet=" << _clientConfig.maxAckSet << "\n";
+        clientConfig << "maxResendPacketsNum=" << _clientConfig.maxAckSet << "\n";
         clientConfig << "maxDownloadSpeeds=" << _clientConfig.maxDownloadSpeeds << "\n";
         clientConfig << "packetsTimerOut=" << _clientConfig.packetsTimerOut << "\n";
         clientConfig.close();
@@ -120,7 +120,7 @@ TEST_F(TestConfig, getIntErrorTest) {
     ASSERT_STREQ(config::ServerConfig::getInstance().getFilepath().c_str(), _serverConfig.filePath.c_str());
     ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), _serverConfig.ip.c_str());
     ASSERT_EQ(config::ServerConfig::getInstance().getPort(), 23111);
-    ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), 5);
+    ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), 10);
 }
 
 int main(int argc, char** argv) {

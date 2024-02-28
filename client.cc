@@ -33,8 +33,8 @@ int main(int argc, const char** argv) {
     getArgsConfigFilePath(argc, argv, configfile);
     config::ClientConfig::getInstance().setConfigFile(configfile);
 
-    logConfig logconf = {logLever::debug, logAppender::console};
-    Log::setConfig(logconf);
+    logConfig logconf = {logLever::debug, logAppender::file};
+    Log::getLog().setConfig(logconf);
     client = make_unique<Client>(config::ClientConfig::getInstance().getIp().c_str(), config::ClientConfig::getInstance().getPort());
     clientInteraction = make_unique<Interaction>();
     std::signal(SIGINT, signalHandler);

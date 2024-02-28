@@ -14,9 +14,9 @@ int main(int argc, const char** argv) {
     std::string configfile = "./server_config.ini";
     getArgsConfigFilePath(argc, argv, configfile);
     config::ServerConfig::getInstance().setConfigFile(configfile);
-    
+
     logConfig logconf = {logLever::debug, logAppender::console};
-    Log::setConfig(logconf);
+    Log::getLog().setConfig(logconf);
     EventLoop event;
     config::ServerConfig::getInstance().setConfigFilePath("./upload");
     transfiler::Server server(&event, config::ServerConfig::getInstance().getIp().c_str(), config::ServerConfig::getInstance().getPort(),

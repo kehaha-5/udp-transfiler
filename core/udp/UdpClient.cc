@@ -28,7 +28,7 @@ UdpClient::UdpClient(evenPtr even, std::string &host, __uint16_t port) {
 
     _serveraddr = servaddr;
 
-    debug_log("connect ip %s port %d", host.c_str(), port);
+    info_log("connect ip %s port %d", host.c_str(), port);
 }
 
 bool UdpClient::sendMsg(std::string &msg) {

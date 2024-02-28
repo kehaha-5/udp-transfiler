@@ -16,7 +16,7 @@ class TimerTest : public testing::Test {
         _thread = std::thread(std::bind(&TimerTest::runLoop, this));
         _thread.detach();
         logConfig logconf = {logLever::debug, logAppender::console};
-        Log::setConfig(logconf);
+        Log::getLog().setConfig(logconf);
     }
     void TearDown() {
         _loop->setRunning(false);

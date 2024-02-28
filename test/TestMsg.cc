@@ -14,7 +14,7 @@ class TestMsg : public testing::Test {
    protected:
     void SetUp() {
         logConfig logconf = {logLever::debug, logAppender::console};
-        Log::setConfig(logconf);
+        Log::getLog().setConfig(logconf);
     }
 
    public:

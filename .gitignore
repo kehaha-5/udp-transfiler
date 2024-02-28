@@ -38,3 +38,5 @@ BuildTest
 upload/*
 downloadfile/*
 download/*
+client_config.ini
+log/*

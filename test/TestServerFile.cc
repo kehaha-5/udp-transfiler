@@ -14,7 +14,7 @@ class TestServerFile : public ::testing::Test {
    protected:
     void SetUp() {
         logConfig logconf = {logLever::debug, logAppender::console};
-        Log::setConfig(logconf);
+        Log::getLog().setConfig(logconf);
         _currentPath = std::filesystem::current_path();
         _currentPath.append("testFile");
         std::error_code ec;

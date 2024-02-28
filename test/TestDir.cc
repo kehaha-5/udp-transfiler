@@ -17,7 +17,7 @@ class TestDir : public testing::Test {
    protected:
     void SetUp() {
         logConfig logconf = {logLever::debug, logAppender::console};
-        Log::setConfig(logconf);
+        Log::getLog().setConfig(logconf);
         auto currentPath = std::filesystem::current_path();
         std::cout << _currentPath << std::endl;
         currentPath.append(_filePath);

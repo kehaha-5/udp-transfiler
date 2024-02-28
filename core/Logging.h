@@ -8,7 +8,7 @@
 #include "log/Log.h"
 
 inline void LOG(logType::type type, const char* fileName, const char* func, int line, const char* format, ...) {
-    if (!Log::canAppend(type)) return;
+    if (!Log::getLog().canAppend(type)) return;
     char msg[8192] = {0};
     std::string logType;
     switch (type) {
@@ -22,12 +22,16 @@ inline void LOG(logType::type type, const char* fileName, const char* func, int 
             logType = "DEBUG";
     }
     auto time = Log::getCurrTime();
+#ifdef DEBUG  // no debug
     std::snprintf(msg, sizeof(msg), "%s %s %s %s:%d | ", logType.c_str(), time.c_str(), fileName, func, line);
+#else
+    std::snprintf(msg, sizeof(msg), "%s %s %d | ", logType.c_str(), time.c_str(), line);
+#endif
     std::va_list args;
     va_start(args, format);
     std::vsprintf(msg + strlen(msg), format, args);
     va_end(args);
-    std::fprintf(stdout, "%s\n", msg);
+    Log::getLog().outLog(msg);
 }
 
 inline void IFEXIT(bool condition, const char* fileName, const char* func, int line, const char* format, ...) {
@@ -36,7 +40,9 @@ inline void IFEXIT(bool condition, const char* fileName, const char* func, int l
         std::va_list args;
         va_start(args, format);
         auto time = Log::getCurrTime();
+#ifdef DEBUG  // debug
         std::sprintf(msg, "ERROR %s %s %s:%d | ", time.c_str(), fileName, func, line);
+#endif
         std::vsprintf(msg + strlen(msg), format, args);
         if (errno) {
             std::sprintf(msg + strlen(msg), "| errno %s", strerror(errno));
