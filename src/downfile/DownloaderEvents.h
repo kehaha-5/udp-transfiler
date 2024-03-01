@@ -26,7 +26,7 @@ struct sendQueueItem {
     u_long index;
 };
 
-typedef std::unique_ptr<pool::ThreadPool> ThreadPoolPtr;
+typedef std::shared_ptr<pool::ThreadPool> ThreadPoolPtr;
 typedef std::shared_ptr<udp::UdpClient> UdpClientPtr;
 typedef std::shared_ptr<EventLoop> EventPtr;
 typedef std::shared_ptr<file::client::File> ClientFilePtr;
@@ -34,22 +34,18 @@ typedef std::shared_ptr<ack::AckSet> AckSetPtr;
 typedef std::shared_ptr<std::unordered_map<std::string, ClientFilePtr>> WriteMapPtr;
 typedef std::queue<sendQueueItem> SendDataQueue;
 typedef std::shared_ptr<DownloaderStatistics> DownloaderStatisticsPtr;
-typedef std::unique_ptr<DownloadSpeedsLimiter> DownloadSpeedsLimiterPtr;
+typedef std::shared_ptr<DownloadSpeedsLimiter> DownloadSpeedsLimiterPtr;
 
 class DownloaderEvents {
    public:
     DownloaderEvents(EventPtr& even, UdpClientPtr& client, WriteMapPtr& writeMapPtr, int threadNum, AckSetPtr& ackSetPtr,
                      DownloaderStatisticsPtr& dfstatisticsPtr);
     void start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size);
-    ~DownloaderEvents() {
-        _recvEvent->setRunning(false);
-        _recvEvent->delIo(_client->getSocketfd());
-        _sendEvent->setRunning(false);
-        _threadPool->closeThreadPool(true);
-    }
+    ~DownloaderEvents() {stop();}
 
    private:
     std::string& getErrMsg() { return _errMsg; };
+    void stop();
     bool sendMsg(msg::proto::FileDownMsg& msg);
     void handlerRecv();
     void listenResq();
@@ -75,6 +71,7 @@ class DownloaderEvents {
     interruption::DownfileInterruptionInfo* _currInterruptionData;
     SendDataQueue _sendDataQueue;
     DownloadSpeedsLimiterPtr _downloadSpeedsLimiterPtr;
+    bool _running = false;
 };
 }  // namespace downfile
 #endif

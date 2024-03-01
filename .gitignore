@@ -40,3 +40,5 @@ downloadfile/*
 download/*
 client_config.ini
 log/*
+valgrindCheck
+crashdump/*

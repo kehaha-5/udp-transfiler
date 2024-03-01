@@ -13,15 +13,15 @@
 
 using namespace downfile;
 
-void DownloaderStatistics::addDetails(std::string filename, bool isDownloaded, interruption::DownfileInterruptionInfo &downloadQueue) {
+void DownloaderStatistics::addDetails(std::string filename, bool isDownloaded, DownfileInterruptionInfoPtr &downloadQueue) {
     DownloadDetailsPtr details = std::make_shared<downloadDetails>();
     details->filename = filename;
     details->isDownloaded = isDownloaded;
-    details->totalPackets = static_cast<u_long>(downloadQueue.info_size());
-    details->totalSize = downloadQueue.totalsize();
+    details->totalPackets = static_cast<u_long>(downloadQueue->info_size());
+    details->totalSize = downloadQueue->totalsize();
     if (isDownloaded) {
-        details->hasDownlaodSize = downloadQueue.hasdownloadedsize();
-        for (auto &it : downloadQueue.info()) {
+        details->hasDownlaodSize = downloadQueue->hasdownloadedsize();
+        for (auto &it : downloadQueue->info()) {
             if (it.isdownload()) {
                 details->hasRecvPackets++;
                 details->totalSendPackets++;

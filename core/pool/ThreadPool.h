@@ -33,6 +33,7 @@ class ThreadPool {
     ThreadPool(int threadNum);
     void sendMsg(queueMsgCb cb);
     void closeThreadPool(bool force = false);
+    ~ThreadPool() { closeThreadPool(false); }
 
    private:
     void queueHandle(int index);

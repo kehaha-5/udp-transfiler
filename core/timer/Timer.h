@@ -41,14 +41,15 @@ class Timer {
     int getTimerfd() { return _timerfd; };
     uint runEvery(u_long timeroutMs, TimerCb cb);
     uint runAfter(u_long timeroutMs, TimerCb cb);
-    uint runAt(TimerCb cb);
+    uint runAt(TimerCb &cb);
     void cancelTimerEven(uint index) { _allTimerEven[index].reset(); };
     TimerOutCb getOutTimer();
     u_long getIntervalTimer() { return _intervalMs; }
+    void clearAllTimer(){_allTimerEven.clear();};
 
    private:
     void resetTimer();
-    void runAfter(TimerEvenSharedPtr even);
+    void runAfter(TimerEvenSharedPtr &even);
     int _timerfd;
     TimerWheel _timerWheel;
     TimerWheel::iterator _currTimerWheelIt;

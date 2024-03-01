@@ -27,16 +27,17 @@ using namespace downfile;
 DownloaderEvents::DownloaderEvents(EventPtr& even, UdpClientPtr& client, WriteMapPtr& writeMapPtr, int threadNum, AckSetPtr& ackSetPtr,
                                    DownloaderStatisticsPtr& dfstatisticsPtr)
     : _recvEvent(even), _client(client), _writeMapPtr(writeMapPtr), _ackSetPtr(ackSetPtr), _downloaderStatisticsPtr(dfstatisticsPtr) {
-    _threadPool = std::make_unique<pool::ThreadPool>(threadNum);
+    _threadPool = std::make_shared<pool::ThreadPool>(threadNum);
     _threadNum = threadNum;
     _recvEvent->addIo(_client->getSocketfd(), std::bind(&DownloaderEvents::handlerRecv, this), EPOLLIN);
     std::thread eventThread = std::thread(std::bind(&DownloaderEvents::listenResq, this));
     eventThread.detach();
     _sendEvent = std::make_shared<EventLoop>();
-    _downloadSpeedsLimiterPtr = std::make_unique<DownloadSpeedsLimiter>();
+    _downloadSpeedsLimiterPtr = std::make_shared<DownloadSpeedsLimiter>();
 }
 
 void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQueue, u_long size) {
+    _running = true;
     _currInterruptionData = downloadQueue;
     for (u_long i = 0; i < _currInterruptionData->info_size(); i++) {
         if (!_currInterruptionData->info(i).isdownload()) {
@@ -81,6 +82,9 @@ void DownloaderEvents::start(interruption::DownfileInterruptionInfo* downloadQue
 }
 
 void DownloaderEvents::setDataWithEvents() {
+    if (!_running) {
+        return;
+    }
     std::string msg;
     FileDownMsg fileDownMsg;
     while (!_sendDataQueue.empty()) {
@@ -142,6 +146,9 @@ void DownloaderEvents::timerExce(u_long ack, std::vector<msg::Package> msg) {
 }
 
 void DownloaderEvents::handlerRecv() {
+    if (!_running) {
+        return;
+    }
     _threadPool->sendMsg(std::bind([this]() {
         auto data = _client->rev();
         if (data.empty()) {
@@ -228,4 +235,12 @@ void DownloaderEvents::listenResq() {
 void DownloaderEvents::sendRes() {
     _sendEvent->setRunning(true);
     _sendEvent->loop();
+}
+
+void DownloaderEvents::stop() {
+    _running = false;
+    _sendEvent->setRunning(false);
+    _recvEvent->setRunning(false);
+    _recvEvent->delIo(_client->getSocketfd());
+    _threadPool->closeThreadPool(true);
 }

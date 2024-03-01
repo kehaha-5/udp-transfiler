@@ -31,11 +31,12 @@ struct downloadDetails {
 typedef std::shared_ptr<downloadDetails> DownloadDetailsPtr;
 typedef std::unordered_map<std::string, DownloadDetailsPtr> DownloaderDetails;  //[filename => DownloadDetailsPtr]
 typedef std::shared_ptr<ack::AckSet> AckSetPtr;
+typedef std::shared_ptr<interruption::DownfileInterruptionInfo> DownfileInterruptionInfoPtr;
 
 class DownloaderStatistics {
    public:
     DownloaderStatistics(AckSetPtr &ackSetPrt) : _ackSetPrt(ackSetPrt) {}
-    void addDetails(std::string filename, bool isDownloaded, interruption::DownfileInterruptionInfo &downloadQueue);
+    void addDetails(std::string filename, bool isDownloaded, DownfileInterruptionInfoPtr &downloadQueue);
     void fetchTotalSize(u_long &size);
     void fetchDownloadSize(const u_long &msgSize);
     void fetchHasRecvPackets();

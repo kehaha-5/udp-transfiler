@@ -14,7 +14,7 @@
 
 namespace ack {
 
-typedef std::unordered_map<u_long, u_long> AckMsgMap;
+typedef std::unordered_map<u_long, u_long> AckMsgMap;  // map [ack=>timerIndex]
 typedef std::function<void()> Cb;
 typedef std::shared_ptr<timer::Timer> TimerPrt;
 
@@ -30,6 +30,10 @@ class AckSet {
     std::mutex _limitCvLock;
     bool _waittingforCv = false;
     bool ackSizeFull() { return _ackMsgMap.size() >= config::ClientConfig::getInstance().getMaxAckSet(); };
+    void clear() {
+        _ackMsgMap.clear();
+        _timerPtr->clearAllTimer();
+    }
 
    private:
     TimerPrt _timerPtr;

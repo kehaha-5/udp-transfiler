@@ -11,6 +11,9 @@
 using namespace pool;
 
 void ThreadPool::queueHandle(int index) {
+    if (!_isRunning) {
+        return;
+    }
     auto queueItemIt = _msgQueues.find(index);
     auto eventPtr = _eventMap.find(queueItemIt->second.evenfd);
     while (!queueItemIt->second.queue.empty()) {
@@ -79,6 +82,9 @@ void ThreadPool::sendMsg(queueMsgCb cb) {
 }
 
 void ThreadPool::closeThreadPool(bool force) {
+    if (!_isRunning) {
+        return;
+    }
     _isRunning = false;
     for (auto &it : _msgQueues) {
         if (!force) {

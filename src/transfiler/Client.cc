@@ -110,7 +110,7 @@ void Client::downfile(std::string& args) {
                     bool getSpeed = false;
                     std::weak_ptr<downfile::Downloader> weakPtr = _downloaderPtr;
                     while ((weakPtr.lock() != nullptr) && !_downloaderPtr->hasFinish()) {
-                        if (num == 1000) {
+                        if (num == 10) {
                             getSpeed = true;
                             num = 0;
                         } else {
@@ -118,7 +118,7 @@ void Client::downfile(std::string& args) {
                         }
                         _os.showMsg(_downloaderPtr->getDownloadStrDetails(getSpeed));
                         num++;
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     }
                 }));
                 osThread.detach();
@@ -213,6 +213,6 @@ void Client::listenResq() {
 
 void Client::clearUp() {
     if (_downloaderPtr != nullptr) {
-        _downloaderPtr->flushAllInterruptionData();
+        _downloaderPtr->stop();
     }
 }

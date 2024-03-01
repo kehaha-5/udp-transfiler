@@ -26,7 +26,8 @@ struct downloaderErrorInfo {
 
 typedef std::shared_ptr<udp::UdpClient> UdpClientPtr;
 typedef std::shared_ptr<EventLoop> EventPtr;
-typedef std::unordered_map<std::string, DownfileInterruptionInfo> DownfileInterruptionInfos;  //[filehash => DownfileInterruptionInfo]
+typedef std::shared_ptr<DownfileInterruptionInfo> DownfileInterruptionInfoPtr;
+typedef std::unordered_map<std::string, DownfileInterruptionInfoPtr> DownfileInterruptionInfos;  //[filehash => DownfileInterruptionInfo]
 typedef std::shared_ptr<file::client::File> ClientFilePtr;
 typedef std::unordered_map<std::string, ClientFilePtr> WriteMap;            //[filehash => clientFilePtr]
 typedef std::unordered_map<std::string, std::string> InterruptionWriteMap;  // [filehash => interruptionfilename]
@@ -46,8 +47,11 @@ class Downloader {
     std::string getErrMsg();
     FilenameIsExist &getfilenameExistInfo() { return _filenameIsExist; };
     ~Downloader() {
-        flushAllInterruptionData();
+        if (!_isStop) {
+            stop();
+        }
     }
+    void stop();
     void flushAllInterruptionData();  //在接受到ctrl+c时不一定能够执行构型函数，因此要把该函数暴露出去
 
    private:
@@ -70,6 +74,7 @@ class Downloader {
     std::string _lastDetailsFilename;
     std::uintmax_t _totalSendPackets = 0;
     bool _isfinish = false;
+    bool _isStop = false;
     u_long _successfulDownlaodfileNum = 0;
     DownloaderStatisticsPtr _downloaderStatisticsPtr;
     AckSetPtr _ackSetPtr;

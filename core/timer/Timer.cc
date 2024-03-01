@@ -40,7 +40,7 @@ uint Timer::runEvery(u_long timerout, TimerCb cb) {
     return index;
 }
 
-uint Timer::runAt(TimerCb cb) {
+uint Timer::runAt(TimerCb &cb) {
     TimerEvenSharedPtr even = std::make_shared<timerEven>();
     even->timeout = _intervalMs;
     even->interval = true;
@@ -62,7 +62,7 @@ uint Timer::runAfter(u_long timerout, TimerCb cb) {
     return index;
 }
 
-void Timer::runAfter(TimerEvenSharedPtr even) {
+void Timer::runAfter(TimerEvenSharedPtr& even) {
     even->loop = even->timeout / _timerOnceLoop;
     auto pos = std::ceil((even->timeout % _timerOnceLoop) / _intervalMs);  // 要被添加到时间轮里面的位置
     std::lock_guard<std::recursive_mutex> lock(_timerWheelItLock);
@@ -118,3 +118,4 @@ TimerOutCb Timer::getOutTimer() {
     }
     return item;
 }
+
