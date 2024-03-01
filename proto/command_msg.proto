@@ -2,9 +2,6 @@ syntax = "proto2";
 
 package msg.proto;
 
-
-option optimize_for = CODE_SIZE; 
-
 enum CommandType {
     COMMAND_LS = 0;
     COMMAND_DOWNFILE = 1;

@@ -43,7 +43,8 @@ inputCommand Interaction::input(std::string cliName) {
         } else if (strEq(command.c_str(), "help")) {
             help();
         } else if (strEq(command.c_str(), "exit")) {
-            exit(EXIT_SUCCESS);
+            showMsg("bye!\n");
+            std::exit(0);
         } else if (strEq(command.c_str(), "ls")) {
             return inputCommand(exceCommand::LS, "");
         } else if (command.find("downfile") != std::string::npos) {
@@ -55,7 +56,6 @@ inputCommand Interaction::input(std::string cliName) {
                 if (fileName.empty()) {
                     std::cout << "invalid args file name is empty" << std::endl;
                     continue;
-                    ;
                 }
             }
             if ((pos = command.find(DWONLOADFILE_ALL_ARG)), pos != std::string::npos) {
@@ -64,7 +64,6 @@ inputCommand Interaction::input(std::string cliName) {
             if (arg.empty()) {
                 std::cout << "miss arg please input help for usage" << std::endl;
                 continue;
-                ;
             }
             return inputCommand(exceCommand::DOWNLOADFILE, arg);
         } else if (strEq(command.c_str(), "getConfig")) {

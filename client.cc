@@ -29,12 +29,14 @@ int main(int argc, const char** argv) {
     if (getHelpAndShowHelp(argc, argv)) {
         return 1;
     }
+
+    logConfig logconf = {logLever::debug, logAppender::file};
+    Log::getLog().setConfig(logconf);
+
     std::string configfile = "./client_config.ini";
     getArgsConfigFilePath(argc, argv, configfile);
     config::ClientConfig::getInstance().setConfigFile(configfile);
 
-    logConfig logconf = {logLever::debug, logAppender::file};
-    Log::getLog().setConfig(logconf);
     client = make_unique<Client>(config::ClientConfig::getInstance().getIp().c_str(), config::ClientConfig::getInstance().getPort());
     clientInteraction = make_unique<Interaction>();
     std::signal(SIGINT, signalHandler);

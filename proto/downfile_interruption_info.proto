@@ -2,9 +2,6 @@ syntax = "proto2";
 
 package downfile.interruption;
 
-
-option optimize_for = CODE_SIZE; 
-
 message SingleBlockInfo {
     required uint64 posIndex=1;
     required bool isdownload=2[default=false];

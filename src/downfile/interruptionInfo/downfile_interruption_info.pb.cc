@@ -110,11 +110,11 @@ const char descriptor_table_protodef_downfile_5finterruption_5finfo_2eproto[] PR
   " \003(\0132&.downfile.interruption.SingleBlock"
   "Info\022\014\n\004name\030\002 \002(\014\022\014\n\004hash\030\003 \002(\014\022\034\n\021hasD"
   "ownloadedSize\030\004 \002(\004:\0010\022\024\n\ttotalSize\030\005 \002("
-  "\004:\0010\022\027\n\010isfinish\030\006 \002(\010:\005falseB\002H\002"
+  "\004:\0010\022\027\n\010isfinish\030\006 \002(\010:\005false"
   ;
 static ::_pbi::once_flag descriptor_table_downfile_5finterruption_5finfo_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_downfile_5finterruption_5finfo_2eproto = {
-    false, false, 313, descriptor_table_protodef_downfile_5finterruption_5finfo_2eproto,
+    false, false, 309, descriptor_table_protodef_downfile_5finterruption_5finfo_2eproto,
     "downfile_interruption_info.proto",
     &descriptor_table_downfile_5finterruption_5finfo_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_downfile_5finterruption_5finfo_2eproto::offsets,
@@ -197,9 +197,186 @@ void SingleBlockInfo::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
+void SingleBlockInfo::Clear() {
+// @@protoc_insertion_point(message_clear_start:downfile.interruption.SingleBlockInfo)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    ::memset(&_impl_.posindex_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&_impl_.isdownload_) -
+        reinterpret_cast<char*>(&_impl_.posindex_)) + sizeof(_impl_.isdownload_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* SingleBlockInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // required uint64 posIndex = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _Internal::set_has_posindex(&has_bits);
+          _impl_.posindex_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required bool isdownload = 2 [default = false];
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _Internal::set_has_isdownload(&has_bits);
+          _impl_.isdownload_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _impl_._has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* SingleBlockInfo::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:downfile.interruption.SingleBlockInfo)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  // required uint64 posIndex = 1;
+  if (cached_has_bits & 0x00000001u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_posindex(), target);
+  }
+
+  // required bool isdownload = 2 [default = false];
+  if (cached_has_bits & 0x00000002u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(2, this->_internal_isdownload(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:downfile.interruption.SingleBlockInfo)
+  return target;
+}
+
+size_t SingleBlockInfo::RequiredFieldsByteSizeFallback() const {
+// @@protoc_insertion_point(required_fields_byte_size_fallback_start:downfile.interruption.SingleBlockInfo)
+  size_t total_size = 0;
+
+  if (_internal_has_posindex()) {
+    // required uint64 posIndex = 1;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_posindex());
+  }
+
+  if (_internal_has_isdownload()) {
+    // required bool isdownload = 2 [default = false];
+    total_size += 1 + 1;
+  }
+
+  return total_size;
+}
+size_t SingleBlockInfo::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:downfile.interruption.SingleBlockInfo)
+  size_t total_size = 0;
+
+  if (((_impl_._has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
+    // required uint64 posIndex = 1;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_posindex());
+
+    // required bool isdownload = 2 [default = false];
+    total_size += 1 + 1;
+
+  } else {
+    total_size += RequiredFieldsByteSizeFallback();
+  }
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData SingleBlockInfo::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    SingleBlockInfo::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*SingleBlockInfo::GetClassData() const { return &_class_data_; }
+
+
+void SingleBlockInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<SingleBlockInfo*>(&to_msg);
+  auto& from = static_cast<const SingleBlockInfo&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:downfile.interruption.SingleBlockInfo)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_impl_.posindex_ = from._impl_.posindex_;
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_impl_.isdownload_ = from._impl_.isdownload_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void SingleBlockInfo::CopyFrom(const SingleBlockInfo& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:downfile.interruption.SingleBlockInfo)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SingleBlockInfo::IsInitialized() const {
+  if (_Internal::MissingRequiredFields(_impl_._has_bits_)) return false;
+  return true;
+}
+
 void SingleBlockInfo::InternalSwap(SingleBlockInfo* other) {
   using std::swap;
-  GetReflection()->Swap(this, other);}
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(SingleBlockInfo, _impl_.isdownload_)
+      + sizeof(SingleBlockInfo::_impl_.isdownload_)
+      - PROTOBUF_FIELD_OFFSET(SingleBlockInfo, _impl_.posindex_)>(
+          reinterpret_cast<char*>(&_impl_.posindex_),
+          reinterpret_cast<char*>(&other->_impl_.posindex_));
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SingleBlockInfo::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
@@ -318,9 +495,323 @@ void DownfileInterruptionInfo::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
+void DownfileInterruptionInfo::Clear() {
+// @@protoc_insertion_point(message_clear_start:downfile.interruption.DownfileInterruptionInfo)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.info_.Clear();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _impl_.name_.ClearNonDefaultToEmpty();
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _impl_.hash_.ClearNonDefaultToEmpty();
+    }
+  }
+  if (cached_has_bits & 0x0000001cu) {
+    ::memset(&_impl_.hasdownloadedsize_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&_impl_.isfinish_) -
+        reinterpret_cast<char*>(&_impl_.hasdownloadedsize_)) + sizeof(_impl_.isfinish_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* DownfileInterruptionInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // repeated .downfile.interruption.SingleBlockInfo info = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_info(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // required bytes name = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          auto str = _internal_mutable_name();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required bytes hash = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+          auto str = _internal_mutable_hash();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required uint64 hasDownloadedSize = 4 [default = 0];
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          _Internal::set_has_hasdownloadedsize(&has_bits);
+          _impl_.hasdownloadedsize_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required uint64 totalSize = 5 [default = 0];
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          _Internal::set_has_totalsize(&has_bits);
+          _impl_.totalsize_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required bool isfinish = 6 [default = false];
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+          _Internal::set_has_isfinish(&has_bits);
+          _impl_.isfinish_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _impl_._has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* DownfileInterruptionInfo::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:downfile.interruption.DownfileInterruptionInfo)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated .downfile.interruption.SingleBlockInfo info = 1;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_info_size()); i < n; i++) {
+    const auto& repfield = this->_internal_info(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
+  cached_has_bits = _impl_._has_bits_[0];
+  // required bytes name = 2;
+  if (cached_has_bits & 0x00000001u) {
+    target = stream->WriteBytesMaybeAliased(
+        2, this->_internal_name(), target);
+  }
+
+  // required bytes hash = 3;
+  if (cached_has_bits & 0x00000002u) {
+    target = stream->WriteBytesMaybeAliased(
+        3, this->_internal_hash(), target);
+  }
+
+  // required uint64 hasDownloadedSize = 4 [default = 0];
+  if (cached_has_bits & 0x00000004u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(4, this->_internal_hasdownloadedsize(), target);
+  }
+
+  // required uint64 totalSize = 5 [default = 0];
+  if (cached_has_bits & 0x00000008u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(5, this->_internal_totalsize(), target);
+  }
+
+  // required bool isfinish = 6 [default = false];
+  if (cached_has_bits & 0x00000010u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(6, this->_internal_isfinish(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:downfile.interruption.DownfileInterruptionInfo)
+  return target;
+}
+
+size_t DownfileInterruptionInfo::RequiredFieldsByteSizeFallback() const {
+// @@protoc_insertion_point(required_fields_byte_size_fallback_start:downfile.interruption.DownfileInterruptionInfo)
+  size_t total_size = 0;
+
+  if (_internal_has_name()) {
+    // required bytes name = 2;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_name());
+  }
+
+  if (_internal_has_hash()) {
+    // required bytes hash = 3;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_hash());
+  }
+
+  if (_internal_has_hasdownloadedsize()) {
+    // required uint64 hasDownloadedSize = 4 [default = 0];
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_hasdownloadedsize());
+  }
+
+  if (_internal_has_totalsize()) {
+    // required uint64 totalSize = 5 [default = 0];
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_totalsize());
+  }
+
+  if (_internal_has_isfinish()) {
+    // required bool isfinish = 6 [default = false];
+    total_size += 1 + 1;
+  }
+
+  return total_size;
+}
+size_t DownfileInterruptionInfo::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:downfile.interruption.DownfileInterruptionInfo)
+  size_t total_size = 0;
+
+  if (((_impl_._has_bits_[0] & 0x0000001f) ^ 0x0000001f) == 0) {  // All required fields are present.
+    // required bytes name = 2;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_name());
+
+    // required bytes hash = 3;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_hash());
+
+    // required uint64 hasDownloadedSize = 4 [default = 0];
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_hasdownloadedsize());
+
+    // required uint64 totalSize = 5 [default = 0];
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_totalsize());
+
+    // required bool isfinish = 6 [default = false];
+    total_size += 1 + 1;
+
+  } else {
+    total_size += RequiredFieldsByteSizeFallback();
+  }
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .downfile.interruption.SingleBlockInfo info = 1;
+  total_size += 1UL * this->_internal_info_size();
+  for (const auto& msg : this->_impl_.info_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData DownfileInterruptionInfo::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    DownfileInterruptionInfo::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DownfileInterruptionInfo::GetClassData() const { return &_class_data_; }
+
+
+void DownfileInterruptionInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<DownfileInterruptionInfo*>(&to_msg);
+  auto& from = static_cast<const DownfileInterruptionInfo&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:downfile.interruption.DownfileInterruptionInfo)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.info_.MergeFrom(from._impl_.info_);
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x0000001fu) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_internal_set_name(from._internal_name());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_internal_set_hash(from._internal_hash());
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_impl_.hasdownloadedsize_ = from._impl_.hasdownloadedsize_;
+    }
+    if (cached_has_bits & 0x00000008u) {
+      _this->_impl_.totalsize_ = from._impl_.totalsize_;
+    }
+    if (cached_has_bits & 0x00000010u) {
+      _this->_impl_.isfinish_ = from._impl_.isfinish_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DownfileInterruptionInfo::CopyFrom(const DownfileInterruptionInfo& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:downfile.interruption.DownfileInterruptionInfo)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool DownfileInterruptionInfo::IsInitialized() const {
+  if (_Internal::MissingRequiredFields(_impl_._has_bits_)) return false;
+  if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(_impl_.info_))
+    return false;
+  return true;
+}
+
 void DownfileInterruptionInfo::InternalSwap(DownfileInterruptionInfo* other) {
   using std::swap;
-  GetReflection()->Swap(this, other);}
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.info_.InternalSwap(&other->_impl_.info_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.name_, lhs_arena,
+      &other->_impl_.name_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.hash_, lhs_arena,
+      &other->_impl_.hash_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(DownfileInterruptionInfo, _impl_.isfinish_)
+      + sizeof(DownfileInterruptionInfo::_impl_.isfinish_)
+      - PROTOBUF_FIELD_OFFSET(DownfileInterruptionInfo, _impl_.hasdownloadedsize_)>(
+          reinterpret_cast<char*>(&_impl_.hasdownloadedsize_),
+          reinterpret_cast<char*>(&other->_impl_.hasdownloadedsize_));
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata DownfileInterruptionInfo::GetMetadata() const {
   return ::_pbi::AssignDescriptors(

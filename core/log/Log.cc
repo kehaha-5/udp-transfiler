@@ -73,11 +73,16 @@ std::string Log::getLogfileName() {
 }
 
 void Log::writeLogToFile() {
-    std::unique_lock<std::mutex> lk(_logLock);
-    _logThreadCV.wait(lk, [this]() { return !_logMsg.empty(); });
-    while (!_logMsg.empty()) {
-        _logfile << _logMsg.front().c_str() << std::endl;
-        _logMsg.pop();
+    while (true) {
+        std::unique_lock<std::mutex> lk(_logLock);
+        _logThreadCV.wait(lk, [this]() { return (!_logMsg.empty()) || (!_isRunning); });
+        while (!_logMsg.empty()) {
+            _logfile << _logMsg.front() << std::endl;
+            _logMsg.pop();
+        }
+        _logfile.flush();
+        if (!_isRunning) {
+            return;
+        }
     }
-    _logfile.flush();
 }

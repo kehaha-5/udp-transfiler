@@ -117,7 +117,10 @@ bool DownloaderEvents::sendMsg(FileDownMsg& msg) {
         return false;
     }
     std::string out;
-    assert(msg.SerializeToString(&out));
+    if (!msg.SerializeToString(&out)) {
+        warn_log("sendMsg SerializeToString error");
+        return false;
+    }
     auto ack = _ackSetPtr->getAck();
     auto resMsg = msg::getsubcontractInfo(out, ack, msg::proto::FileDownloadRes);
     std::string sendMsg;

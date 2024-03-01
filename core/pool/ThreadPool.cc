@@ -1,3 +1,4 @@
+#include <sys/epoll.h>
 #include <sys/eventfd.h>
 
 #include <functional>
@@ -22,11 +23,15 @@ void ThreadPool::queueHandle(int index) {
         }
         {
             std::lock_guard<std::mutex> lock_guard(queueItemIt->second.mutex);
-            unsigned long long number;
-            read(queueItemIt->second.evenfd, &number, sizeof(unsigned long long));
             queueMsgCb cd = queueItemIt->second.queue.front();
             cd();
             queueItemIt->second.queue.pop();
+        }
+        unsigned long long number;
+        if (read(queueItemIt->second.evenfd, &number, sizeof(unsigned long long)) == -1) {
+            if (!(errno == EAGAIN || errno == EWOULDBLOCK)) {
+                warn_log("queuehandle read error %s", strerror(errno));
+            }
         }
     }
 };
@@ -37,7 +42,7 @@ void ThreadPool::threadRun(int index) {
         std::lock_guard<std::mutex> lock_guard(_eventMapLock);
         _eventMap.insert({_msgQueues[index].evenfd, loop});
     }
-    loop->addIo(_msgQueues[index].evenfd, std::bind(&ThreadPool::queueHandle, this, index), EPOLLIN);
+    loop->addIo(_msgQueues[index].evenfd, std::bind(&ThreadPool::queueHandle, this, index), EPOLLIN | EPOLLET);
     loop->loop();
 }
 
@@ -77,7 +82,6 @@ void ThreadPool::sendMsg(queueMsgCb cb) {
        made to write the value 0xffffffffffffffff.
     */
     int len = write(queueItem->second.evenfd, &number, sizeof(unsigned long long));
-
     exit_if(len == -1, "add task to queue error");
 }
 

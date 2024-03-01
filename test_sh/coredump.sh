@@ -20,3 +20,4 @@ chmod 777 $DUMP_PATH
 # Coredump功能已开启 配置信息
 cat /proc/sys/fs/suid_dumpable
 cat /proc/sys/kernel/core_pattern
+ulimit -c

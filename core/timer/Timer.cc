@@ -2,7 +2,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <cerrno>
 #include <cmath>
+#include <cstring>
 #include <iterator>
 #include <list>
 #include <memory>
@@ -40,7 +42,7 @@ uint Timer::runEvery(u_long timerout, TimerCb cb) {
     return index;
 }
 
-uint Timer::runAt(TimerCb &cb) {
+uint Timer::runAt(TimerCb& cb) {
     TimerEvenSharedPtr even = std::make_shared<timerEven>();
     even->timeout = _intervalMs;
     even->interval = true;
@@ -89,7 +91,9 @@ TimerOutCb Timer::getOutTimer() {
     TimerOutCb item;
     std::list<TimerWheelItem::iterator> wheelDelItem;
     uint64_t val;
-    read(_timerfd, &val, sizeof(val));
+    if (read(_timerfd, &val, sizeof(val)) == -1) {
+        warn_log("get Timer out read error %s", strerror(errno));
+    }
     std::lock_guard<std::recursive_mutex> lock(_timerWheelItLock);
     for (auto it = _currTimerWheelIt->begin(); it != _currTimerWheelIt->end(); it++) {
         auto itt = it->lock();
@@ -118,4 +122,3 @@ TimerOutCb Timer::getOutTimer() {
     }
     return item;
 }
-

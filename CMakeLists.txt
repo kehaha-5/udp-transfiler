@@ -2,13 +2,16 @@ cmake_minimum_required(VERSION 3.0.0)
 cmake_policy(SET CMP0135 NEW)
 project(TRANFILER VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_BUILD_TYPE "Debug")
 
 find_program( MEMORYCHECK_COMMAND valgrind )
 set( VALGRIND_COMMAND_OPTIONS "--leak-check=full --show-leak-kinds=all --trace-children=yes" )
 set( VALGRIND_COMMAND "--leak-check=full --show-leak-kinds=all --trace-children=yes" )
 include(CTest)
 enable_testing()
+
+IF (CMAKE_BUILD_TYPE STREQUAL Debug)        
+    ADD_DEFINITIONS(-DDEBUG)                            
+ENDIF()
 
 set(CORE "core")
 file(GLOB_RECURSE CORE_H "${CORE}/*.h")

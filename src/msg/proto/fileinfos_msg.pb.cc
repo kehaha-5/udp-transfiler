@@ -92,11 +92,11 @@ const char descriptor_table_protodef_fileinfos_5fmsg_2eproto[] PROTOBUF_SECTION_
   "\n\023fileinfos_msg.proto\022\tmsg.proto\"\?\n\010file"
   "Info\022\014\n\004name\030\001 \001(\t\022\014\n\004size\030\002 \001(\t\022\027\n\017last"
   "_write_time\030\003 \001(\t\"5\n\013FileInfoMsg\022&\n\tfile"
-  "infos\030\001 \003(\0132\023.msg.proto.fileInfoB\002H\002"
+  "infos\030\001 \003(\0132\023.msg.proto.fileInfo"
   ;
 static ::_pbi::once_flag descriptor_table_fileinfos_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_fileinfos_5fmsg_2eproto = {
-    false, false, 156, descriptor_table_protodef_fileinfos_5fmsg_2eproto,
+    false, false, 152, descriptor_table_protodef_fileinfos_5fmsg_2eproto,
     "fileinfos_msg.proto",
     &descriptor_table_fileinfos_5fmsg_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_fileinfos_5fmsg_2eproto::offsets,
@@ -217,9 +217,235 @@ void fileInfo::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
+void fileInfo::Clear() {
+// @@protoc_insertion_point(message_clear_start:msg.proto.fileInfo)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000007u) {
+    if (cached_has_bits & 0x00000001u) {
+      _impl_.name_.ClearNonDefaultToEmpty();
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _impl_.size_.ClearNonDefaultToEmpty();
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _impl_.last_write_time_.ClearNonDefaultToEmpty();
+    }
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* fileInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // optional string name = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_name();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          #ifndef NDEBUG
+          ::_pbi::VerifyUTF8(str, "msg.proto.fileInfo.name");
+          #endif  // !NDEBUG
+        } else
+          goto handle_unusual;
+        continue;
+      // optional string size = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          auto str = _internal_mutable_size();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          #ifndef NDEBUG
+          ::_pbi::VerifyUTF8(str, "msg.proto.fileInfo.size");
+          #endif  // !NDEBUG
+        } else
+          goto handle_unusual;
+        continue;
+      // optional string last_write_time = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+          auto str = _internal_mutable_last_write_time();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          #ifndef NDEBUG
+          ::_pbi::VerifyUTF8(str, "msg.proto.fileInfo.last_write_time");
+          #endif  // !NDEBUG
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _impl_._has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* fileInfo::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:msg.proto.fileInfo)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  // optional string name = 1;
+  if (cached_has_bits & 0x00000001u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "msg.proto.fileInfo.name");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_name(), target);
+  }
+
+  // optional string size = 2;
+  if (cached_has_bits & 0x00000002u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_size().data(), static_cast<int>(this->_internal_size().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "msg.proto.fileInfo.size");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_size(), target);
+  }
+
+  // optional string last_write_time = 3;
+  if (cached_has_bits & 0x00000004u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_last_write_time().data(), static_cast<int>(this->_internal_last_write_time().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "msg.proto.fileInfo.last_write_time");
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_last_write_time(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:msg.proto.fileInfo)
+  return target;
+}
+
+size_t fileInfo::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:msg.proto.fileInfo)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000007u) {
+    // optional string name = 1;
+    if (cached_has_bits & 0x00000001u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_name());
+    }
+
+    // optional string size = 2;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_size());
+    }
+
+    // optional string last_write_time = 3;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_last_write_time());
+    }
+
+  }
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData fileInfo::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    fileInfo::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*fileInfo::GetClassData() const { return &_class_data_; }
+
+
+void fileInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<fileInfo*>(&to_msg);
+  auto& from = static_cast<const fileInfo&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:msg.proto.fileInfo)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000007u) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_internal_set_name(from._internal_name());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_internal_set_size(from._internal_size());
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_internal_set_last_write_time(from._internal_last_write_time());
+    }
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void fileInfo::CopyFrom(const fileInfo& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:msg.proto.fileInfo)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool fileInfo::IsInitialized() const {
+  return true;
+}
+
 void fileInfo::InternalSwap(fileInfo* other) {
   using std::swap;
-  GetReflection()->Swap(this, other);}
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.name_, lhs_arena,
+      &other->_impl_.name_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.size_, lhs_arena,
+      &other->_impl_.size_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.last_write_time_, lhs_arena,
+      &other->_impl_.last_write_time_, rhs_arena
+  );
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata fileInfo::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
@@ -278,9 +504,133 @@ void FileInfoMsg::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
+void FileInfoMsg::Clear() {
+// @@protoc_insertion_point(message_clear_start:msg.proto.FileInfoMsg)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.fileinfos_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* FileInfoMsg::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // repeated .msg.proto.fileInfo fileinfos = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_fileinfos(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* FileInfoMsg::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:msg.proto.FileInfoMsg)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated .msg.proto.fileInfo fileinfos = 1;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_fileinfos_size()); i < n; i++) {
+    const auto& repfield = this->_internal_fileinfos(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:msg.proto.FileInfoMsg)
+  return target;
+}
+
+size_t FileInfoMsg::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:msg.proto.FileInfoMsg)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .msg.proto.fileInfo fileinfos = 1;
+  total_size += 1UL * this->_internal_fileinfos_size();
+  for (const auto& msg : this->_impl_.fileinfos_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FileInfoMsg::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    FileInfoMsg::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FileInfoMsg::GetClassData() const { return &_class_data_; }
+
+
+void FileInfoMsg::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<FileInfoMsg*>(&to_msg);
+  auto& from = static_cast<const FileInfoMsg&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:msg.proto.FileInfoMsg)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.fileinfos_.MergeFrom(from._impl_.fileinfos_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void FileInfoMsg::CopyFrom(const FileInfoMsg& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:msg.proto.FileInfoMsg)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool FileInfoMsg::IsInitialized() const {
+  return true;
+}
+
 void FileInfoMsg::InternalSwap(FileInfoMsg* other) {
   using std::swap;
-  GetReflection()->Swap(this, other);}
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.fileinfos_.InternalSwap(&other->_impl_.fileinfos_);
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FileInfoMsg::GetMetadata() const {
   return ::_pbi::AssignDescriptors(

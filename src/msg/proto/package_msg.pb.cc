@@ -82,11 +82,11 @@ const char descriptor_table_protodef_package_5fmsg_2eproto[] PROTOBUF_SECTION_VA
   "\005 \002(\0162\022.msg.proto.MsgType\022\014\n\004data\030\006 \002(\014*"
   "P\n\007MsgType\022\013\n\007Command\020\001\022\r\n\tFileInfos\020\002\022\024"
   "\n\020FileDownloadInfo\020\003\022\023\n\017FileDownloadRes\020"
-  "\004B\002H\002"
+  "\004"
   ;
 static ::_pbi::once_flag descriptor_table_package_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_package_5fmsg_2eproto = {
-    false, false, 245, descriptor_table_protodef_package_5fmsg_2eproto,
+    false, false, 241, descriptor_table_protodef_package_5fmsg_2eproto,
     "package_msg.proto",
     &descriptor_table_package_5fmsg_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_package_5fmsg_2eproto::offsets,
@@ -218,9 +218,312 @@ void PackageMsg::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
+void PackageMsg::Clear() {
+// @@protoc_insertion_point(message_clear_start:msg.proto.PackageMsg)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    _impl_.data_.ClearNonDefaultToEmpty();
+  }
+  if (cached_has_bits & 0x0000003eu) {
+    ::memset(&_impl_.ack_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&_impl_.tatolszie_) -
+        reinterpret_cast<char*>(&_impl_.ack_)) + sizeof(_impl_.tatolszie_));
+    _impl_.msgtype_ = 1;
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* PackageMsg::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // required uint64 ack = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _Internal::set_has_ack(&has_bits);
+          _impl_.ack_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required uint32 order = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _Internal::set_has_order(&has_bits);
+          _impl_.order_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required uint32 dataLen = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _Internal::set_has_datalen(&has_bits);
+          _impl_.datalen_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required uint32 tatolSzie = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          _Internal::set_has_tatolszie(&has_bits);
+          _impl_.tatolszie_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required .msg.proto.MsgType msgType = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          if (PROTOBUF_PREDICT_TRUE(::msg::proto::MsgType_IsValid(val))) {
+            _internal_set_msgtype(static_cast<::msg::proto::MsgType>(val));
+          } else {
+            ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(5, val, mutable_unknown_fields());
+          }
+        } else
+          goto handle_unusual;
+        continue;
+      // required bytes data = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          auto str = _internal_mutable_data();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _impl_._has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* PackageMsg::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:msg.proto.PackageMsg)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  // required uint64 ack = 1;
+  if (cached_has_bits & 0x00000002u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_ack(), target);
+  }
+
+  // required uint32 order = 2;
+  if (cached_has_bits & 0x00000004u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(2, this->_internal_order(), target);
+  }
+
+  // required uint32 dataLen = 3;
+  if (cached_has_bits & 0x00000008u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(3, this->_internal_datalen(), target);
+  }
+
+  // required uint32 tatolSzie = 4;
+  if (cached_has_bits & 0x00000010u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(4, this->_internal_tatolszie(), target);
+  }
+
+  // required .msg.proto.MsgType msgType = 5;
+  if (cached_has_bits & 0x00000020u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
+      5, this->_internal_msgtype(), target);
+  }
+
+  // required bytes data = 6;
+  if (cached_has_bits & 0x00000001u) {
+    target = stream->WriteBytesMaybeAliased(
+        6, this->_internal_data(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:msg.proto.PackageMsg)
+  return target;
+}
+
+size_t PackageMsg::RequiredFieldsByteSizeFallback() const {
+// @@protoc_insertion_point(required_fields_byte_size_fallback_start:msg.proto.PackageMsg)
+  size_t total_size = 0;
+
+  if (_internal_has_data()) {
+    // required bytes data = 6;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_data());
+  }
+
+  if (_internal_has_ack()) {
+    // required uint64 ack = 1;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_ack());
+  }
+
+  if (_internal_has_order()) {
+    // required uint32 order = 2;
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_order());
+  }
+
+  if (_internal_has_datalen()) {
+    // required uint32 dataLen = 3;
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_datalen());
+  }
+
+  if (_internal_has_tatolszie()) {
+    // required uint32 tatolSzie = 4;
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_tatolszie());
+  }
+
+  if (_internal_has_msgtype()) {
+    // required .msg.proto.MsgType msgType = 5;
+    total_size += 1 +
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_msgtype());
+  }
+
+  return total_size;
+}
+size_t PackageMsg::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:msg.proto.PackageMsg)
+  size_t total_size = 0;
+
+  if (((_impl_._has_bits_[0] & 0x0000003f) ^ 0x0000003f) == 0) {  // All required fields are present.
+    // required bytes data = 6;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_data());
+
+    // required uint64 ack = 1;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_ack());
+
+    // required uint32 order = 2;
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_order());
+
+    // required uint32 dataLen = 3;
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_datalen());
+
+    // required uint32 tatolSzie = 4;
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_tatolszie());
+
+    // required .msg.proto.MsgType msgType = 5;
+    total_size += 1 +
+      ::_pbi::WireFormatLite::EnumSize(this->_internal_msgtype());
+
+  } else {
+    total_size += RequiredFieldsByteSizeFallback();
+  }
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData PackageMsg::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    PackageMsg::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*PackageMsg::GetClassData() const { return &_class_data_; }
+
+
+void PackageMsg::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<PackageMsg*>(&to_msg);
+  auto& from = static_cast<const PackageMsg&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:msg.proto.PackageMsg)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x0000003fu) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_internal_set_data(from._internal_data());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_impl_.ack_ = from._impl_.ack_;
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_impl_.order_ = from._impl_.order_;
+    }
+    if (cached_has_bits & 0x00000008u) {
+      _this->_impl_.datalen_ = from._impl_.datalen_;
+    }
+    if (cached_has_bits & 0x00000010u) {
+      _this->_impl_.tatolszie_ = from._impl_.tatolszie_;
+    }
+    if (cached_has_bits & 0x00000020u) {
+      _this->_impl_.msgtype_ = from._impl_.msgtype_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void PackageMsg::CopyFrom(const PackageMsg& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:msg.proto.PackageMsg)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool PackageMsg::IsInitialized() const {
+  if (_Internal::MissingRequiredFields(_impl_._has_bits_)) return false;
+  return true;
+}
+
 void PackageMsg::InternalSwap(PackageMsg* other) {
   using std::swap;
-  GetReflection()->Swap(this, other);}
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.data_, lhs_arena,
+      &other->_impl_.data_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(PackageMsg, _impl_.tatolszie_)
+      + sizeof(PackageMsg::_impl_.tatolszie_)
+      - PROTOBUF_FIELD_OFFSET(PackageMsg, _impl_.ack_)>(
+          reinterpret_cast<char*>(&_impl_.ack_),
+          reinterpret_cast<char*>(&other->_impl_.ack_));
+  swap(_impl_.msgtype_, other->_impl_.msgtype_);
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata PackageMsg::GetMetadata() const {
   return ::_pbi::AssignDescriptors(

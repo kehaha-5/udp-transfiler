@@ -3,8 +3,6 @@ syntax = "proto2";
 package msg.proto;
 
 
-option optimize_for = CODE_SIZE;
-
 message fileInfo{
     optional string name = 1;
     optional string size = 2;

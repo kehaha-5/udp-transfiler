@@ -41,7 +41,10 @@ class Log {
     bool canAppend(logType::type type);
     static std::string getCurrTime();
     void outLog(const char* msg);
-
+    ~Log() {
+        _isRunning = false;
+        _logThreadCV.notify_one();
+    }
 
    private:
     std::string getLogfileName();
@@ -55,6 +58,7 @@ class Log {
     std::thread _logThread;
     std::condition_variable _logThreadCV;
     std::mutex _logLock;
+    bool _isRunning = true;
 };
 
 #endif

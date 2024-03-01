@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Constant.h"
+#include "Logging.h"
 #include "file/server/Directory.h"
 #include "msg/proto/command_msg.pb.h"
 #include "msg/proto/file_down_info_msg.pb.h"
@@ -50,7 +51,9 @@ struct Package {
         resMsg.set_data(data);
         resMsg.set_msgtype(msgType);
         assert(resMsg.ByteSizeLong() <= MAX_MSG_LENGTH);
-        assert(resMsg.SerializeToString(out));
+        if (!resMsg.SerializeToString(out)) {
+            warn_log("SerializeToString error");
+        }
     }
     bool build(std::string& strData, std::string& errMsg) {
         PackageMsg resqMsg;
@@ -84,7 +87,9 @@ struct Command {
         if (!args.empty()) {
             resMsg.set_args(args);
         }
-        assert(resMsg.SerializeToString(out));
+        if (!resMsg.SerializeToString(out)) {
+            warn_log("SerializeToString error");
+        }
     };
     bool build(std::string& strData, std::string& errMsg) {
         CommandMsg resqMsg;
@@ -123,7 +128,9 @@ struct FileInfos {
         if (infos.size() == 0) {
             auto data = resMsg.add_fileinfos();
         }
-        assert(resMsg.SerializeToString(out));
+        if (!resMsg.SerializeToString(out)) {
+            warn_log("SerializeToString error");
+        }
     };
     bool build(std::string& strData, std::string& errMsg) {
         FileInfoMsg resqMsg;
@@ -150,7 +157,9 @@ struct FileDownInfo {
             data->set_hash(it.hash);
             data->set_humanreadablesize(it.humanReadableSize);
         }
-        assert(resMsg.SerializeToString(out));
+        if (!resMsg.SerializeToString(out)) {
+            warn_log("SerializeToString error");
+        }
     };
     bool build(std::string& strData, std::string& errMsg) {
         FileDownInfoMsg resqMsg;

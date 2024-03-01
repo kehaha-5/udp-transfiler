@@ -76,11 +76,11 @@ const char descriptor_table_protodef_file_5fdown_5fmsg_2eproto[] PROTOBUF_SECTIO
   "\n\023file_down_msg.proto\022\tmsg.proto\"\\\n\013File"
   "DownMsg\022\014\n\004hash\030\001 \002(\t\022\020\n\010startPos\030\002 \002(\004\022"
   "\021\n\tdataIndex\030\003 \002(\004\022\014\n\004size\030\004 \001(\003\022\014\n\004data"
-  "\030\005 \001(\014B\002H\002"
+  "\030\005 \001(\014"
   ;
 static ::_pbi::once_flag descriptor_table_file_5fdown_5fmsg_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_file_5fdown_5fmsg_2eproto = {
-    false, false, 130, descriptor_table_protodef_file_5fdown_5fmsg_2eproto,
+    false, false, 126, descriptor_table_protodef_file_5fdown_5fmsg_2eproto,
     "file_down_msg.proto",
     &descriptor_table_file_5fdown_5fmsg_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_file_5fdown_5fmsg_2eproto::offsets,
@@ -204,9 +204,290 @@ void FileDownMsg::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
 
+void FileDownMsg::Clear() {
+// @@protoc_insertion_point(message_clear_start:msg.proto.FileDownMsg)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _impl_.hash_.ClearNonDefaultToEmpty();
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _impl_.data_.ClearNonDefaultToEmpty();
+    }
+  }
+  if (cached_has_bits & 0x0000001cu) {
+    ::memset(&_impl_.startpos_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&_impl_.size_) -
+        reinterpret_cast<char*>(&_impl_.startpos_)) + sizeof(_impl_.size_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* FileDownMsg::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // required string hash = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_hash();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          #ifndef NDEBUG
+          ::_pbi::VerifyUTF8(str, "msg.proto.FileDownMsg.hash");
+          #endif  // !NDEBUG
+        } else
+          goto handle_unusual;
+        continue;
+      // required uint64 startPos = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _Internal::set_has_startpos(&has_bits);
+          _impl_.startpos_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required uint64 dataIndex = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _Internal::set_has_dataindex(&has_bits);
+          _impl_.dataindex_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // optional int64 size = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          _Internal::set_has_size(&has_bits);
+          _impl_.size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // optional bytes data = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          auto str = _internal_mutable_data();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _impl_._has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* FileDownMsg::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:msg.proto.FileDownMsg)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  // required string hash = 1;
+  if (cached_has_bits & 0x00000001u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_hash().data(), static_cast<int>(this->_internal_hash().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "msg.proto.FileDownMsg.hash");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_hash(), target);
+  }
+
+  // required uint64 startPos = 2;
+  if (cached_has_bits & 0x00000004u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_startpos(), target);
+  }
+
+  // required uint64 dataIndex = 3;
+  if (cached_has_bits & 0x00000008u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(3, this->_internal_dataindex(), target);
+  }
+
+  // optional int64 size = 4;
+  if (cached_has_bits & 0x00000010u) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt64ToArray(4, this->_internal_size(), target);
+  }
+
+  // optional bytes data = 5;
+  if (cached_has_bits & 0x00000002u) {
+    target = stream->WriteBytesMaybeAliased(
+        5, this->_internal_data(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:msg.proto.FileDownMsg)
+  return target;
+}
+
+size_t FileDownMsg::RequiredFieldsByteSizeFallback() const {
+// @@protoc_insertion_point(required_fields_byte_size_fallback_start:msg.proto.FileDownMsg)
+  size_t total_size = 0;
+
+  if (_internal_has_hash()) {
+    // required string hash = 1;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_hash());
+  }
+
+  if (_internal_has_startpos()) {
+    // required uint64 startPos = 2;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_startpos());
+  }
+
+  if (_internal_has_dataindex()) {
+    // required uint64 dataIndex = 3;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_dataindex());
+  }
+
+  return total_size;
+}
+size_t FileDownMsg::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:msg.proto.FileDownMsg)
+  size_t total_size = 0;
+
+  if (((_impl_._has_bits_[0] & 0x0000000d) ^ 0x0000000d) == 0) {  // All required fields are present.
+    // required string hash = 1;
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_hash());
+
+    // required uint64 startPos = 2;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_startpos());
+
+    // required uint64 dataIndex = 3;
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_dataindex());
+
+  } else {
+    total_size += RequiredFieldsByteSizeFallback();
+  }
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // optional bytes data = 5;
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000002u) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_data());
+  }
+
+  // optional int64 size = 4;
+  if (cached_has_bits & 0x00000010u) {
+    total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_size());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FileDownMsg::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    FileDownMsg::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FileDownMsg::GetClassData() const { return &_class_data_; }
+
+
+void FileDownMsg::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<FileDownMsg*>(&to_msg);
+  auto& from = static_cast<const FileDownMsg&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:msg.proto.FileDownMsg)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x0000001fu) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_internal_set_hash(from._internal_hash());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_internal_set_data(from._internal_data());
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_impl_.startpos_ = from._impl_.startpos_;
+    }
+    if (cached_has_bits & 0x00000008u) {
+      _this->_impl_.dataindex_ = from._impl_.dataindex_;
+    }
+    if (cached_has_bits & 0x00000010u) {
+      _this->_impl_.size_ = from._impl_.size_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void FileDownMsg::CopyFrom(const FileDownMsg& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:msg.proto.FileDownMsg)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool FileDownMsg::IsInitialized() const {
+  if (_Internal::MissingRequiredFields(_impl_._has_bits_)) return false;
+  return true;
+}
+
 void FileDownMsg::InternalSwap(FileDownMsg* other) {
   using std::swap;
-  GetReflection()->Swap(this, other);}
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.hash_, lhs_arena,
+      &other->_impl_.hash_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.data_, lhs_arena,
+      &other->_impl_.data_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(FileDownMsg, _impl_.size_)
+      + sizeof(FileDownMsg::_impl_.size_)
+      - PROTOBUF_FIELD_OFFSET(FileDownMsg, _impl_.startpos_)>(
+          reinterpret_cast<char*>(&_impl_.startpos_),
+          reinterpret_cast<char*>(&other->_impl_.startpos_));
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FileDownMsg::GetMetadata() const {
   return ::_pbi::AssignDescriptors(

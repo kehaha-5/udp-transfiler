@@ -2,8 +2,6 @@ syntax = "proto2";
 
 package msg.proto;
 
-option optimize_for = CODE_SIZE;
-
 message FileDownMsg{
     required string hash = 1;
     required uint64 startPos =2;
