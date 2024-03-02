@@ -11,6 +11,46 @@
 1. 基于UDP协议进行数据传输并针对本项目实现了可靠性传输
 2. 使用 [protobuf](https://protobuf.dev/) 作为序列化协议
 3. 使用 [gtest](https://google.github.io/googletest/) 来对主要功能进行单元测试
+    - 消息分包和重组
+    - 定时器
+    - 文件目录访问和文件读写
+    - 消息唯一标识生成
+    - 配置文件读取
 4. 利用 one loop per thread 实现服务端核心功能
+    - eventloop + threadPool
+
+## 配置说明
+- 配置分为服务端和客户端 
+    - 服务端默认采用当前目录下的 `server_config.ini`
+    - 客户端默认采用当前目录下的 `client_config.ini`
+    - 可以使用 `--config` 命令来指定配置文件
+    - 若无指定或配置不可用则采用默认配置
+
+    ### 服务端
+
+    ```ini
+    ip=0.0.0.0 #默认监听ip
+    port=23111 #默认端口
+    filePath=./upload #默认可以访问的文件目录
+    threadNum=15 #默认工作线程数量
+    ```
+
+    ### 客户端
+    ```ini
+   ip=127.0.0.1 #默认连接ip
+   port=23111 #默认端口
+   filePath=./downloadfile #默认下载目录
+   downloadThreadNum=1 #下载线程
+   maxResendPacketsNum=500 #下载时最多同时可以重发的包数量
+   maxDownloadSpeeds=1073741824 #最大下载速度 单位B
+   packetsTimerOut=1000 #包超时重发时间 单位ms
+    ```
+
+    ### 配置优化
+
+    - 客户端配置中的 `maxResendPacketsNum` 配置作用，即在重发次数到此数量时，无法再发送新包
+        - 因为重发包的作业和接收处理数据包的作业都是在同一个线程池中的，若重发包的作业有很多了，就会导致没有线程可以马上去处理接收数据的作业，而导致不断地触发超时重发
+        - 这个配置若配置太小了，也会对下载速度有一定影响
+        - 同时也可以通过这个配置去适配服务端的性能
 
 
