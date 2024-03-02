@@ -15,13 +15,16 @@ ServerConfig& ServerConfig::getInstance() {
     return serverConfig;
 }
 
-ServerConfig::ServerConfig() { setDefualtConfig(); }
+ServerConfig::ServerConfig() { setDefaultConfig(); }
 
-void ServerConfig::setDefualtConfig() {
+void ServerConfig::setDefaultConfig() {
     _ip = "0.0.0.0";
     _port = 23111;
     _threadNum = 10;
+    setDefaultFilePath();
 }
+
+void ServerConfig::setDefaultFilePath() { setConfigFile("./upload"); }
 
 void ServerConfig::setConfigFilePath(std::string filePath) {
     _filePath = filePath;
@@ -33,32 +36,43 @@ void ServerConfig::setConfigFilePath(std::string filePath) {
 
 void ServerConfig::setConfigFile(std::string filePath) {
     if (!fs::exists(filePath)) {
-        warn_log("config file not exist !!! using defualt Configuration");
+        warn_log("config file not exist !!! using default Configuration");
         return;
     }
     std::ifstream configFile(filePath, std::ios_base::in);
     if (!configFile.good()) {
-        warn_log("config file can not be read!!! using defualt Configuration");
+        warn_log("config file can not be read!!! using default Configuration");
+        return;
     }
     std::string line;
     while (std::getline(configFile, line)) {
         if (findStrContain(line, "ip")) {
-            _ip = getConfigData(line);
+            std::string ip;
+            if (!getConfigData<std::string>(line, ip)) {
+                warn_log("ip is empty !!! using default Configuration");
+            }
+            if (isIpformat(ip)) {
+                _ip = ip;
+            } else {
+                warn_log("it is not ip format !!! using default Configuration");
+            }
             continue;
         }
         if (findStrContain(line, "filePath")) {
-            _filePath = getConfigData(line);
+            if (!getConfigData<fs::path>(line, _filePath)) {
+                warn_log("filePath is empty !!! using default Configuration");
+            }
             continue;
         }
         if (findStrContain(line, "port")) {
-            if (!getIntConfigData<u_short>(line, _port)) {
-                warn_log("port is not a number !!! using defualt Configuration");
+            if (!getConfigData<u_short>(line, _port)) {
+                warn_log("port is not a number or empty !!! using default Configuration");
             }
             continue;
         }
         if (findStrContain(line, "threadNum")) {
-            if (!getIntConfigData<u_short>(line, _threadNum)) {
-                warn_log("threadNum is not a number !!! using defualt Configuration");
+            if (!getConfigData<u_short>(line, _threadNum)) {
+                warn_log("threadNum is not a number !!! using default Configuration");
             }
             continue;
         }

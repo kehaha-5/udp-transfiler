@@ -28,7 +28,7 @@ class ClientConfig : public Config {
 
 
    private:
-    void setDefualtConfig();
+    void setDefaultConfig();
     ClientConfig();
     std::string _ip;
     u_short _port;

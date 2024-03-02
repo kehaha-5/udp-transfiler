@@ -24,7 +24,8 @@ class ServerConfig : public Config {
     const std::string& getIp() { return _ip; }
 
    private:
-    void setDefualtConfig();
+    void setDefaultConfig();
+    void setDefaultFilePath();
     ServerConfig();
     std::string _ip;
     u_short _port;

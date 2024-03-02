@@ -27,6 +27,13 @@ struct clientConfig {
     uint maxAckSet;
 };
 
+struct strangeServerConfig {
+    std::string ip;
+    std::string port;
+    std::string filePath;
+    std::string threadNum;
+};
+
 class TestConfig : public testing::Test {
    protected:
     void SetUp() {
@@ -36,6 +43,7 @@ class TestConfig : public testing::Test {
         _clientFilePath = _currentPath / "clientConfig.ini";
         _serverFilePath = _currentPath / "serverConfig.ini";
         _badServerFilePath = _currentPath / "badServerConfig.ini";
+        _strangeServerConfigFilePath = _currentPath / "strangeServerConfig.ini";
         initConfig();
         createFiles();
     }
@@ -45,9 +53,9 @@ class TestConfig : public testing::Test {
         std::ofstream serverConfig(_serverFilePath, std::ios_base::out);
         ASSERT_TRUE(serverConfig.good());
         serverConfig << "ip=" << _serverConfig.ip << "\n";
-        serverConfig << "port=" << _serverConfig.port << "\n";
-        serverConfig << "filePath=" << _serverConfig.filePath << "\n";
-        serverConfig << "threadNum=" << _serverConfig.threadNum << "\n";
+        serverConfig << "port=" << _serverConfig.port << "# 我是注释\n";
+        serverConfig << "filePath=" << _serverConfig.filePath << "# 我是注释\n";
+        serverConfig << "threadNum=" << _serverConfig.threadNum << "# 我是注释\n";
         serverConfig.close();
 
         std::ofstream clientConfig(_clientFilePath, std::ios_base::out);
@@ -62,16 +70,23 @@ class TestConfig : public testing::Test {
         clientConfig.close();
 
         std::ofstream badServerFilePath(_badServerFilePath, std::ios_base::out);
-        ASSERT_TRUE(serverConfig.good());
+        ASSERT_TRUE(badServerFilePath.good());
         badServerFilePath << "ip=" << _serverConfig.ip << "\n";
-        badServerFilePath << "port="
-                          << "port"
+        badServerFilePath << "port"
                           << "\n";
         badServerFilePath << "filePath=" << _serverConfig.filePath << "\n";
-        badServerFilePath << "threadNum="
+        badServerFilePath << "threadNum"
                           << "threadNum"
                           << "\n";
         badServerFilePath.close();
+
+        std::ofstream strangeServerConfigFilePath(_strangeServerConfigFilePath, std::ios_base::out);
+        ASSERT_TRUE(strangeServerConfigFilePath.good());
+        strangeServerConfigFilePath << "ip=" << _strangeServerConfig.ip << "\n";
+        strangeServerConfigFilePath << "port" << _strangeServerConfig.port << "\n";
+        strangeServerConfigFilePath << "filePath=" << _strangeServerConfig.filePath << "\n";
+        strangeServerConfigFilePath << "threadNum" << _strangeServerConfig.threadNum << "\n";
+        strangeServerConfigFilePath.close();
     }
     void initConfig() {
         _clientConfig.downloadThreadNum = 10;
@@ -86,16 +101,22 @@ class TestConfig : public testing::Test {
         _serverConfig.port = 23111;
         _serverConfig.filePath = "./server_upload";
         _serverConfig.threadNum = 5;
+
+        _strangeServerConfig.ip = "123is not ip format";
+        _strangeServerConfig.port = "123";
+        _strangeServerConfig.filePath = "";
+        _strangeServerConfig.threadNum = "你好";
     }
 
    public:
     std::filesystem::path _currentPath;
     clientConfig _clientConfig;
     serverConfig _serverConfig;
-    serverConfig _badServerConfig;
+    strangeServerConfig _strangeServerConfig;
     std::filesystem::path _clientFilePath;
     std::filesystem::path _serverFilePath;
     std::filesystem::path _badServerFilePath;
+    std::filesystem::path _strangeServerConfigFilePath;
 };
 
 TEST_F(TestConfig, functionalTest) {
@@ -121,6 +142,16 @@ TEST_F(TestConfig, getIntErrorTest) {
     ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), _serverConfig.ip.c_str());
     ASSERT_EQ(config::ServerConfig::getInstance().getPort(), 23111);
     ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), 10);
+}
+
+TEST_F(TestConfig, testStrangeConfig) {
+    serverConfig defaultConfig = {config::ServerConfig::getInstance().getIp(), config::ServerConfig::getInstance().getPort(),
+                                  config::ServerConfig::getInstance().getFilepath(), config::ServerConfig::getInstance().getThreadNum()};
+    config::ServerConfig::getInstance().setConfigFile(_strangeServerConfigFilePath);
+    ASSERT_STREQ(config::ServerConfig::getInstance().getFilepath().c_str(), defaultConfig.filePath.c_str());
+    ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), defaultConfig.ip.c_str());
+    ASSERT_EQ(config::ServerConfig::getInstance().getPort(), defaultConfig.port);
+    ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), defaultConfig.threadNum);
 }
 
 int main(int argc, char** argv) {

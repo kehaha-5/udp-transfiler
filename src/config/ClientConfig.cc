@@ -16,12 +16,11 @@ ClientConfig& ClientConfig::getInstance() {
     return ClientConfig;
 }
 
-ClientConfig::ClientConfig() { setDefualtConfig(); }
-
-void ClientConfig::setDefualtConfig() {
+ClientConfig::ClientConfig() { setDefaultConfig(); }
+void ClientConfig::setDefaultConfig() {
     _ip = "127.0.0.1";
     _port = 23111;
-    _downloadThreadNum = 5;
+    _downloadThreadNum = 1;
     _packetsTimerOut = 1000;
     _maxDownloadSpeeds = 1024 * 1024 * 10;
     _maxAckSet = 500;
@@ -29,54 +28,65 @@ void ClientConfig::setDefualtConfig() {
 
 void ClientConfig::setConfigFile(std::string filePath) {
     if (!fs::exists(filePath)) {
-        warn_log("config file not exist !!! using defualt Configuration");
+        warn_log("config file not exist !!! using default Configuration");
         return;
     }
     std::fstream configFile(filePath, std::ios_base::in);
     if (!configFile.good()) {
-        warn_log("config file can not be read!!! using defualt Configuration");
+        warn_log("config file can not be read!!! using default Configuration");
     }
     std::string line;
     while (std::getline(configFile, line)) {
         if (findStrContain(line, "ip")) {
-            _ip = getConfigData(line);
+            std::string ip;
+            if (!getConfigData<std::string>(line, ip)) {
+                warn_log("ip is empty !!! using default Configuration");
+            }
+            if (isIpformat(ip)) {
+                _ip = ip;
+            } else {
+                warn_log("it is not ip format !!! using default Configuration");
+            }
             continue;
         }
         if (findStrContain(line, "filePath")) {
-            _filePath = getConfigData(line);
-            if (!fs::exists(_filePath)) {
-                fs::create_directories(_filePath);
-                info_log("the file directoriey not exist,has create this file directoriey");
+            if (getConfigData<fs::path>(line, _filePath)) {
+                if (!fs::exists(_filePath)) {
+                    fs::create_directories(_filePath);
+                    info_log("the file directoriey not exist,has create this file directoriey");
+                }
+            } else {
+                warn_log("filePath is empty !!! using default Configuration");
             }
             continue;
         }
         if (findStrContain(line, "port")) {
-            if (!getIntConfigData(line, _port)) {
-                warn_log("port is not a number !!! using defualt Configuration");
+            if (!getConfigData(line, _port)) {
+                warn_log("port is not a number or empty !!! using default Configuration");
             }
             continue;
         }
         if (findStrContain(line, "downloadThreadNum")) {
-            if (!getIntConfigData<u_short>(line, _downloadThreadNum)) {
-                warn_log("downloadThreadNum is not a number !!! using defualt Configuration");
+            if (!getConfigData<u_short>(line, _downloadThreadNum)) {
+                warn_log("downloadThreadNum is not a number or empty !!! using default Configuration");
             }
             continue;
         }
         if (findStrContain(line, "packetsTimerOut")) {
-            if (!getIntConfigData<u_short>(line, _packetsTimerOut)) {
-                warn_log("packetsTimerOut is not a number !!! using defualt Configuration");
+            if (!getConfigData<u_short>(line, _packetsTimerOut)) {
+                warn_log("packetsTimerOut is not a number or empty !!! using default Configuration");
             }
             continue;
         }
         if (findStrContain(line, "maxDownloadSpeeds")) {
-            if (!getIntConfigData<uint>(line, _maxDownloadSpeeds)) {
-                warn_log("maxDownloadSpeeds is not a number !!! using defualt Configuration");
+            if (!getConfigData<uint>(line, _maxDownloadSpeeds)) {
+                warn_log("maxDownloadSpeeds is not a number or empty !!! using default Configuration");
             }
             continue;
         }
         if (findStrContain(line, "maxResendPacketsNum")) {
-            if (!getIntConfigData<uint>(line, _maxAckSet)) {
-                warn_log("maxAckSet is not a number !!! using defualt Configuration");
+            if (!getConfigData<uint>(line, _maxAckSet)) {
+                warn_log("maxAckSet is not a number or empty !!! using default Configuration");
             }
             continue;
         }
