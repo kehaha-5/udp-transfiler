@@ -1,6 +1,8 @@
 #ifndef CORE_LOG_H
 #define CORE_LOG_H
 
+#include <bits/types/struct_timeval.h>
+
 #include <condition_variable>
 #include <fstream>
 #include <mutex>
@@ -32,14 +34,21 @@ struct logConfig {
     logAppender::type appender;
 };
 
-typedef std::queue<std::string> logMsg;
+struct logMsgItem {
+    logMsgItem(timeval _time, std::string _msg) : time(_time), msg(_msg){};
+    timeval time;
+    std::string msg;
+};
+
+typedef std::queue<logMsgItem> logMsg;
 
 class Log {
    public:
     static Log& getLog();
     void setConfig(logConfig conf);
     bool canAppend(logType::type type);
-    static std::string getCurrTime();
+    static const std::string getCurrTime();
+    const std::string getCurrTime(const timeval& time);
     void outLog(const char* msg);
     ~Log() {
         _isRunning = false;
@@ -48,7 +57,8 @@ class Log {
 
    private:
     std::string getLogfileName();
-    void writeLogToFile();
+    std::string getLogMsgBylogMsgItem(const logMsgItem& item);
+    void writeLog();
     Log() = default;
     bool _init = false;
     std::ofstream _logfile;

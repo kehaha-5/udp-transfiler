@@ -11,7 +11,7 @@
  valgrind --leak-check=full --show-leak-kinds=all   --trace-children=yes --log-file=./valgrindCheck/val_log_ser.log ./build/TRANFILER_SERVER
 
  #CPU性能检测
- valgrind --tool=callgrind --separate-threads=yes ./build/TRANFILER_CLIENT
- valgrind --tool=callgrind --separate-threads=yes ./build/TRANFILER_SERVER
+ valgrind --tool=callgrind --callgrind-out-file=./valgrindCheck/callgrind/client --separate-threads=yes ./build/TRANFILER_CLIENT
+ valgrind --tool=callgrind --callgrind-out-file=./valgrindCheck/callgrind/server --separate-threads=yes ./build/TRANFILER_SERVER
  #查看结果
  sudo kcachegrind

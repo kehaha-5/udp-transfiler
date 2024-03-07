@@ -1,7 +1,8 @@
 
+#include <sys/time.h>
+
 #include <chrono>
 #include <cstdio>
-#include <cstdlib>
 #include <ctime>
 #include <filesystem>
 #include <fstream>
@@ -30,9 +31,9 @@ void Log::setConfig(logConfig conf) {
         }
         auto logfile = std::filesystem::path(LOG_DIR) / (getLogfileName() + LOG_FILE_SUFFIX);
         _logfile.open(logfile);
-        _logThread = std::thread(std::bind(&Log::writeLogToFile, this));
-        _logThread.detach();
     }
+    _logThread = std::thread(std::bind(&Log::writeLog, this));
+    _logThread.detach();
 }
 
 bool Log::canAppend(logType::type type) {
@@ -44,23 +45,18 @@ bool Log::canAppend(logType::type type) {
     return true;
 }
 
-std::string Log::getCurrTime() {
-    std::time_t t = std::time(NULL);
-    std::string mbstr(50, 0);
-    std::strftime(&mbstr[0], mbstr.size(), "%F-%T", std::localtime(&t));
-    return mbstr;
+const std::string Log::getCurrTime() {
+    struct timeval current_time;
+    gettimeofday(&current_time, 0);
+    return Log::getLog().getCurrTime(current_time);
 }
 
 void Log::outLog(const char* msg) {
-    if (_appender == logAppender::file) {
-        {
-            std::unique_lock<std::mutex> lk(_logLock);
-            _logMsg.push(std::string(msg));
-            _logThreadCV.notify_one();
-        }
-    } else {
-        std::fprintf(stdout, "%s\n", msg);
-    }
+    std::unique_lock<std::mutex> lk(_logLock);
+    struct timeval current_time;
+    gettimeofday(&current_time, 0);
+    _logMsg.emplace(current_time, std::string(msg));
+    _logThreadCV.notify_one();
 }
 
 std::string Log::getLogfileName() {
@@ -72,17 +68,38 @@ std::string Log::getLogfileName() {
     return std::to_string(milliseconds) + "-";
 }
 
-void Log::writeLogToFile() {
+void Log::writeLog() {
     while (true) {
         std::unique_lock<std::mutex> lk(_logLock);
         _logThreadCV.wait(lk, [this]() { return (!_logMsg.empty()) || (!_isRunning); });
         while (!_logMsg.empty()) {
-            _logfile << _logMsg.front() << std::endl;
+            auto strLogMsg = getLogMsgBylogMsgItem(_logMsg.front());
+            if (_appender == logAppender::file) {
+                _logfile << strLogMsg << std::endl;
+            } else {
+                std::fprintf(stdout, "%s\n", strLogMsg.c_str());
+            }
             _logMsg.pop();
         }
-        _logfile.flush();
+        if (_appender == logAppender::file) {
+            _logfile.flush();
+        }
         if (!_isRunning) {
             return;
         }
     }
+}
+
+const std::string Log::getCurrTime(const timeval& time) {
+    struct tm local_tm;
+    localtime_r(&time.tv_sec, &local_tm);
+    char time_str[128];
+    sprintf(time_str, "%04d-%02d-%02d %02d:%02d:%02d.%06ld", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
+            local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec, (long)time.tv_usec);
+    return time_str;
+}
+
+std::string Log::getLogMsgBylogMsgItem(const logMsgItem& item) {
+    auto time = getCurrTime(item.time);
+    return time.append(" ").append(item.msg);
 }
