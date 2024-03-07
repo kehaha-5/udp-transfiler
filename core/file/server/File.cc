@@ -36,12 +36,12 @@ bool File::getPosContext(u_long pos, uint size, fileData &data) {
 bool File::getMinFilePosContext(u_long pos, uint size, fileData &data) {
     try {
         if (size == 0) {
-            setErrMsg(errCode::invalidSzie);
+            data.code = errCode::invalidSzie;
             return false;
         }
         std::ifstream file(_filepathObj, std::ios::binary | std::ios_base::in);
         if (!file.good()) {
-            setErrMsg(errCode::fileCanNotBeOpened);
+            data.code = errCode::fileCanNotBeOpened;
             return false;
         }
         data.data.resize(size, 0);
@@ -55,7 +55,7 @@ bool File::getMinFilePosContext(u_long pos, uint size, fileData &data) {
         }
         return true;
     } catch (std::ios_base::failure &e) {
-        setErrMsg(errCode::failureInRead);
+        data.code = errCode::failureInRead;
         warn_log("Caught an ios_base::failure.err msg is %s.err code %i", e.what(), e.code());
         return false;
     }
@@ -69,18 +69,18 @@ void File::setErrMsg(errCode code) {
 
 bool File::getLargeFilePosContext(u_long pos, uint size, fileData &data) {
     if (size == 0) {
-        setErrMsg(errCode::invalidSzie);
+        data.code = errCode::invalidSzie;
         return false;
     }
     int filefd = open(_filepathObj.c_str(), O_RDONLY);
     if (filefd == -1) {
-        setErrMsg(errCode::fileCanNotBeOpened);
+        data.code = errCode::fileCanNotBeOpened;
         return false;
     }
     struct stat filesb;
 
     if (fstat(filefd, &filesb) == -1) {
-        setErrMsg(errCode::getfileStatError);
+        data.code = errCode::getfileStatError;
         return false;
     }
 
@@ -88,7 +88,7 @@ bool File::getLargeFilePosContext(u_long pos, uint size, fileData &data) {
 
     if (pos > filesb.st_size) {
         debug_log("pos is %lu filesb.st_size is %lu", pos, filesb.st_size);
-        setErrMsg(errCode::fileSzieOut);
+        data.code = errCode::fileSzieOut;
         return false;
     }
 
@@ -107,7 +107,7 @@ bool File::getLargeFilePosContext(u_long pos, uint size, fileData &data) {
     auto addr = mmap(NULL, realReadLenght, PROT_READ, MAP_PRIVATE, filefd, pa_offset);
 
     if (addr == MAP_FAILED) {
-        setErrMsg(errCode::failureInRead);
+        data.code = errCode::failureInRead;
         warn_log("mmap error %s", strerror(errno));
         return false;
     }

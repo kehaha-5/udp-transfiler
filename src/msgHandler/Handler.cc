@@ -1,12 +1,12 @@
 
 #include "Constant.h"
 #include "Handler.h"
+#include <memory>
 #include "Interaction.h"
 #include "Logging.h"
-#include "config/ServerConfig.h"
-#include "file/FileHash.h"
 #include "file/server/Directory.h"
 #include "file/server/File.h"
+#include "file/server/FileMap.h"
 #include "msg/Msg.h"
 #include "msg/proto/command_msg.pb.h"
 #include "msg/proto/file_down_msg.pb.h"
@@ -91,19 +91,20 @@ bool Handler::downfile(std::string& arg, std::string* out, msg::proto::MsgType& 
 }
 
 bool Handler::downfileRes(msg::proto::FileDownMsg& resqMsg, std::string* out) {
-    auto filePath = config::ServerConfig::getInstance().getFilepath() / file::FileHash::getInstance().getFsPathByHash(resqMsg.hash());
-    file::server::File file(filePath);
+    std::shared_ptr<file::server::File> filePtr;
+    if(!file::server::FileMap::getInstance().getFileByFileHash(resqMsg.hash(),filePtr,_errMsg)){
+        warn_log("downfileRes error %s", _errMsg.c_str());
+        return false;
+    }
     file::server::fileData data = {};
-    if (!file.getPosContext(resqMsg.startpos(), MAX_FILE_DATA_SIZE, data)) {
-        _errMsg = file.getErrMsg().errMsg;
-        debug_log("debug str %s", resqMsg.DebugString().c_str());
+    if (!filePtr->getPosContext(resqMsg.startpos(), MAX_FILE_DATA_SIZE, data)) {
+        _errMsg = filePtr->getErrMsgByErrCode(data.code);
         warn_log("downfileRes error %s", _errMsg.c_str());
         return false;
     };
     resqMsg.set_data(data.data);
     resqMsg.set_size(data.realSize);
     if (!resqMsg.SerializeToString(out)) {
-        debug_log("debug str %s", resqMsg.DebugString().c_str());
         warn_log("data serializie error");
         _errMsg = "data serializie error";
         return false;

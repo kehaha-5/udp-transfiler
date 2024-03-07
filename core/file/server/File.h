@@ -30,6 +30,7 @@ struct errMsg {
 struct fileData {
     std::string data;
     int realSize;
+    errCode code;
 };
 
 class File {
@@ -37,14 +38,13 @@ class File {
     File(std::string path);
     bool hasError() { return _hasErr; }
     errMsg getErrMsg() { return _err; }
+    std::string getErrMsgByErrCode(errCode code);
     bool getPosContext(u_long pos, uint size, fileData& data);
-
 
    private:
     bool getMinFilePosContext(u_long pos, uint size, fileData& data);
     bool getLargeFilePosContext(u_long pos, uint size, fileData& data);
     void setErrMsg(errCode code);
-    std::string getErrMsgByErrCode(errCode code);
     bool _hasErr = false;
     errMsg _err;
     fs::path _filepathObj;
