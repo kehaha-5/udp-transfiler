@@ -18,7 +18,7 @@ struct logLever {
 };
 
 struct logType {
-    enum type { warn, info, debug };
+    enum type { warn, info, debug, res };
 };
 
 struct logAppender {
@@ -34,13 +34,7 @@ struct logConfig {
     logAppender::type appender;
 };
 
-struct logMsgItem {
-    logMsgItem(timeval _time, std::string _msg) : time(_time), msg(_msg){};
-    timeval time;
-    std::string msg;
-};
-
-typedef std::queue<logMsgItem> logMsg;
+typedef std::queue<std::string> logMsg;
 
 class Log {
    public:
@@ -57,7 +51,6 @@ class Log {
 
    private:
     std::string getLogfileName();
-    std::string getLogMsgBylogMsgItem(const logMsgItem& item);
     void writeLog();
     Log() = default;
     bool _init = false;

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <ios>
+#include <sstream>
 #include <string>
 
 #include "Logging.h"
@@ -21,10 +22,11 @@ void ServerConfig::setDefaultConfig() {
     _ip = "0.0.0.0";
     _port = 23111;
     _threadNum = 10;
+    _isShowResLog = false;
     setDefaultFilePath();
 }
 
-void ServerConfig::setDefaultFilePath() { setConfigFile("./upload"); }
+void ServerConfig::setDefaultFilePath() { setConfigFilePath("./upload"); }
 
 void ServerConfig::setConfigFilePath(std::string filePath) {
     _filePath = filePath;
@@ -40,7 +42,7 @@ void ServerConfig::setConfigFile(std::string filePath) {
         return;
     }
     std::ifstream configFile(filePath, std::ios_base::in);
-    if (!configFile.good()) {
+    if (!configFile.is_open()) {
         warn_log("config file can not be read!!! using default Configuration");
         return;
     }
@@ -54,7 +56,7 @@ void ServerConfig::setConfigFile(std::string filePath) {
             if (isIpformat(ip)) {
                 _ip = ip;
             } else {
-                warn_log("it is not ip format !!! using default Configuration");
+                warn_log("it is not ipv4 address format !!! using default Configuration");
             }
             continue;
         }
@@ -76,6 +78,14 @@ void ServerConfig::setConfigFile(std::string filePath) {
             }
             continue;
         }
+        if (findStrContain(line, "isShowResLog")) {
+            std::string isShowResLog;
+            if (!getConfigData<std::string>(line, isShowResLog)) {
+                warn_log("isShowResLog is empty  !!! using default Configuration");
+            }
+            std::istringstream(isShowResLog) >> std::boolalpha >> _isShowResLog;
+            continue;
+        }
         line.clear();
     }
 }
@@ -89,4 +99,14 @@ const fs::path& ServerConfig::getFilepath() {
         info_log("the file directoriey not exist,has create this file directoriey");
     }
     return _filePath;
+}
+
+std::string ServerConfig::getConfiguration() {
+    std::stringstream ss;
+    ss << "ip is " << _ip << "\n";
+    ss << "port is " << _port << "\n";
+    ss << "threadNum is " << _threadNum << "\n";
+    ss << "isShowResLog is "<< std::boolalpha << _isShowResLog << "\n";
+    ss << "filePath is " << _filePath ;
+    return ss.str();
 }

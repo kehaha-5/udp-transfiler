@@ -60,7 +60,7 @@ void Server::readBack() {
         }
         msgBuff->setData(msg);
     }
-    info_log("udp recvfrom data to ip %s prot %d ack is %lu", host.data(), prot, msgBuff->getAck(), msgBuff->getSize());
+    res_log("udp recvfrom data to ip %s prot %d ack is %lu", host.data(), prot, msgBuff->getAck(), msgBuff->getSize());
     // check full msg has be build finish
     if (msgBuff->hasAllData()) {
         std::string res;
@@ -87,6 +87,6 @@ void Server::readBack() {
             std::lock_guard<std::mutex> lock_guard(_msgBuffMapLock);
             _msgBuffMap.erase(msgBuff->getAck());
         }
-        info_log("udp send data to ip %s prot %d ack is %lu", host.data(), prot, msgBuff->getAck());
+        res_log("udp send data to ip %s prot %d ack is %lu", host.data(), prot, msgBuff->getAck());
     }
 };

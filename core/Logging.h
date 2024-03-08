@@ -18,13 +18,17 @@ inline void LOG(logType::type type, const char* fileName, const char* func, int 
         case logType::info:
             logType = "INFO";
             break;
+        case logType::res:
+            logType = "RES";
+            break;
         default:
             logType = "DEBUG";
     }
+    auto time = Log::getCurrTime();
 #ifdef DEBUG  // no debug
-    std::snprintf(msg, sizeof(msg), "%s  %s %s:%d | ", logType.c_str(), fileName, func, line);
+    std::snprintf(msg, sizeof(msg), "%s %s %s %s:%d | ", time.c_str(), logType.c_str(), fileName, func, line);
 #else
-    std::snprintf(msg, sizeof(msg), "%s %d | ", logType.c_str(), line);
+    std::snprintf(msg, sizeof(msg), "%s %s %d | ", time.c_str(), logType.c_str(), line);
 #endif
     std::va_list args;
     va_start(args, format);
@@ -52,6 +56,7 @@ inline void IFEXIT(bool condition, const char* fileName, const char* func, int l
     }
 }
 #define info_log(args...) LOG(logType::info, __FILE__, __func__, __LINE__, ##args);
+#define res_log(args...) LOG(logType::res, __FILE__, __func__, __LINE__, ##args);
 #define warn_log(args...) LOG(logType::warn, __FILE__, __func__, __LINE__, ##args);
 #define debug_log(args...) LOG(logType::debug, __FILE__, __func__, __LINE__, ##args);
 #define exit_if(condition, args...) IFEXIT(condition, __FILE__, __func__, __LINE__, ##args);

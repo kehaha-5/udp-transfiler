@@ -13,6 +13,7 @@
 
 #include "Constant.h"
 #include "Log.h"
+#include "config/ServerConfig.h"
 
 Log& Log::getLog() {
     static Log log;
@@ -31,12 +32,15 @@ void Log::setConfig(logConfig conf) {
         }
         auto logfile = std::filesystem::path(LOG_DIR) / (getLogfileName() + LOG_FILE_SUFFIX);
         _logfile.open(logfile);
+        _logThread = std::thread(std::bind(&Log::writeLog, this));
+        _logThread.detach();
     }
-    _logThread = std::thread(std::bind(&Log::writeLog, this));
-    _logThread.detach();
 }
 
 bool Log::canAppend(logType::type type) {
+    if (type == logType::res && !config::ServerConfig::getInstance().getIsShowResLog()) {
+        return false;
+    }
     if (_lever == logLever::info) {
         if (type == logType::debug) {
             return false;
@@ -52,11 +56,13 @@ const std::string Log::getCurrTime() {
 }
 
 void Log::outLog(const char* msg) {
-    std::unique_lock<std::mutex> lk(_logLock);
-    struct timeval current_time;
-    gettimeofday(&current_time, 0);
-    _logMsg.emplace(current_time, std::string(msg));
-    _logThreadCV.notify_one();
+    if (logAppender::console == _appender) {
+        std::fprintf(stdout, "%s\n", msg);
+    } else {
+        std::unique_lock<std::mutex> lk(_logLock);
+        _logMsg.push(msg);
+        _logThreadCV.notify_one();
+    }
 }
 
 std::string Log::getLogfileName() {
@@ -73,17 +79,10 @@ void Log::writeLog() {
         std::unique_lock<std::mutex> lk(_logLock);
         _logThreadCV.wait(lk, [this]() { return (!_logMsg.empty()) || (!_isRunning); });
         while (!_logMsg.empty()) {
-            auto strLogMsg = getLogMsgBylogMsgItem(_logMsg.front());
-            if (_appender == logAppender::file) {
-                _logfile << strLogMsg << std::endl;
-            } else {
-                std::fprintf(stdout, "%s\n", strLogMsg.c_str());
-            }
+            _logfile << _logMsg.front() << std::endl;
             _logMsg.pop();
         }
-        if (_appender == logAppender::file) {
-            _logfile.flush();
-        }
+        _logfile.flush();
         if (!_isRunning) {
             return;
         }
@@ -93,13 +92,8 @@ void Log::writeLog() {
 const std::string Log::getCurrTime(const timeval& time) {
     struct tm local_tm;
     localtime_r(&time.tv_sec, &local_tm);
-    char time_str[128];
-    sprintf(time_str, "%04d-%02d-%02d %02d:%02d:%02d.%06ld", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
-            local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec, (long)time.tv_usec);
+    std::string time_str(100, '\0');
+    std::sprintf(&time_str[0], "%04d-%02d-%02d %02d:%02d:%02d.%06ld", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
+                 local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec, (long)time.tv_usec);
     return time_str;
-}
-
-std::string Log::getLogMsgBylogMsgItem(const logMsgItem& item) {
-    auto time = getCurrTime(item.time);
-    return time.append(" ").append(item.msg);
 }

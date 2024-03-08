@@ -29,8 +29,11 @@ int main(int argc, const char** argv) {
     if (getHelpAndShowHelp(argc, argv)) {
         return 1;
     }
-
-    logConfig logconf = {logLever::debug, logAppender::file};
+#ifdef DEBUG  // debug
+    logConfig logconf = {logLever::debug, logAppender::console};
+#else
+    logConfig logconf = {logLever::info, logAppender::file};
+#endif
     Log::getLog().setConfig(logconf);
 
     std::string configfile = "./client_config.ini";

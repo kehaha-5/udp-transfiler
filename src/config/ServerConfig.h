@@ -22,6 +22,8 @@ class ServerConfig : public Config {
     const u_short& getPort() { return _port; }
     const u_short& getThreadNum() { return _threadNum; }
     const std::string& getIp() { return _ip; }
+    const bool& getIsShowResLog() { return _isShowResLog; }
+    std::string getConfiguration();
 
    private:
     void setDefaultConfig();
@@ -31,6 +33,7 @@ class ServerConfig : public Config {
     u_short _port;
     fs::path _filePath;
     u_short _threadNum;
+    bool _isShowResLog;
 };
 }  // namespace config
 

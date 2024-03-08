@@ -1,4 +1,5 @@
 #include <cctype>
+#include <cstdio>
 #include <cstring>
 #include <iomanip>
 #include <ios>
@@ -21,14 +22,15 @@ void Interaction::help() {
     std::cout << "\t" << COMMAND_DOWNLOADFILE << "\n\t\t" << DWONLOADFILE_FILE_ARG << "," << DWONLOADFILE_ALL_ARG << ","
               << DWONLOADFILE_USAGE << std::endl;
     std::cout << "\t" << COMMAND_GETCONFIG << std::endl;
-    std::cout << "\n\t\t" << "show client configuration" << std::endl;
+    std::cout << "\n\t\t"
+              << "show client configuration" << std::endl;
     std::cout << "\t"
               << "exit" << std::endl;
 }
 
 inputCommand Interaction::input(std::string cliName) {
     while (true) {
-        std::cout << cliName;
+        std::printf("%s", cliName.c_str());
         std::string command;
         char ch;
         while (std::cin.get(ch)) {

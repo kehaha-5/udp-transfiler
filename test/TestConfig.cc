@@ -15,6 +15,7 @@ struct serverConfig {
     u_short port;
     std::string filePath;
     u_short threadNum;
+    bool isShowResLog;
 };
 
 struct clientConfig {
@@ -48,7 +49,7 @@ class TestConfig : public testing::Test {
         createFiles();
     }
 
-    void TearDown() { std::filesystem::remove_all(_currentPath); }
+    // void TearDown() { std::filesystem::remove_all(_currentPath); }
     void createFiles() {
         std::ofstream serverConfig(_serverFilePath, std::ios_base::out);
         ASSERT_TRUE(serverConfig.good());
@@ -56,6 +57,7 @@ class TestConfig : public testing::Test {
         serverConfig << "port=" << _serverConfig.port << "# 我是注释\n";
         serverConfig << "filePath=" << _serverConfig.filePath << "# 我是注释\n";
         serverConfig << "threadNum=" << _serverConfig.threadNum << "# 我是注释\n";
+        serverConfig << "isShowResLog=" << std::boolalpha << _serverConfig.isShowResLog << "# 我是注释\n";
         serverConfig.close();
 
         std::ofstream clientConfig(_clientFilePath, std::ios_base::out);
@@ -101,6 +103,7 @@ class TestConfig : public testing::Test {
         _serverConfig.port = 23111;
         _serverConfig.filePath = "./server_upload";
         _serverConfig.threadNum = 5;
+        _serverConfig.isShowResLog = true;
 
         _strangeServerConfig.ip = "123is not ip format";
         _strangeServerConfig.port = "123";
@@ -125,6 +128,7 @@ TEST_F(TestConfig, functionalTest) {
     ASSERT_STREQ(config::ServerConfig::getInstance().getIp().c_str(), _serverConfig.ip.c_str());
     ASSERT_EQ(config::ServerConfig::getInstance().getPort(), _serverConfig.port);
     ASSERT_EQ(config::ServerConfig::getInstance().getThreadNum(), _serverConfig.threadNum);
+    ASSERT_EQ(config::ServerConfig::getInstance().getIsShowResLog(), _serverConfig.isShowResLog);
 
     config::ClientConfig::getInstance().setConfigFile(_clientFilePath);
     ASSERT_STREQ(config::ClientConfig::getInstance().getFilepath().c_str(), _clientConfig.filePath.c_str());
