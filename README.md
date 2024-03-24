@@ -18,6 +18,9 @@
     - 配置文件读取
 4. 利用 one loop per thread 实现服务端核心功能
     - eventloop + threadPool
+5. 实现了定时器
+    - 利用 epoll + timerfd 实现了轮询功能
+    - 利用 weak_ptr 和 shared_ptr 实现了删除定时事件
 
 ## 配置说明
 - 配置分为服务端和客户端 
